@@ -1,0 +1,17 @@
+Apteka_Net
+- в таблице CHEK поля FULLNAME увеличено до 87, NAMES - до 16 , нет поля SUMROW
+- в таблице ARHCHEKS добавлены поля Skd, NumCard (из ARHDISC)
+- отсутсвует таблица ARHDISC
+- в таблице SPRTOV поле Art_Name увеличено до 16, Names - до 70
+- в MOVES удалено поле Type_Nakl.
+- в JMOVES удалены поля F_NDS,Type_Tov,FLAG
+- таблица BLOCKCARDS полностью
+- в таблице CARDS и CardUser на поле NumCard установлен первичный ключ
+- в таблице SKD_LIMIT добавлен уникальный индекс на поля Art_Code,Type_SKD
+- в таблицу Spr_Const добавить занчения AptekaName,AptName
+- в Moves и JMoves добавлены поля iddoc (в JMoves оно ключевое вместо ROW_ID и оно не автоинкр)
+- в JMoves row_id отсутствует, в Moves оно incremental и ключевое
+- добавлена таблица TmpNakl
+- в JMoves уникальный ключ установлен на поля Date_Nakl, NN_Nakl
+- в таблице PList поля как в базе ЧП f_nds и type_tov и для них свой прайс с признаками 2,1 1,2
+- полностью таблица OTKAZ

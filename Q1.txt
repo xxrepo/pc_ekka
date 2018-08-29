@@ -1,0 +1,6 @@
+declare @io int, @idc binary(16) 
+set @io=(select id from inform..d_dept where id_apteka=(select top 1 convert(int,Value) from Spr_Const where Descr='ID_APTEKA')) 
+set @idc=(select top 1 id from inform..e_worktime_card_head 
+where id_object=@io and getdate()>date_beg and (date_end is null or date_end>getdate()) 
+order by is_temporary desc,personal_days desc)  
+select cast(@idc as uniqueidentifier) as id_card 

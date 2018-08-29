@@ -1,0 +1,275 @@
+CREATE procedure spY_WriteChek(
+                               @pid_user int,
+                               @pnchek int,
+                               @ptypeopl int,
+                               @pid_kassa int,
+                               @pvzh bigint,
+                               @dat datetime,
+                               @priznak int,
+                               @pVzDescr varchar(300),
+                               @pPayRecipt int,
+                               @SumSertif numeric(8,2),
+                               @IdRes int=-1,
+                               @ncRecipt bigint=-1,
+                               @ncStretch bigint=-1,
+                               @ncProf bigint=-1,
+                               @ncMediCard bigint=-1,
+                               @Pacient varchar(100)='',
+                               @IDMess smallint=0,
+
+                               @Sum0 numeric(12,2)=0,
+                               @Sum1 numeric(12,2)=0,
+                               @Sum2 numeric(12,2)=0,
+                               @Sum3 numeric(12,2)=0,
+                               @Sum4 numeric(12,2)=0,
+                               @Sum5 numeric(12,2)=0,
+                               @Sum6 numeric(12,2)=0,
+                               @Sum7 numeric(12,2)=0,
+                               @Sum8 numeric(12,2)=0,
+                               @Sum9 numeric(12,2)=0,
+                               @Sum10 numeric(12,2)=0,
+                               @Sum11 numeric(12,2)=0,
+
+                               @VzhS varchar(10)='',
+                               @Fn bigint=0,
+                               @NumZ smallint=-1 
+                              )
+As
+ declare @dtscan datetime, @SumBonus numeric(8,2), @SumBonusAll numeric(8,2), @RealizDay numeric(12,2), @SumVz numeric(12,2)
+ set @SumVz=0
+ set @dtscan=NULL
+ set @SumBonus=0
+ set @SumBonusAll=0
+
+ if (@priznak=-100) -- сохранение чека во временную таблицу
+  begin
+   declare @d datetime
+   set @d=convert(varchar,getdate(),23)
+   if IsNull((select Max(dt) from JournZ where Vzh=@pvzh and id_kassa=@pid_kassa and NumZ is null),getdate())<@d
+    raiserror('Начались новые сутки. Необходимо снять Z-отчет',16,1)
+
+/*   if @NumZ>-1
+    begin
+     declare @dt1 datetime
+     set @dt1=(select Max(Dt) from JournZ where Dt=convert(varchar,getdate(),23) and Vzh=@pvzh and id_kassa=@pid_kassa and NumZ is null) 
+
+     if @dt1 is not null
+      begin
+       if @dt1<convert(varchar,getdate(),23) set @dt1=DateAdd(s,-1,convert(varchar,getdate()+1,23))
+       update JournZ set NumZ=@NumZ, DateZ=getdate() where Dt=convert(varchar,getdate(),23) and Vzh=@pvzh and id_kassa=@pid_kassa and NumZ is null 
+      end
+    end 
+*/
+   update Chek set VZH=@pvzh, numb_chek=@pnchek  where id_user=@pid_user and compname=host_name()
+ 
+   insert into ChekParams(NUMB_CHEK,VZH,ID_USER,TYPEOPL,SUMSERTIF,IDRES,NCRECIPT,ncStretch,ncProf,Pacient) 
+   values(@pnchek,@pvzh,@pid_user,@ptypeopl,@SumSertif,@IdRes,@ncRecipt,@ncStretch,@ncProf,@Pacient)
+
+  end else
+ if (@ptypeopl>=0) and (@ptypeopl<10) -- пробитие чека
+  begin
+   declare @dt datetime
+
+   update Chek set NumCard=-1
+   where id_user=@pid_user and compname=host_name() and NumCard>0 and NumCard<10000000 and NumCard not in (select Isnull(NumCard,0) from Cards (nolock)) 
+
+   if @priznak=200 set @dt=@dat else set @dt=getdate()
+
+   -- чеки с доп. скидками
+   if @pnchek>10000000
+    update Chek set NumCardK=1,SumSkdK=kol*cena-IsNull(convert(numeric(8,2),kol*cena*(skd/100.)),0) 
+    where id_user=@pid_user and compname=host_name() 
+
+   update Chek set Bonus=kol*IsNull((select Bonus from Bonuses b (nolock) where b.art_code=chek.art_code),0)/dbo.GetKoefUpak(art_code)
+   where art_code in (select art_code from Bonuses (nolock)) and id_user=@pid_user and compname=host_name() and IsNull(NumCard,0) in (select NumCard from MOMBABYCARDS (nolock))
+   
+   set @SumBonus=IsNull((select Sum(Bonus) from Chek (nolock) where id_user=@pid_user and compname=host_name() and IsNull(NumCard,0)>0),0)
+
+   -- переписываем чек в архив
+   declare @MDt datetime
+   set @Mdt=(select Min(DateIns) from Chek where id_user=@pid_user and compname=host_name() )
+   
+   insert into ArhCheks(DATE_CHEK,NUMB_CHEK,KOD_NAME,NAMES,KOL,CENA,KASSA_NUM,TYPE_TOV,ID_USER,ID_KASSA,SKD,NUMCARD,VZH,SUMSKDK,NUMCARDK,TYPECARD,ID_AKCII,BONUS,BONUSSKD,CARDPREF,CENA_PILOT,MEDNAME,ISFIRSTREC,FIODOCTOR,PACIENT,DT_BEGIN)
+   select @dt,@pnchek,kod_name,art_name,kol,cena,@ptypeopl+1,type_tov,@pid_user,@pid_kassa,skd,numcard,@pvzh,SUMSKDK,NUMCARDK,TYPECARD,ID_AKCII,BONUS,BONUSSKD,CARDPREF,CENA_PILOT,MEDNAME,ISFIRSTREC,FIODoctor,@Pacient,@Mdt
+   from Chek (nolock)
+   where id_user=@pid_user and compname=host_name() 
+
+   --Делаем запись в журнал Z-отчетов
+   declare @ret int
+   if @priznak<>200
+    begin
+     exec @ret=spY_WriteJournZ @dt,@pvzh,@pid_kassa,0,@RealizDay output,@Sum0,@Sum1,@Sum2,@Sum3,@Sum4,@Sum5,@Sum6,@Sum7,@Sum8,@Sum9,@Sum10,@Sum11,@VzhS,@Fn,@NumZ
+     if @ret<>777 raiserror('Суммы по кассовому аппарату не записаны!',16,1)
+    end
+ 
+   update s set KolProd=IsNull(KolProd,0)+IsNull(a.kol,0)
+   from ScanNakl S,
+   (select art_code,Sum(kol) as kol,
+           (case Skd when 50 then 1 when 30 then 2 else 3 end) as IsSrok 
+   from Chek  
+   where TypeCard=11 and skd in (30,20,50) and id_user=@pid_user and compname=host_name()
+   group by art_code,(case Skd when 50 then 1 when 30 then 2 else 3 end) ) a
+   where s.art_code=a.art_code and s.flag=3 and IsNull(s.Closed,0)=1 and
+         DatePart(m,s.DtSrok)-DatePart(m,s.date_nakl)=a.IsSrok and DatePart(m,s.date_nakl)<=DatePart(m,getdate())
+
+
+   -- накапливаем сумму по карточке 
+   update Cards set Summa=IsNull(Summa,0)+(select Sum(kol*cena) 
+                                 from Chek (nolock)
+                                 where id_user=@pid_user and compname=host_name() and NumCard=Cards.NumCard and NumCard>0 )
+   where NumCard in (select NumCard from Chek where id_user=@pid_user and compname=host_name() and numcard>0 )
+
+   update Cards set Bonus=IsNull(Bonus,0)+IsNull((select Sum(Bonus) 
+                                 from Chek (nolock)
+                                 where id_user=@pid_user and compname=host_name() and NumCard=Cards.NumCard and NumCard>0 ),0)
+   where NumCard in (select NumCard from Chek (nolock) where id_user=@pid_user and compname=host_name() and numcard>0 )
+
+   set @SumBonusAll=IsNull((select Sum(Bonus) from Cards (nolock) where NumCard in (select NumCard from Chek (nolock) where id_user=@pid_user and compname=host_name() and numcard>0 )),0)
+
+   -- Фиксируем замену препаратов при наборе чека, если такова была
+   insert into ChArt(art_code,row_id_a,type_map)
+   select a.Old_Art,b.row_id,a.Type_Map 
+   from Chek a (nolock), ArhCheks b (nolock)
+   where a.kod_name=b.kod_name and 
+         b.numb_chek=@pnchek and
+         b.vzh=@pvzh and
+         a.Type_Map>0 and
+         a.id_user=@pid_user and a.compname=host_name() 
+
+  if @ncStretch=0
+   insert into ArhSertif(numb_chek,vzh,summ,numcard,block) 
+   select @pnchek,@pvzh,summ,numcard,1
+   from SertifTmp where substring(convert(varchar(20),NumCard),1,3) in ('241','550') and id_user=@pid_user and compname=host_name() else
+  if @ncStretch>0
+   insert into ArhSertif(numb_chek,vzh,summ,numcard) 
+   values(@pnchek,@pvzh,@SumSertif,@ncStretch)
+
+
+   if @ncRecipt>0
+    insert into ArhRecipt(numb_chek,vzh,NumCard) 
+    values(@pnchek,@pvzh,@ncRecipt)
+
+   if @ncProf>0
+    insert into ArhRecipt(numb_chek,vzh,NumCard) 
+    values(@pnchek,@pvzh,@ncProf)
+
+   if @ncMediCard>0
+    insert into ArhRecipt(numb_chek,vzh,NumCard) 
+    values(@pnchek,@pvzh,@ncMediCard)
+
+   if @IdRes<>-1  
+    update DhRes set Numb_Chek=@pnchek, Closed=2,id_close=@pid_user,date_close=getdate() where idres=@idres and IsNull(Closed,0)=0
+
+   declare @SumSpis numeric (8,2)
+   set @SumSpis=IsNull((select Sum(BonusSkd) from Chek (nolock) where id_user=@pid_user and compname=host_name()),0)
+   if @SumSpis>0
+    begin
+     update SertifTmp set @SumSpis=Bonus=@SumSpis-Summ where id_user=@pid_user and compname=host_name()
+     update SertifTmp set Bonus=(case when Bonus+Summ>Summ then Summ
+                                 when Bonus+Summ>0 then Bonus+Summ else 0 end)
+     where id_user=@pid_user and compname=host_name()
+
+     update Cards set Bonus=a.Bonus-b.Bonus
+     from Cards a (nolock), SertifTmp b (nolock)
+     where a.numcard=b.numcard and b.id_user=@pid_user and b.compname=host_name() and b.numcard in (select NumCard from MomBabyCards (nolock)) 
+  
+     insert into ArhMBCards(numb_chek,vzh,summ,numcard) 
+     select @pnchek,@pvzh,bonus,numcard
+     from SertifTmp (nolock) where numcard in (select NumCard from MomBabyCards (nolock)) and id_user=@pid_user and compname=host_name()
+
+    end
+
+   set @dtscan=@dt
+  end else
+ if @ptypeopl=99 -- Возврат  
+  begin
+   declare @nds smallint, @pr1 smallint, @pref varchar(8), @piddoc int, @dtn datetime, @Mess varchar(8000), @Gr smallint
+   declare @ida int
+   set @ida=IsNull((select Value from Spr_Const where Descr='ID_APTEKA'),-1)
+
+--   if @priznak not in (0,1,5) and @pVzDescr<>'$autovozvrat$'  --and not (@priznak in (9,10) and @ida<>63)
+--    if (getdate() between '2013-10-21 00:00:00' and '2013-10-28 23:59:59') raiserror('Возвраты временно запрещены!',16,1)
+
+--   if @priznak in (3,4,6) raiserror('Возвраты временно запрещены!',16,1)
+
+--   if (@priznak in (9,10)) and @ida<>63 and @ida<>123 and @ida<>5 raiserror('Возвраты по недостаче или недовозу временно запрещены! Выберите другой признак.',16,1)
+   
+   update Chek set pr1=0 where id_user=@pid_user and compname=host_name()
+   if @pid_user<0
+    set @dtn=convert(datetime,convert(varchar,getdate(),23)) 
+   else
+    set @dtn=convert(datetime,convert(varchar,@dat,23)) 
+
+   delete from SprVgr where gr=10
+   insert into SprVgr(art_code,gr) select art_code,10 from Chek where id_user=@pid_user and compname=host_name() and art_code not in (select art_code from SprVgr) group by art_code
+
+   delete from CurrentIDDOC where id_user=Abs(@pid_user) and compname=host_name()
+   declare @prz smallint
+   declare Cur cursor local for select a.f_nds,a.pr1,IsNull(b.gr,1) from Chek a left join SprVGr b on a.art_code=b.art_code where a.id_user=@pid_user and a.compname=host_name() group by a.f_nds,a.pr1,b.Gr open Cur 
+   fetch Cur into @nds,@pr1,@Gr
+   while @@Fetch_Status = 0 
+    begin
+     set @prz=@priznak
+     if @priznak=12 and @gr=1 set @prz=15
+     
+      -- Получаем новый номер накладной
+     select @pref=convert(varchar(8),IsNull(Max(Convert(int,SubString(nn_nakl,CharIndex('-',nn_nakl)+1,Len(nn_nakl)-CharIndex('-',nn_nakl)))),0)+1)
+     from JMoves 
+     where nn_nakl like 'Взр-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
+     while (Len(@pref)<8) set @pref='0'+@pref
+
+     select @piddoc=IsNull(Max(IDDOC),0)+1 from JMoves
+    
+     if @pid_user<0
+      update SpisVozr set idvzr=@piddoc where idvzr is null and art_code in (select art_code from Chek where id_user=@pid_user and compname=host_name() and f_nds=@nds and pr1=@pr1)     
+
+     -- Делаем запись в журнал накладных  
+     insert into JMoves(IDDOC,NN_NAKL,DATE_NAKL,SUMMA,TYPE_NAKL,PRIZNAK,ID_USER,VZDESCR,ID_MESS)
+     select @piddoc,'Взр-'+@pref,@dtn,Sum(kol*cena),2,@prz,Abs(@pid_user),(case when @pVzDescr='$autovozvrat$' then '' else @pVzDescr end),@IDMess
+     from Chek 
+     where id_user=@pid_user and compname=host_name() and f_nds=@nds and pr1=@pr1 and art_code in (select art_code from SprVGr where Gr=@Gr)
+ 
+     -- Переписываем накладную в таблицу движения
+     Insert into Moves(IDDOC,NN_NAKL,DATE_NAKL,KOD_NAME,KOL,CENA,F_NDS,TYPE_TOV,DEBCRD,SHTRIH)
+     select @piddoc,'Взр-'+@pref,@dtn,kod_name,kol,cena,f_nds,type_tov,2,SHTRIH
+     from Chek
+     where id_user=@pid_user and compname=host_name() and f_nds=@nds and pr1=@pr1 and art_code in (select art_code from SprVGr where Gr=@Gr)
+     insert into CurrentIDDOC values(@piddoc,host_name(),Abs(@pid_user))
+     fetch Cur into @nds,@pr1,@Gr
+    end 	
+   close Cur
+   deallocate Cur 
+
+   set @dtscan=@dtn
+   set @SumVz=IsNull((select Sum(Summa) from JMoves a, CurrentIDDOC c where a.iddoc=c.iddoc and c.id_user=Abs(@pid_user) and c.compname=host_name()),0)
+  end
+
+ -- записываем неотсканированные в лог
+ if @priznak<>-100
+  begin
+   if (@priznak not in (100,9,10)) and (@dtscan is not NULL) -- если пользователь администратор, то не записываем в неотсканированные
+    insert into ScanLog(dt,kod_name,fullname,id_user)
+    select @dtscan,
+           a.kod_name,
+           IsNull((select '1' from SprEAN where art_code=b.art_code group by art_code),'0')+' '+b.names,
+           IsNull((select Max(Users) from SprUser where id=@pid_user),'') as idUser  
+    from Chek a (nolock), SprTov b (nolock)
+    where (printing is null or printing<>1) and 
+          a.kod_name=b.kod_name and
+          id_user=@pid_user and compname=host_name()
+
+ -- очищаем чек
+-- ;
+   delete from ChekParams where numb_chek=@pnchek and vzh=@pvzh and id_user=@pid_user  
+   delete from Chek where id_user=@pid_user and compname=host_name()
+   delete from SertifTmp where id_user=@pid_user and compname=host_name()
+   select 1 as Res,@SumBonus as Bonus,@SumBonusAll as BonusAll,IsNull(@RealizDay,0) as RealizDay,@SumVz as SumVzr,
+          (select Sum(kol*cena)-Sum(convert(numeric(12,2),kol*cena*skd/100.)) from ArhCheks where Vzh=@pvzh and Numb_Chek=@pnchek) as SumChek    
+  end else begin 
+            set @dt=getdate()
+            exec spY_WriteJournZ @dt,@pvzh,@pid_kassa,1,@RealizDay output
+            select 1 as Res,0 as Bonus,0 as BonusAll,IsNull(@RealizDay,0) as RealizDay,@SumVz as SumVzr,
+                  (select Sum(kol*cena)-Sum(convert(numeric(12,2),kol*cena*skd/100.)) from Chek where id_user=@pid_user and compname=host_name() ) as SumChek
+           end
+-- truncate table tmpSum insert into tmpSum values(@RealizDay,@priznak)
+GO

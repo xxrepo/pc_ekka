@@ -1,0 +1,1223 @@
+[InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("2D57BEAE-7990-4B06-99AA-036636C62DBC")]
+    public interface IExellioFP2000
+    {
+        //properties
+        COMPort COMPort { get; set; }           //Назначает или читает порт, назначенный для работы
+        string HardwareModel { get; }           //Модель кассового аппарата/модема
+        string ID_DEV { get; }                  //ID_DEV модема
+        string ID_ACQ { get; }                  //ID еквайєра
+        string ID_SAM { get; }                  //ID SAM модуля
+        string ModemSerialNumber { get; }       //Заводской номер модема
+        string SerialNumber { get; }            //Заводской номер кассового аппарата
+        string FiscalNumber { get; }            //Фискальный номер кассового аппарата
+        string[] Log { get; }                   //Лог работы
+        bool IsSuccessExecRegCommand { get; }   //Успешно ли выполнена последняя команда регистратора или регистратор вернул ошибку
+        bool IsSuccessExec { get; }             //Успешно ли выполнена последняя операция COM-объект
+        int iPlace { get; set; }                //Номер кассового места (от 1 до 65535)
+        int iUser { get; set; }                 //Номер оператора(пользователя) от 1 до 16/14
+        string UserPass { get; set; }           //Пароль пользователя регистратора
+        string ProgramPass { get; set; }        //Пароль для программирования (оператор 14)
+        string ReportPass { get; set; }         //Пароль для администрирования (оператор 15)
+        string AdminPass { get; set; }          //Пароль для администрирования (оператор 16)
+        string ProgramVersion { get; }          //Версия ПО регистратора/модема
+        DateTime ProgramVersionDate { get; }    //Дата ПО регистратора/модема
+        string LastReadCommand { get; }         //Последняя команда от регистратора
+        string LastReadCommandHex { get; }      //Последняя команда от регистратора (в шестнадцатиричном виде)
+        byte[] LastReadCommandBytes { get; }    //Последняя команда от регистратора (в байтах)
+        string LastSendCommand { get; }         //Последняя команда регистратору (в простом виде)
+        string LastSendCommandHex { get; }      //Последняя команда регистратору (в шестнадцатиричном виде)
+        byte[] LastSendCommandBytes { get; }    //Последняя команда регистратору (в виде пакета байт)
+        int LastCommandNumber { get; }          //Последний номер команды к регистратору
+        string LastResult { get; }              //Результат последней операции от регистратора
+        string LastResultHex { get; }           //Результат последней операции от регистратора (в шестнадцатиричном виде)
+        byte[] LastResultBytes { get; }         //Результат последней операции от регистратора (в байтах)
+        string[] LastError { get; }             //Массив с кодами ошибок при выполнении последней комманды
+        string LastErrorDescr { get; }          //Описание последней ошибка от регистратора
+        string LastResultStatus { get; }        //Статус регистратора после последней выполненной комманды
+        string LastResultStatusHex { get; }     //Статус регистратора после последней выполненной комманды (в шестнадцатиричном виде)
+        byte[] LastResultStatusBytes { get; }   //Статус регистратора после последней выполненной комманды (в байтах)
+        bool[] LastResultStatusBits { get; }    //Статус регистратора после последней выполненной комманды (в битах)
+        bool Switch1 { get; }                   //Состояние переключателя 1
+        bool Switch2 { get; }                   //Состояние переключателя 2
+        bool Switch3 { get; }                   //Состояние переключателя 3
+        bool Switch4 { get; }                   //Состояние переключателя 4
+        bool Switch5 { get; }                   //Состояние переключателя 5
+        bool Switch6 { get; }                   //Состояние переключателя 6
+        bool Switch7 { get; }                   //Состояние переключателя 7
+        bool Switch8 { get; }                   //Состояние переключателя 8
+        int TimeoutCommandRead { get; set; }    //Время ожидания результатов команды в милисекундах (по умолчанию 0)
+        int MaxTimeoutCommandRead { get; set; } //Максимальное время ожидания данных от регистратора в милисекундах (по умолчанию 6000), после чего raiserror
+        bool UseBuhCodes { get; set; }          //Использовать артикулирование по бухгалтерским кодам (от 1 до 999999999)
+        int TotalCountArticles { get; }         //Максимальное количество артикулов
+        int MaxLengthArticleName { get; }       //Максимальное длина имени артикула
+        int CountryCode { get; }                //Код страны
+        string CountryDescription { get; }      //Название страны
+        string VendorModel { get; }             //Исходная модель производителя
+        int LastProgramArticle { get; }         //Последний успешно запрограммированный артикул
+
+        //methods
+        //-----------------------------------------------------------------------
+
+        //Common operations
+        void Connect(bool Slave = false);    //Подключиться к регистратору (Slave = true без передачи команды статуса (только открывает порт), необх. в некоторых случаях если не задан режим работы аппарата)
+        void Disconnect();                   //Отключиться от регистратора
+        void SetRecommendedPortSettings();   //Установить рекоммендуемые настройки COM-порта
+        string LogToText();                  //Возвращает текущий лог работы регистратора в виде текста строк, разделенный переводом строки
+        int LogCount();                      //Возвращает размер лога
+        string LogIndex(int index);          //Возвращает строку лога по индексу (от 0 до Length-1)
+        void ClearLog();                     //Очищает лог
+
+        //Register commands
+        void UsePositionDecimalPoint(int Position); //Использовать принудительно позицию десятичной точки при преобразовании сумм (устанавливается при подключении или после комманды SetTaxRates в значение, считанное из настроек аппарата)
+        string SendCommand(string command);                          //Отправить любую комманду в порт и получить результат от регистратора
+        DayReportInfoM XReport();                                    //X-отчет (возвращает номер отчета и суммы реализаций по налоговым ставкам)
+        DayReportInfoM ZReport(bool RestoreSumUsers = true, bool RestoreSumArticles = true);  //Z-отчет (возвращает номер отчета и суммы реализаций по налоговым ставкам)
+        //Дата-время
+        bool SetDateTime(DateTime DateTime); //Установка времени регистратора (команду можно выполнить 1 раз после Z-отчета с обнулением)
+        DateTime GetDateTime();              //Дата и время регистратора
+        string GetDateTimeString();          //Дата и время регистратора строкой в формате "dd-mm-yy hh:mm:ss"
+        int GetCountryCode();                //Вернуть конд страны
+        //Номера
+        bool SetSerialNumber(string SerialNumber, int CountryCode = 2); //Установить заводской номер аппарата и код страны (0 - Россия, 1 - Греция, 2 - Украина, 3 - Англия, 4 - Польша, 5 - Венгрия, 6 - Болгария, 9 - Румыния), 2 буквы и 8 цифр
+        bool SetFiscalNumber(string FiscalNumber);                      //Установить фискальный номер аппарата
+        bool SetIdentificationNumber(string IdentificationNumber);      //Установить идентификационный код организации
+        bool SetTaxNumber(string TaxNumber);                            //Установить налоговый номер организации
+        //Фискализация
+        bool Fiscalize(string SerialNumber, string TaxNumber, int RegType = 0); //Фискализация регистратора (необходимо ввести фискальный номер перед выполнением данной операции коммандой 0x62)
+        //Сохранение настроек (заголовок, подвал, плотность печати, автообрезка)
+        bool SaveSettingsToFlash(); //Записывает текущие настройки в энергонезависимую память (шапки/подвала чека, параметры печати, логотип, высота штрихкода, длина импульса открытия ящика, типы дополнительных платежей) 
+        string GetCheckHeader(int Line); //Возвращает строку заголовка по номеру Line (от 1 по 6)
+        string GetCheckFooter(int Line); //Возвращает строку подвала чека по номеру Line (от 1 по 2)
+        string[] GetCheckHeaders(); //Возвращает массив из 6 строк заголовка чека
+        string[] GetCheckFooters(); //Возвращает массив из 2 строк подвала чека
+        bool SetCheckHeader(int Line, string Value); //Задает строку заголовка по номеру Line (от 1 по 6)
+        bool SetCheckFooter(int Line, string Value); //Задает строку подвала чека по номеру Line (от 1 по 2)
+        bool SetCheckHeaders(string Header1, string Header2, string Header3, string Header4, string Header5, string Header6); //Задает все строки заголовка чека
+        bool SetCheckFooters(string Footer1, string Footer2); //Задает все строки подвала чека
+        bool SetPrintSettingBarcodeHeight(int Height, bool Save = true); //Задает высоту штрихкода, который будет печататься на чеке
+        bool SetPrintSettingAutoCutting(bool Value, bool Save = true); //Включить автообрезку чеков
+        bool SetPrintSettingDensity(int Density, bool Save = true); //Задание плотности(контрастности) печати
+        bool SetPrintSettingReducedFontStripe(bool Value, bool Save = true); //Включает/выключает печать чеков шрифтом половинной высоты
+        bool SetPrintSettingFont(uint Font, bool Save = true); //Задание шрифта печати (0 - нормальный, 1 - нормальный без пропуска строк, 2 - уменьшенный)
+        bool SetPrintSettingSetNarrowStripeWidth(bool Value, bool Save = true); //Включить режим печати на узкую ленту(57 мм), иначе 80 мм
+        bool SetPrintSettingPrintLogo(bool Value, bool Save = true); //Включить/отключить печать логотипа на чеках
+        bool SetPrintSettingAutoOpenDrawer(bool Value, bool Save = true); //Включить/отключить открытие денежного ящика при опперациях закрытия чека или вноса/выноса денег
+        TaxRateInfoM GetTaxRateInfo(int iTax); //Вернуть параметры налоговой ставки по индексу
+        TaxRateInfoM[] GetTaxRatesInfo(); //Вернуть массив с параметрами всех налоговых ставок
+        int GetDecimalPointPosition(); //Возвращает позицию десятичной точки (количество знаков после запятой)
+        bool SetTaxRates(int DecimalPointPosition, bool UseTax1, decimal TaxRate1,
+                        bool UseTax2, decimal TaxRate2, bool UseTax3, decimal TaxRate3, bool UseTax4, decimal TaxRate4); //Установить положение десятичной точки исп. налоговых ставок и их значения
+        bool SetSalesMode(int Mode); //Установить режим работы продаж 0 - нормальный режим, 1 - с начислением НДС наложенного типа. Может быть выполнена только сразу после Z-отчета.
+        bool SetDescrNonCashPaymentForm(int iForm, string Descr); //Установить наименование дополнительной (безналичной) формы оплаты (всего 4 формы)
+        string GetDescrNonCashPaymentForm(int iForm); //Вернуть имя дополнительной (безналичной) формы оплаты (всего 4 формы)
+        bool SetUserPassword(int iUser, string OldPassword, string NewPassword); //Изменить паролья любого из 16-ти пользователей
+        bool SetUserName(int iUser, string UserPassword, string UserName); //Задать имя оператора
+        bool ResetUserDataAsUser(int iUser); //Сбросить данные оператора о накопленных суммах продаж использую текущий пароль пользователя
+        bool ResetUserDataAsAdmin(int iUser); //Сбросить данные оператора о накопленных суммах продаж использую текущий пароль администратора
+        int GetCountArticlesProgram(); //Возвращает количество запрограммированных артикулов
+        bool SetArticleInfo(int iCode, string Descr, int iTax, decimal Price, int iGroup); //Запрограммировать параметры артикула
+        bool DeleteArticle(int iCode); //Удаляет артикул по PLU (только в случае нулевых оборотов)
+        bool DeleteArticles(); //Удаляет все запрограммированные артикулы, по которым нулевые обороты
+        PLUInfoM GetArticleInfo(int iCode); //Вернуть информацию об артикуле
+        bool SetArticlePrice(int iCode, decimal Price); //Изменение цены артикула
+        PLUInfoM GetFirstArticleInfo(int iCode = 0); //Возвращает инфо о первом запрограммированном артикуле. Если указан iCode <> 0, то поиск начинается с него (по возраст.)
+        PLUInfoM GetLastArticleInfo(int iCode = 0); //Возвращает инфо о последнем запрограммированном артикуле. Если указан iCode <> 0, то поиск начинается с него (по убыв.)
+        PLUInfoM GetNextArticleInfo(); //Возвращает инфо о следующим запр. артикуле. (Сначала выполняется GetFirstArticleInfo/GetLastArticleInfo(направление поиска 'по возр./по убыванию'), а затем несколько раз GetNextArticleInfo до получения PLUInfo.IsProgram = false для получения списка запрограммированных артикулов)
+        int GetFirstFreeArticleInfo(int iCode = 0); //Возвращает инфо о первом свободном (незапрограммированном) артикуле. Если -1 - то, не найдено свободных. Если указан iCode <> 0, то поиск начинается с него (по возраст.)
+        int GetLastFreeArticleInfo(int iCode = 0); //Возвращает PLU последнего свободного (незапрограммированного) артикуле. Если -1 - то, не найдено свободных. Если указан iCode <> 0, то поиск начинается с него (по убыв.)
+        PLUInfoM GetFirstTradeArticleInfo(int iCode = 0); //Возвращает инфо о первом проданном/возвращенном артикуле. Если указан iCode <> 0, то поиск начинается с него (по возраст.)
+        PLUInfoM GetLastTradeArticleInfo(int iCode = 0); //Возвращает инфо о последнем проданном/возвращенном артикуле. Если указан iCode <> 0, то поиск начинается с него (по убыв.)
+        PLUInfoM GetNextTradeArticleInfo(); //Возвращает инфо о следующим проданном/возвращенном артикуле. (Сначала выполняется GetFirstTradeArticleInfo/GetLastTradeArticleInfo(направление поиска 'по возр./по убыванию'), а затем несколько раз GetNextTradeArticleInfo до получения PLUInfo.IsProgram = false для получения списка запрограммированных артикулов)
+        bool SetLogo(string ImagePath, bool ColorInversion = false); //Загрузка логотипа в память регистратора
+        string GetLogoLine(uint LineNo); //Читает строку данных логотипа в шестнадцатиричном виде 
+        bool SetAdminPassword(string NewPassword); //Установить пароль администратора
+        string ReadFiscalRAM(int StartAddress, int BlockSize = 64); //Читает блок фискальной памяти размером в BlockSize начиная со стартого адреса StartAddress. Возвращает hex-данные в виде строки
+        byte[] ReadFiscalRAMBytes(int StartAddress, int BlockSize = 64); //Читает блок фискальной памяти размером в BlockSize начиная со стартого адреса StartAddress. Возвращает hex-данные в виде массива байт
+        bool ResetUserPassword(int iUser); //Сбросить пароль пользователя (1-15) в значение '0000'
+        bool TaxReport(); //Отчет "Налоговые ставки"
+        bool TaxReportPeriod(DateTime DateBegin, DateTime DateEnd); //Отчет "Налоговые ставки за указанный период"
+        bool PeriodicReport(DateTime DateBegin, DateTime DateEnd);         //Периодичесикий отчет по датам (сокращенный)
+        bool PeriodicReportByMonth(int Month, int Year);                   //Периодичесикий отчет по датам за месяц (сокращенный)
+        bool PeriodicReportByYear(int Year);                               //Периодичесикий отчет по датам за год (сокращенный)
+        bool PeriodicReportFull(DateTime DateBegin, DateTime DateEnd);     //Периодичесикий отчет по датам (полный)
+        bool PeriodicReportFullByMonth(int Month, int Year);               //Периодичесикий отчет по датам за месяц (сокращенный)
+        bool PeriodicReportFullByYear(int Year);                           //Периодичесикий отчет по датам за год (сокращенный)
+        bool PeriodicReportN(int NumberBegin, int NumberEnd);              //Периодичесикий отчет по номерам (сокращенный)
+        bool PeriodicReportFullN(int NumberBegin, int NumberEnd);          //Периодичесикий отчет по номерам (полный)
+        bool ReportByUsers(); //Распечатать отчет по продажам операторов
+        bool ReportByProgramArticles(); //Отчет о запрограммированных артикулах
+        bool ReportByRealizArticles(int StartAticle = 0, int EndAticle = 0); //Отчет о реализованных артикулах
+        bool ReportByReturnArticles(int StartAticle = 0, int EndAticle = 0); //Отчет о возвращенных артикулах
+        bool ReportByRealizGroup(); //Отчет о данных реализации по группам товаров
+        bool ReportByReturnGroup(); //Отчет о данных возвратов по группам товаров
+        ZReportInfoM GetLastZReportInfo(); //Возвращает информацию о последнем Z-отчете с суммами реализации и возврата и дату отчета
+        DayFiscalSumsInfoM GetDayFiscalSums(); //Возвращает суммы реализации и возвратов общие и по налоговым ставкам от последнего Z-отчета
+        DayFiscalSumsInfoM GetDayFiscalTaxSums(); //Возвращает суммы налогов! по реализации и возвратам общие и по налоговым ставкам от последнего Z-отчета
+        DayCheckCountersInfoM GetDayCheckCounters(); //Возвращает счетчик фискальных, нефискальных, возвратных чеков за день (от последнего Z-отчета)
+        int GetFreeFiscalMemorySize(); //Возвращает размер свободной фискальной памяти
+        string GetRegisterStatus(bool PrintBuffer = false); //Возвращает статус биты сотояния регистратора
+        string[] GetInfoRegisterStatusDescr(); //Получить массив со строками описания байтов статуса в комманде GetRegisterStatus
+        FiscalTransactionStatusM GetFiscalTransactionStatus(); //Возвращает информацию о статусе фискальной транзакции (открыт ли чек, сумма и сумма оплаты последнего чека)
+        DateTime GetFirstFiscalRecordDate();              //Дата первой фискальной записи регистратора
+        string GetFirstFiscalRecordDateString();          //Дата первой фискальной записи регистратора строкой в формате "dd-mm-yyyy"
+        DiagnosticInfoM GetDiagnosticInfo(); //Возвращает диагностическую информацию о регистраторе
+        string GetRegistrationNumber(); //Вернуть регистрационный номер (начинается с "ПН" или "IД" в зависимости от типа номера)
+        CurrentCheckInfoM GetCurrentCheckInfo(); //Возвращает информацию о текущем чеке
+        DayPaySumsInfoM GetDayPaySumsInfo(); //Возвращает информацию по типам оплаты чеков за день (наличными, в кредит, по банк. карте, по чекам, по безналичным формам оплаты)
+        UserInfoM GetUserInfo(int iUser); //Возвращает суммы продаж, возвратов, корректировок, скидок, надбавок по оператору
+        int GetLastCheckNumber(); //Возвращает номер последнего отпечатанного чека
+        bool IsFiscalized(); //Возвращает статус фискализации регистратора
+        //Дополнительная память
+        int GetAddititionAreaSize(); //Возвращает размер дополнительной (тестовой) области памяти для программирования
+        bool WriteAddititionArea(int Address, string Data); //Записывает данные в дополнительную область по адресу
+        string ReadAddititionArea(int Address); //Читает строку данных из дополнительной области по адресу
+        //Установка переключателей
+        bool SetSwitches(bool[] Swithes); //Устанавливает значения программных переключателей (требуется включить и выключить аппарат)
+        bool SetSwitchesString(string Swithes); //Устанавливает значения программных переключателей из строки вида "01011001" (требуется включить и выключить аппарат)
+        bool SetPrintDisable(bool Disable); //Устанавливает/сниимает блокировку печати на чековую ленту(в памяти все операции фиксируются, только не печатаются чеки)
+        //сеть
+        EthernetSettings GetEthernetSettings(); //Возвращает ethernet настройки сети
+        bool SetEthernetSettings(bool UseDHCP, string IP = "", string NetworkMask = "", string Gateway = "", string DNS = "", uint fpPort = 9100); //Записывает сетевые настройки Ethernet в регистратор
+        string GetEthernetServerAddress(); //Возвращает адрес сервера эквайера, порт через знак ':'
+        bool SetEthernetServerAddress(string Address, int Port); //Установить адрес сервера эквайера и порт
+        bool SetEthernetMACAddress(string MACAddress); //Установить для сети MAC-адрес
+        //Параметры КСЕФ
+        DPAExchangeInfoM DPAGetExchangeInfo(); //Возвращает информацию о последней отправке данных в налоговую
+        int DPAGetSendSettingTimeout(); //Возвращает период отправки данных в минутах
+        int DPAGetSendSettingPacketLength(); //Возвращает количество чеков в одном пакете
+        bool DPASetSendSettingsTimeout(uint Timeout); //Установить параметры отправки данных (период отправки в минутах)
+        bool DPASetSendSettingsPacketLength(uint PacketLength); //Установить параметры отправки данных (максимальное количество чеков в одном пакете)
+        int DPAGetTimeNextSendDataServer(); //Возвращает количество секунд до следующей отправки данных серверу 
+        bool DPASendDataServer(); //Принудительная отправка данных на сервер эквайеринга
+        //Обороты
+        FiscalTurnsInfoM GetFiscalRealizTurns(int RecordNumber); //Возвращает обороты по каждой налоговой ставке по текущей записи в фискальной памяти
+        FiscalTurnsInfoM GetFiscalRealizExpectTaxesTurns(int RecordNumber); //Возвращает обороты по каждой налоговой ставке (исключая налоги) по текущей записи в фискальной памяти
+        FiscalTurnsInfoM GetFiscalTaxesTurns(int RecordNumber); //Возвращает обороты налогов по каждой налоговой ставке по текущей записи в фискальной памяти
+        FiscalTurnsInfoM GetFiscalTaxesRates(int RecordNumber); //Возвращает ставки налогов по каждой ставке по текущей записи в фискальной памяти
+        FiscalTurnsInfoM GetFiscalRealizTurnsByPeriod(int StartRecordNumber, int EndRecordNumber); //Возвращает обороты по каждой налоговой ставке за выбранный период номеров в фискальной памяти
+        FiscalTurnsInfoM GetFiscalRealizExpectTaxesTurnsByPeriod(int StartRecordNumber, int EndRecordNumber); //Возвращает обороты по каждой налоговой ставке (исключая налоги) за выбранный период номеров в фискальной памяти
+        FiscalTurnsInfoM GetFiscalTaxesTurnsByPeriod(int StartRecordNumber, int EndRecordNumber); //Возвращает обороты налогов по каждой налоговой ставке за выбранный период номеров в фискальной памяти
+        FiscalCountersInfoM GetFiscalCounters(int RecordNumber); //Возвращает счетчики чеков, номер и дату последнего чека по текущей записи в фискальной памяти
+        ShiftStatusInfoM GetShiftStatus(); //Возвращает статус смены (открыта ли, продолжительность в минутах и стуатус работы больше 24 часов)
+        //Прочее
+        bool FeedTape(int Length, int Option = 1); //Промотать ленту
+        bool СutTape(); //Отрезать ленту
+        bool OpenCashDrawer(int ImpulseLength); //Открыть денежный ящик
+        bool DiagnosticReport(); //Напечатать диагностическую информацию
+        bool Sound(int Frequency = 2000, int Duration = 300); //Воспроизвести стандартный звуковой сигнал (2 кГц и 300 мс)
+        //Внос/вынос
+        CashDeskStatusM CashInput(decimal Sum); //Служебный внос
+        CashDeskStatusM CashOutput(decimal Sum); //Служебный вынос
+        //Display
+        bool DisplayClear(); //Очистить дисплей
+        bool DisplayPrintLine1(string Text); //Вывод текста в первую(верхнюю) строку дисплея
+        bool DisplayPrintLine2(string Text); //Вывод текста в вторую(нижнюю) строку дисплея
+        bool DisplayPrintDateTime(); //Вывод даты и времени на дисплей
+        bool DisplayPrintAnyText(string Text); // Вывод произвольного текста на дисплей
+        //Продажа
+        CheckCountersInfoM OpenFiscalCheck(bool IsRealiz = true); //Открыть фискальный чек
+        bool AddFisc(int iCode, decimal Quantity, decimal Price = 0, bool Display = true, decimal DiscountSum = 0, decimal DiscountPercent = 0); //Добавить фискальную позицию в чек
+        SubTotalInfoM SubTotal(bool Print, bool Display, decimal DiscountSum = 0, decimal DiscountPercent = 0); //Выводит суммы по текущему чеку с возможностью делать скидку на уже добавленные позиции в чеке
+        bool CancelCheck(); //Анулировать текущий открытый чек
+        bool AddFiscalText(string Text); //Добавляет произвольного фискального текста в чек (всего 1024 символа по строке 34 символов)
+        bool PrintCheckCopy(int Count); //Печатает копию последнего чека
+        TotalInfoM Total(decimal PaySum = 0, int PayMode = 1, string Comment = ""; //Производит ввод суммы и типа оплаты по чеку, операцию можно повторять для различных типов оплаты
+        TotalInfoM TotalEx(decimal PaySum = 0, int PayMode = 1, string Comment = ""); //Производит ввод суммы и типа оплаты по чеку и при сумме равной или больше оплаты пытается закрыть чек
+        CheckCountersInfoM CloseFiscalCheck(); //Закрыть фискальный чек
+        bool AddDivider(int DividerType); //Добавить разделительную линию
+        bool AddBarcode(int BarcodeType, string Text); //Добавить штрихкод в чек
+        CheckCountersInfoM OpenNotFiscalCheck(); //Открыть нефискальный чек
+        bool AddNotFiscalText(string Text); //Добавить строку текста в нефискальный чек
+        CheckCountersInfoM CloseNotFiscalCheck(); //Закрыть нефискальный текст
+        string[] GetCheckCopy(bool AlignLeft = false); //Возвращает электронную копию последнего чека в виде массива строк чека
+        string GetCheckCopyText(bool AlignLeft = false); //Возвращает электронную копию последнего чека в виде текста с переносом строк
+        //Статус кассы
+        CashDeskStatusM GetCashDeskInfo(); //Возвращает статус кассы (остаток денег в кассе, сумма всех вносов за день, сумма всех выносов за день)
+    }
+
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("95290AD6-223B-46B5-8E71-1A095B8FBD63")]
+    public interface ICashDeskStatusM
+    {
+        bool Result { get; }                     //Возвращает статус выполненной комманды
+        decimal CashSum { get; }                 //Текущая сумма в кассе
+        decimal InputSum { get; }                //Сумма всех вносов за день
+        decimal OutputSum { get; }               //Сумма всех выносов за день
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("541629BA-EA24-4E73-8869-D95F3632F3CC"), ProgId("CashReg.ExellioFP2000.CashDeskStatus")]
+    public class CashDeskStatusM : ICashDeskStatusM
+    {
+        public bool prResult = false;
+        public decimal prCashSum = 0;
+        public decimal prInputSum = 0;
+        public decimal prOutputSum = 0;
+
+        public bool Result { get { return prResult; } }
+        public decimal CashSum { get { return prCashSum; } }
+        public decimal InputSum { get { return prInputSum; } }
+        public decimal OutputSum { get { return prOutputSum; } }
+    }
+
+    //TotalInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("8F7148D4-60F8-449B-8C7F-FB965C3E4D15")]
+    public interface ITotalInfoM
+    {
+        string ResultCode { get; }           //Код результата операции
+        string ResultDescription { get; }    //Описание результата операции
+        decimal Sum { get; }                 //Сумма (зависит от ResultCode)
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("59ADB8FB-543B-4134-BF09-414008094136"), ProgId("CashReg.ExellioFP2000.TotalInfo")]
+    public class TotalInfoM : ITotalInfoM
+    {
+        public string prResultCode = "";
+        public decimal prSum = 0;
+
+        public string ResultCode { get { return prResultCode; } }
+        public string ResultDescription
+        {
+            get
+            {
+                string descr = "";
+                switch (ResultCode)
+                {
+                    case "F": descr = "Ошибка"; break;
+                    case "E": descr = "Вычисленная сумма отрицательна, оплата не совершается"; break;
+                    case "D": descr = "Сумма оплаты меньше суммы чека"; break;
+                    case "R": descr = "Сумма оплаты больше суммы чека"; break;
+                    case "I": descr = "Сумма по некоторой налоговой группе отрицательна "; break;
+                };
+                return descr;
+            }
+        }
+        public decimal Sum { get { return prSum; } }
+    }
+
+    //SubTotalInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("CDC23649-C253-4ADE-8B43-6D27377D829E")]
+    public interface ISubTotalInfoM
+    {
+        decimal Sum { get; }        //Текущая сумма по чеку
+        decimal SumTax1 { get; }    //Текущая сумма по налоговой ставке А
+        decimal SumTax2 { get; }    //Текущая сумма по налоговой ставке Б
+        decimal SumTax3 { get; }    //Текущая сумма по налоговой ставке В
+        decimal SumTax4 { get; }    //Текущая сумма по налоговой ставке Г
+        decimal SumTax5 { get; }    //Текущая сумма по налоговой ставке Д
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("7FE4D2AE-80C4-41C3-AAFB-12692C7F0924"), ProgId("CashReg.ExellioFP2000.SubTotalInfo")]
+    public class SubTotalInfoM : ISubTotalInfoM
+    {
+        public decimal prSum = 0;
+        public decimal prSumTax1 = 0;
+        public decimal prSumTax2 = 0;
+        public decimal prSumTax3 = 0;
+        public decimal prSumTax4 = 0;
+        public decimal prSumTax5 = 0;
+
+        public decimal Sum { get { return prSum; } }
+        public decimal SumTax1 { get { return prSumTax1; } }
+        public decimal SumTax2 { get { return prSumTax2; } }
+        public decimal SumTax3 { get { return prSumTax3; } }
+        public decimal SumTax4 { get { return prSumTax4; } }
+        public decimal SumTax5 { get { return prSumTax5; } }
+    }
+
+    //CheckCountersInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("2243E979-0861-4DD2-ADC3-99A7C2A6D63D")]
+    public interface ICheckCountersInfoM
+    {
+        bool Status { get; }                      //Стутус последней операции чека
+        int NotFiscalCheckCount { get; }          //Счетчик нефискальных чеков
+        int FiscalCheckCount { get; }             //Счетчик фискальных чеков
+        int ReturnCheckCount { get; }             //Счетчик возвратных чеков
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("1DE03C84-14FD-4CDB-88AF-3820D5EB4A17"), ProgId("CashReg.ExellioFP2000.CheckCountersInfo")]
+    public class CheckCountersInfoM : ICheckCountersInfoM
+    {
+        public bool prStatus = false;
+        public int prNotFiscalCheckCount = -1;
+        public int prFiscalCheckCount = -1;
+        public int prReturnCheckCount = -1;
+
+        public bool Status { get { return prStatus; } }
+        public int NotFiscalCheckCount { get { return prNotFiscalCheckCount; } }
+        public int FiscalCheckCount { get { return prFiscalCheckCount; } }
+        public int ReturnCheckCount { get { return prReturnCheckCount; } }
+    }
+
+    //ShiftStatusInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("9C8C43F4-A3C4-45A0-B2EC-3EEEBE6E3FEC")]
+    public interface IShiftStatusInfoM
+    {
+        bool IsOpen { get; }        //Открыта ли смена
+        bool Hours24 { get; }       //Прошло ли 24 часа от начала смены
+        int Duration { get; }       //Продолжительность смена (в минутах)
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("E3D05EBB-7C8B-49AB-9080-46E97437F5A0"), ProgId("CashReg.ExellioFP2000.ShiftStatusInfo")]
+    public class ShiftStatusInfoM : IShiftStatusInfoM
+    {
+        public bool prIsOpen = false;
+        public bool prHours24 = false;
+        public int prDuration = -1;
+
+        public bool IsOpen { get { return prIsOpen; } }
+        public bool Hours24 { get { return prHours24; } }
+        public int Duration { get { return prDuration; } }
+    }
+
+    //FiscalTurnsInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("23E68A8E-F34B-459D-989F-E0F91640A878")]
+    public interface IFiscalTurnsInfoM
+    {
+        string DataStatus { get; }  //Стутус данных ('Correct', 'CRCerror', 'Empty')
+        int LastZReportNumber { get; } //Номер последнего Z-отчета
+        int LastCheckNumber { get; }   //Номер последнего фискального чека
+        decimal SumTax1 { get; }    //Сумма (налоговая ставка А)
+        decimal SumTax2 { get; }    //Сумма (налоговая ставка Б)
+        decimal SumTax3 { get; }    //Сумма (налоговая ставка В)
+        decimal SumTax4 { get; }    //Сумма (налоговая ставка Г)
+        decimal SumTax5 { get; }    //Сумма (налоговая ставка Д)
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("E0FDB84D-D749-4449-B232-B3E025C86699"), ProgId("CashReg.ExellioFP2000.FiscalTurnsInfo")]
+    public class FiscalTurnsInfoM : IFiscalTurnsInfoM
+    {
+        public string prDataStatus = "unknown";
+        public int prLastZReportNumber = -1;
+        public int prLastCheckNumber = -1;
+        public decimal prSumTax1 = 0;
+        public decimal prSumTax2 = 0;
+        public decimal prSumTax3 = 0;
+        public decimal prSumTax4 = 0;
+        public decimal prSumTax5 = 0;
+
+        public string DataStatus { get { return prDataStatus; } }
+        public int LastZReportNumber { get { return prLastZReportNumber; } }
+        public int LastCheckNumber { get { return prLastCheckNumber; } }
+        public decimal SumTax1 { get { return prSumTax1; } }
+        public decimal SumTax2 { get { return prSumTax2; } }
+        public decimal SumTax3 { get { return prSumTax3; } }
+        public decimal SumTax4 { get { return prSumTax4; } }
+        public decimal SumTax5 { get { return prSumTax5; } }
+    }
+
+    //FiscalCountersInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("EC0D93B6-7A4D-43CA-A426-A6D4408A310F")]
+    public interface IFiscalCountersInfoM
+    {
+        string DataStatus { get; }                //Стутус данных ('Correct', 'CRCerror', 'Empty')
+        int SalesMode { get; }                    //Режим продаж (0 - нормальный, 1 - с начислением НДС наложенного типа)
+        int FiscalCheckCount { get; }             //Количество всех фискальных чеков за день
+        int ReturnCheckCount { get; }             //Количество возвратных фискальных чеков за день
+        int LastCheckNumber { get; }              //Номер последнего чека в этой дне
+        DateTime LastCheckDatatime { get; }       //Дата и время последнего чека в этой дне
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("7B1EDB08-14F4-46D0-BE10-5F4B62C66F63"), ProgId("CashReg.ExellioFP2000.FiscalCountersInfo")]
+    public class FiscalCountersInfoM : IFiscalCountersInfoM
+    {
+        public string prDataStatus = "unknown";
+        public int prSalesMode = 0;
+        public int prFiscalCheckCount = 0;
+        public int prReturnCheckCount = 0;
+        public int prLastCheckNumber = 0;
+        public DateTime prLastCheckDatatime = DateTime.MinValue;
+
+        public string DataStatus { get { return prDataStatus; } }
+        public int SalesMode { get { return prSalesMode; } }
+        public int FiscalCheckCount { get { return prFiscalCheckCount; } }
+        public int ReturnCheckCount { get { return prReturnCheckCount; } }
+        public int LastCheckNumber { get { return prLastCheckNumber; } }
+        public DateTime LastCheckDatatime { get { return prLastCheckDatatime; } }
+    }
+
+    //DPAExchangeInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("AA5C4AAD-7C52-4954-B341-6F39AD3CB36C")]
+    public interface IDPAExchangeInfoM
+    {
+        string LastTimeSendString { get; }
+        DateTime LastTimeSend { get; }
+        int SendInterval { get; }
+        int LastSendDI { get; }
+        int LastCreateDI { get; }
+        string Status { get; }
+        string StatusDescr { get; }
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("1093C795-8245-4451-83FB-A1E215DE2CE3"), ProgId("CashReg.ExellioFP2000.DPAExchangeInfo")]
+    public class DPAExchangeInfoM : IDPAExchangeInfoM
+    {
+        public string prLastTimeSendString = "";
+        public DateTime prLastTimeSend = DateTime.MinValue;
+        public int prSendInterval = -1;
+        public int prLastSendDI = -1;
+        public int prLastCreateDI = -1;
+        public string prStatus = "";
+
+        public string LastTimeSendString { get { return prLastTimeSendString; } }
+        public DateTime LastTimeSend { get { return prLastTimeSend; } }
+        public int SendInterval { get { return prSendInterval; } }
+        public int LastSendDI { get { return prLastSendDI; } }
+        public int LastCreateDI { get { return prLastCreateDI; } }
+        public string Status { get { return prStatus; } }
+        public string StatusDescr
+                        {
+                            get {
+                                if (Status == "OK") return "Последняя попытка соединения была удачной";
+                                else if (Status == "MAX_72H") return "Соединение с сервером не было 72 часа";
+                                else if (Status == "MAX_EXC") return "Получено сообщение исключительного типа";
+                                else if (Status == "ERR_CON") return "Последняя попытка соединения была неудачной";
+                                else return "";
+                                } 
+                        }
+    }
+
+    //ModemGPRSSettingsM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("911FC06F-21DA-4EA2-A471-B763D83E0297")]
+    public interface IModemGPRSSettingsM
+    {
+        bool UseNetworkType { get; }
+        string PINCode { get; }
+        string APNServer { get; }
+        string Login { get; }
+        string Password { get; }
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("3C7D64EB-46F4-4690-8A6F-7BA497D12282"), ProgId("CashReg.ExellioFP2000.ModemGPRSSettings")]
+    public class ModemGPRSSettingsM : IModemGPRSSettingsM
+    {
+        public bool prUseNetworkType = false;
+        public string prPINCode = "";
+        public string prAPNServer = "";
+        public string prLogin = "";
+        public string prPassword = "";
+
+        public bool UseNetworkType { get { return prUseNetworkType; } }
+        public string PINCode { get { return prPINCode; } }
+        public string APNServer { get { return prAPNServer; } }
+        public string Login { get { return prLogin; } }
+        public string Password { get { return prPassword; } }
+    }
+
+    //EthernetSettings
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("0C16382F-97A5-4143-9CB0-A1928A8820E3")]
+    public interface IEthernetSettings
+    {
+        bool UseDHCP { get; }
+        string IP { get; }
+        string NetworkMask { get; }
+        string Gateway { get; }
+        string DNS { get; }
+        uint fpPort { get; }
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("FFBF30F3-8AD5-4646-B9DB-85EFEFBCF7FA"), ProgId("CashReg.ExellioFP2000.EthernetSettings")]
+    public class EthernetSettings : IEthernetSettings
+    {
+        public bool prUseDHCP = false;
+        public string prIP = "";
+        public string prNetworkMask = "";
+        public string prGateway = "";
+        public string prDNS = "";
+        public uint prfpPort = 0;
+
+        public bool UseDHCP { get { return prUseDHCP; } }
+        public string IP { get { return prIP; } }
+        public string NetworkMask { get { return prNetworkMask; } }
+        public string Gateway { get { return prGateway; } }
+        public string DNS { get { return prDNS; } }
+        public uint fpPort { get { return prfpPort; } }
+    }
+
+    //UserInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("5549CE8B-B677-4B56-8012-E56C5CD4A994")]
+    public interface IUserInfoM
+    {
+        string UserName { get; }                //Имя пользователя (оператора)
+        int CheckCount { get; }                 //Количество чеков
+        int RealizCount { get; }                //Количество продаж
+        decimal RealizSum { get; }              //Сумма продаж
+        int DiscountCount { get; }              //Количество скидок
+        decimal DiscountSum { get; }            //Сумма скидок
+        int MarkupCount { get; }                //Количество надбавок
+        decimal MarkupSum { get; }              //Сумма надбавок
+        int VoidCount { get; }                  //Количество корректировок
+        decimal VoidSum { get; }                //Сумма корректировок
+        int ReturnCount { get; }                //Количество возвратов
+        decimal ReturnSum { get; }              //Сумма возвратов
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("E5932685-1029-4CF1-9EF4-FDE83848F09B"), ProgId("CashReg.ExellioFP2000.UserInfo")]
+    public class UserInfoM : IUserInfoM
+    {
+        public string prUserName = "";
+        public int prCheckCount = -1;
+        public int prRealizCount = -1;
+        public decimal prRealizSum = 0;
+        public int prDiscountCount = -1;
+        public decimal prDiscountSum = 0;
+        public int prMarkupCount = -1;
+        public decimal prMarkupSum = 0;
+        public int prVoidCount = -1;
+        public decimal prVoidSum = 0;
+        public int prReturnCount = -1;
+        public decimal prReturnSum = 0;
+
+        public string UserName { get { return prUserName; } }
+        public int CheckCount { get { return prCheckCount; } }
+        public int RealizCount { get { return prRealizCount; } }
+        public decimal RealizSum { get { return prRealizSum; } }
+        public int DiscountCount { get { return prDiscountCount; } }
+        public decimal DiscountSum { get { return prDiscountSum; } }
+        public int MarkupCount { get { return prMarkupCount; } }
+        public decimal MarkupSum { get { return prMarkupSum; } }
+        public int VoidCount { get { return prVoidCount; } }
+        public decimal VoidSum { get { return prVoidSum; } }
+        public int ReturnCount { get { return prReturnCount; } }
+        public decimal ReturnSum { get { return prReturnSum; } }
+    }
+
+    //DayPaySumsInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("E95BD620-BD02-4D44-9616-FD376AA510D2")]
+    public interface IDayPaySumsInfoM
+    {
+        decimal CashSum { get; }                //Сумма оплаты наличными
+        decimal CreditSum { get; }              //Сумма оплаты в кредит
+        decimal DebitSum { get; }               //Сумма оплаты по дебетовой(банковской) карте
+        decimal CheckSum { get; }               //Сумма оплаты по чекам
+        decimal NonCashPaymentForm1 { get; }    //Безналичная форма оплаты 1
+        decimal NonCashPaymentForm2 { get; }    //Безналичная форма оплаты 2
+        decimal NonCashPaymentForm3 { get; }    //Безналичная форма оплаты 3
+        decimal NonCashPaymentForm4 { get; }    //Безналичная форма оплаты 4
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("2F667AE0-4E8E-4C61-AEF0-3317BB9D9936"), ProgId("CashReg.ExellioFP2000.DayPaySumsInfo")]
+    public class DayPaySumsInfoM : IDayPaySumsInfoM
+    {
+        public decimal prCashSum = 0;
+        public decimal prCreditSum = 0;
+        public decimal prDebitSum = 0;
+        public decimal prCheckSum = 0;
+        public decimal prNonCashPaymentForm1 = 0;
+        public decimal prNonCashPaymentForm2 = 0;
+        public decimal prNonCashPaymentForm3 = 0;
+        public decimal prNonCashPaymentForm4 = 0;
+
+        public decimal CashSum { get { return prCashSum; } }
+        public decimal CreditSum { get { return prCreditSum; } }
+        public decimal DebitSum { get { return prDebitSum; } }
+        public decimal CheckSum { get { return prCheckSum; } }
+        public decimal NonCashPaymentForm1 { get { return prNonCashPaymentForm1; } }
+        public decimal NonCashPaymentForm2 { get { return prNonCashPaymentForm2; } }
+        public decimal NonCashPaymentForm3 { get { return prNonCashPaymentForm3; } }
+        public decimal NonCashPaymentForm4 { get { return prNonCashPaymentForm4; } }
+    }
+
+    //CurrentCheckInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("C5E5A882-227C-4479-B120-5E46ED8201D2")]
+    public interface ICurrentCheckInfoM
+    {
+        bool IsReturnPossibility { get; }      //Возможен ли возврат по товарам текущего чека
+        decimal SumTax1 { get; }               //Общая сумма по налоговой группе А
+        decimal SumTax2 { get; }               //Общая сумма по налоговой группе Б
+        decimal SumTax3 { get; }               //Общая сумма по налоговой группе В
+        decimal SumTax4 { get; }               //Общая сумма по налоговой группе Г
+        decimal SumTax5 { get; }               //Общая сумма по налоговой группе Д
+        bool OpenExpandedCheck { get; }        //Открыт расширенный чек
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("DCDFAF64-6D89-4091-B5E3-BBD6217AC3C0"), ProgId("CashReg.ExellioFP2000.CurrentCheckInfo")]
+    public class CurrentCheckInfoM : ICurrentCheckInfoM
+    {
+        public bool prIsReturnPossibility = false;
+        public decimal prSumTax1 = 0;
+        public decimal prSumTax2 = 0;
+        public decimal prSumTax3 = 0;
+        public decimal prSumTax4 = 0;
+        public decimal prSumTax5 = 0;
+        public bool prOpenExpandedCheck = false;
+
+        public bool IsReturnPossibility { get { return prIsReturnPossibility; } }
+        public decimal SumTax1 { get { return prSumTax1; } }
+        public decimal SumTax2 { get { return prSumTax2; } }
+        public decimal SumTax3 { get { return prSumTax3; } }
+        public decimal SumTax4 { get { return prSumTax4; } }
+        public decimal SumTax5 { get { return prSumTax5; } }
+        public bool OpenExpandedCheck { get { return prOpenExpandedCheck; } }
+    }
+
+    //DiagnosticInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("D4EA7AE5-64E9-4A60-90C9-BEA348C892A5")]
+    public interface IDiagnosticInfoM
+    {
+        string HardwareModel { get; }           //Модель кассового аппарата
+        string SerialNumber { get; }            //Заводской номер кассового аппарата
+        string FiscalNumber { get; }            //Фискальный номер кассового аппарата
+        string ID_DEV { get; }                  //id_dev
+        string ID_ACQ { get; }                  //ID еквайєра
+        string ID_SAM { get; }                  //ID SAM модуля
+
+        string ProgramVersion { get; }          //Версия ПО регистратора
+        DateTime ProgramVersionDate { get; }    //Дата ПО регистратора
+        bool Switch1 { get; }                   //Состояние переключателя 1
+        bool Switch2 { get; }                   //Состояние переключателя 2
+        bool Switch3 { get; }                   //Состояние переключателя 3
+        bool Switch4 { get; }                   //Состояние переключателя 4
+        bool Switch5 { get; }                   //Состояние переключателя 5
+        bool Switch6 { get; }                   //Состояние переключателя 6
+        bool Switch7 { get; }                   //Состояние переключателя 7
+        bool Switch8 { get; }                   //Состояние переключателя 8
+        int DecimalPointPosition { get; }       //Положение десятичной точки
+        int TotalCountArticles { get; }         //Максимальное количество артикулов
+        int MaxLengthArticleName { get; }       //Максимальное длина имени артикула
+        int CountryCode { get; }                //Код страны
+        string CountryDescription { get; }      //Название страны
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("CE8F07F8-DB7F-4FF5-B366-6BCF2221536E"), ProgId("CashReg.ExellioFP2000.DiagnosticInfo")]
+    public class DiagnosticInfoM : IDiagnosticInfoM
+    {
+        public string prHardwareModel = "";
+        public string prSerialNumber = "";
+        public string prFiscalNumber = "";
+        public string prID_DEV = "";
+        public string prID_ACQ = "";
+        public string prID_SAM = "";
+
+        public string prProgramVersion = "";
+        public DateTime prProgramVersionDate = DateTime.MinValue;
+        public bool prSwitch1 = false;
+        public bool prSwitch2 = false;
+        public bool prSwitch3 = false;
+        public bool prSwitch4 = false;
+        public bool prSwitch5 = false;
+        public bool prSwitch6 = false;
+        public bool prSwitch7 = false;
+        public bool prSwitch8 = false;
+        public int prDecimalPointPosition = -1;
+        public int prTotalCountArticles = -1;
+        public int prMaxLengthArticleName = -1;
+        public int prCountryCode = -1;
+
+        public string HardwareModel { get { return prHardwareModel; } }
+        public string SerialNumber { get { return prSerialNumber; } }
+        public string FiscalNumber { get { return prFiscalNumber; } }
+        public string ID_DEV { get { return prID_DEV; } }
+        public string ID_ACQ { get { return prID_ACQ; } }
+        public string ID_SAM { get { return prID_SAM; } }
+
+        public string ProgramVersion { get { return prProgramVersion; } }
+        public DateTime ProgramVersionDate { get { return prProgramVersionDate; } }
+        public bool Switch1 { get { return prSwitch1; } }
+        public bool Switch2 { get { return prSwitch2; } }
+        public bool Switch3 { get { return prSwitch3; } }
+        public bool Switch4 { get { return prSwitch4; } }
+        public bool Switch5 { get { return prSwitch5; } }
+        public bool Switch6 { get { return prSwitch6; } }
+        public bool Switch7 { get { return prSwitch7; } }
+        public bool Switch8 { get { return prSwitch8; } }
+        public int DecimalPointPosition { get { return prDecimalPointPosition; } }
+        public int TotalCountArticles { get { return prTotalCountArticles; } }
+        public int MaxLengthArticleName { get { return prMaxLengthArticleName; } }
+        public int CountryCode { get { return prCountryCode; } }
+        public string CountryDescription
+        {
+            get
+            {
+                string Descr = "Unknown";
+                switch (CountryCode)
+                {
+                    case 0: Descr = "Россия"; break;
+                    case 1: Descr = "Греция"; break;
+                    case 2: Descr = "Украина"; break;
+                    case 3: Descr = "Англия"; break;
+                    case 4: Descr = "Польша"; break;
+                    case 5: Descr = "Венгрия"; break;
+                    case 6: Descr = "Болгария"; break;
+                    case 9: Descr = "Румыния"; break;
+                };
+                return Descr;
+            }
+        }
+    }
+
+    //FiscalTransactionStatusM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("599458C0-1CE7-43DE-A1FD-EDFDAB26608F")]
+    public interface IFiscalTransactionStatusM
+    {
+        bool IsOpenCheck { get; }               //Открыт ли фискальный или нефискальный чек
+        int FiscalCheckCount { get; }           //Количество всех фискальных чеков за день (от последнего Z-отчета)
+        decimal LastCheckSum { get; }           //Сумма последнего чека
+        decimal LastCheckPaySum { get; }        //Сумма оплаты последнего чека
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("5FCFDC0A-6C9D-45E8-AF68-FDD958530112"), ProgId("CashReg.ExellioFP2000.FiscalTransactionStatus")]
+    public class FiscalTransactionStatusM : IFiscalTransactionStatusM
+    {
+        public bool prIsOpenCheck = false;
+        public int prFiscalCheckCount = -1;
+        public decimal prLastCheckSum = 0;
+        public decimal prLastCheckPaySum = 0;
+
+        public bool IsOpenCheck { get { return prIsOpenCheck; } }
+        public int FiscalCheckCount { get { return prFiscalCheckCount; } }
+        public decimal LastCheckSum { get { return prLastCheckSum; } }
+        public decimal LastCheckPaySum { get { return prLastCheckPaySum; } }
+    }
+
+    //DayCheckCountersInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("AFF7B12F-ED40-4538-892F-554D368AEA5F")]
+    public interface IDayCheckCountersInfoM
+    {
+        int NotFiscalCheckCount { get; }        //Количество всех нефискальных чеков за день (от последнего Z-отчета)
+        int FiscalCheckCount { get; }           //Количество всех фискальных чеков за день (от последнего Z-отчета)
+        int ReturnCheckCount { get; }           //Количество всех возвратных чеков за день (от последнего Z-отчета)
+        int LastZReportNumber { get; }          //Номер последнего Z-отчета
+        int NextFiscalCheckNumber { get; }      //Номер следующего фискального чека от последнего Z-отчета
+        int NextReturnCheckNumber { get; }      //Номер следующего возвратного чека
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("7A71BADB-BD06-4CE0-81E5-9C501C27D693"), ProgId("CashReg.ExellioFP2000.DayCountersInfo")]
+    public class DayCheckCountersInfoM : IDayCheckCountersInfoM
+    {
+        public int prNotFiscalCheckCount = -1;
+        public int prFiscalCheckCount = -1;
+        public int prReturnCheckCount = -1;
+        public int prLastZReportNumber = -1;
+        public int prNextFiscalCheckNumber = -1;
+        public int prNextReturnCheckNumber = -1;
+
+        public int NotFiscalCheckCount { get { return prNotFiscalCheckCount; } }
+        public int FiscalCheckCount { get { return prFiscalCheckCount; } }
+        public int ReturnCheckCount { get { return prReturnCheckCount; } }
+        public int LastZReportNumber { get { return prLastZReportNumber; } }
+        public int NextFiscalCheckNumber { get { return prNextFiscalCheckNumber; } }
+        public int NextReturnCheckNumber { get { return prNextReturnCheckNumber; } }
+    }
+
+    //DayFiscalSumsInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("561477A3-B581-4FC3-B1BB-3FB4D1A674A2")]
+    public interface IDayFiscalSumsInfoM
+    {
+        decimal TotalSumRealiz { get; }         //Общий оборот реализации
+        decimal FreeSumRealizFromTaxes { get; } //Свободный от налогов оборот реализации
+        decimal SumRealizTax1 { get; }          //Оборот реализации по схеме налогообложения А
+        decimal SumRealizTax2 { get; }          //Оборот реализации по схеме налогообложения Б
+        decimal SumRealizTax3 { get; }          //Оборот реализации по схеме налогообложения В
+        decimal SumRealizTax4 { get; }          //Оборот реализации по схеме налогообложения Г
+        decimal SumRealizTax5 { get; }          //Оборот реализации по схеме налогообложения Д
+
+        decimal TotalSumReturn { get; }         //Общий оборот возвратов
+        decimal FreeSumReturnFromTaxes { get; } //Общий свободный от налогов оборот возвратов
+        decimal SumReturnTax1 { get; }          //Оборот возвратов по схеме налогообложения А
+        decimal SumReturnTax2 { get; }          //Оборот возвратов по схеме налогообложения Б
+        decimal SumReturnTax3 { get; }          //Оборот возвратов по схеме налогообложения В
+        decimal SumReturnTax4 { get; }          //Оборот возвратов по схеме налогообложения Г
+        decimal SumReturnTax5 { get; }          //Оборот возвратов по схеме налогообложения Д
+        decimal TotalTurn { get; }              //Сумма всех продаж
+        decimal NegTotalSum { get; }            //Сумма всех внутричековых корректировок (с отриц. ценой)
+        decimal NotPaidTotalSum { get; }        //Сумма оплат по кредиту
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("66270ADC-AA08-4E71-82B8-7C1F35B35302"), ProgId("CashReg.ExellioFP2000.DayFiscalSumsInfo")]
+    public class DayFiscalSumsInfoM : IDayFiscalSumsInfoM
+    {
+        public decimal prTotalSumRealiz = 0;
+        public decimal prFreeSumRealizFromTaxes = 0;
+        public decimal prSumRealizTax1 = 0;
+        public decimal prSumRealizTax2 = 0;
+        public decimal prSumRealizTax3 = 0;
+        public decimal prSumRealizTax4 = 0;
+        public decimal prSumRealizTax5 = 0;
+
+        public decimal prTotalSumReturn = 0;
+        public decimal prFreeSumReturnFromTaxes = 0;
+        public decimal prSumReturnTax1 = 0;
+        public decimal prSumReturnTax2 = 0;
+        public decimal prSumReturnTax3 = 0;
+        public decimal prSumReturnTax4 = 0;
+        public decimal prSumReturnTax5 = 0;
+        public decimal prTotalTurn = 0;
+        public decimal prNegTotalSum = 0;
+        public decimal prNotPaidTotalSum = 0;
+
+        public decimal TotalSumRealiz { get { return prTotalSumRealiz; } }
+        public decimal FreeSumRealizFromTaxes { get { return prFreeSumRealizFromTaxes; } }
+        public decimal SumRealizTax1 { get { return prSumRealizTax1; } }
+        public decimal SumRealizTax2 { get { return prSumRealizTax2; } }
+        public decimal SumRealizTax3 { get { return prSumRealizTax3; } }
+        public decimal SumRealizTax4 { get { return prSumRealizTax4; } }
+        public decimal SumRealizTax5 { get { return prSumRealizTax5; } }
+
+        public decimal TotalSumReturn { get { return prTotalSumReturn; } }
+        public decimal FreeSumReturnFromTaxes { get { return prFreeSumReturnFromTaxes; } }
+        public decimal SumReturnTax1 { get { return prSumReturnTax1; } }
+        public decimal SumReturnTax2 { get { return prSumReturnTax2; } }
+        public decimal SumReturnTax3 { get { return prSumReturnTax3; } }
+        public decimal SumReturnTax4 { get { return prSumReturnTax4; } }
+        public decimal SumReturnTax5 { get { return prSumReturnTax5; } }
+
+        public decimal TotalTurn { get { return prTotalTurn; } }
+        public decimal NegTotalSum { get { return prNegTotalSum; } }
+        public decimal NotPaidTotalSum { get { return prNotPaidTotalSum; } }
+    }
+
+    public class LogoEM
+    {
+        public const int MaxWidth = 432;
+        public const int MaxHeight = 96;
+        private Bitmap image;
+
+        public string[] Script
+        {
+            get
+            {
+                return _script().ToArray();
+            }
+        }
+
+        private List<string> _script()
+        {
+            List<string> ret = new List<string>();
+            if (this.image != null)
+            {
+                for (int i = 0; i < this.image.Height; i++)
+                {
+                    BitArray L = this.line(i);
+                    string hex = this.line_as_hex(L);
+                    ret.Add(i.ToString() + "," + hex);
+                };
+            };
+            return ret;
+        }
+
+        public LogoEM(Bitmap image)
+        {
+            if (image != null && (image.Height > MaxHeight || image.Width > MaxWidth)) throw new ArgumentException("Размеры логотипа не должны быть больше " + MaxHeight.ToString() + " на " + MaxWidth.ToString() + " точек");
+            this.image = image;
+        }
+
+        private string line_as_hex(BitArray L)
+        {
+            char[] chArray = new char[108];
+            for (int index1 = 0; index1 < chArray.Length; ++index1)
+            {
+                int index2 = this.get_4_bits(L, index1 * 4);
+                chArray[index1] = "0123456789ABCDEF"[index2];
+            }
+            return new string(chArray);
+        }
+
+        private int get_4_bits(BitArray L, int ofs)
+        {
+            int num = 0;
+            if (L[ofs++])
+                num += 8;
+            if (L[ofs++])
+                num += 4;
+            if (L[ofs++])
+                num += 2;
+            if (L[ofs++])
+                ++num;
+            return num;
+        }
+
+        private BitArray line(int lineNumber)
+        {
+            BitArray bitArray = new BitArray(MaxWidth);
+            BitmapData bitmapdata = this.image.LockBits(new Rectangle(0, lineNumber, this.image.Width, 1), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            byte[] destination = new byte[bitmapdata.Stride];
+            Marshal.Copy(bitmapdata.Scan0, destination, 0, destination.Length);
+            this.image.UnlockBits(bitmapdata);
+            int num = (MaxWidth - this.image.Width) / 2;
+            for (int index = 0; index < this.image.Width; ++index)
+                bitArray[num + index] = (int)destination[4 * index] < 128 || (int)destination[4 * index + 1] < 128 || (int)destination[4 * index + 2] < 128;
+            return bitArray;
+        }
+
+        internal static Bitmap Convert(Image image1, bool invert)
+        {
+            try
+            {
+                if (image1 == null) return (Bitmap)null;
+                Bitmap bitmap = image1 as Bitmap ?? new Bitmap(image1);
+                float num = Math.Min(bitmap.Width > MaxWidth ? 432f / (float)bitmap.Width : 1f, bitmap.Height > MaxHeight ? 96f / (float)bitmap.Height : 1f);
+                Bitmap src;
+                if ((double)num == 1.0)
+                {
+                    src = bitmap;
+                }
+                else
+                {
+                    int width = (int)((double)bitmap.Width * (double)num);
+                    int height = (int)((double)bitmap.Height * (double)num);
+                    src = new Bitmap((Image)bitmap, width, height);
+                }
+                return LogoEM.make_monochrome(src, invert);
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("Ошибка открытия файла логотипа: " + ex.Message, ex);
+            }
+        }
+
+        private static Bitmap make_monochrome(Bitmap src, bool invert)
+        {
+            Bitmap bitmap = new Bitmap((Image)src);
+            BitmapData bitmapdata = bitmap.LockBits(new Rectangle(0, 0, src.Width, src.Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+            int length = Math.Abs(bitmapdata.Stride) * src.Height;
+            byte[] numArray = new byte[length];
+            Marshal.Copy(bitmapdata.Scan0, numArray, 0, length);
+            byte num1 = !invert ? (byte)0 : byte.MaxValue;
+            byte num2 = !invert ? byte.MaxValue : (byte)0;
+            int num3 = 0;
+            while (num3 < length)
+            {
+                int num4 = num3;
+                int num5 = 1;
+                int num6 = num4 + num5;
+                int index1 = num4;
+                int num7 = num6;
+                int num8 = 1;
+                int num9 = num7 + num8;
+                int index2 = num7;
+                int num10 = num9;
+                int num11 = 1;
+                int num12 = num10 + num11;
+                int index3 = num10;
+                int num13 = num12;
+                int num14 = 1;
+                num3 = num13 + num14;
+                int index4 = num13;
+                if ((int)numArray[index4] > 128 && ((int)numArray[index3] < 128 || (int)numArray[index2] < 128 || (int)numArray[index1] < 128))
+                {
+                    numArray[index4] = byte.MaxValue;
+                    numArray[index3] = num1;
+                    numArray[index2] = num1;
+                    numArray[index1] = num1;
+                }
+                else
+                {
+                    numArray[index4] = byte.MaxValue;
+                    numArray[index3] = num2;
+                    numArray[index2] = num2;
+                    numArray[index1] = num2;
+                }
+            }
+            Marshal.Copy(numArray, 0, bitmapdata.Scan0, length);
+            bitmap.UnlockBits(bitmapdata);
+            return bitmap;
+        }
+    }
+
+    //PLUInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("20DCF158-0F34-4226-AAC0-4396B956720F")]
+    public interface IPLUInfoM
+    {
+        int iCode { get; }                      //Код артикула (PLU)
+        bool IsProgram { get; }                 //Запрограммирован ли артикул
+        int iGroup { get; }                     //Группа товаров (от 0 по 99)
+        string Description { get; }             //Наименование артикула
+        decimal Price { get; }                  //Цена артикула
+        int iTax { get; }                       //Индекс схемы налогообложения (от 1 по 5)
+        string TaxCode { get; }                 //Код схемы налогообложения (от 'А' по 'Д')
+        decimal QuantityRealiz { get; }         //Количество реализовано
+        decimal SumRealiz { get; }              //Сумма реализовано
+        decimal QuantityReturn { get; }         //Количество возвращено
+        decimal SumReturn { get; }              //Сумма возвращено
+        decimal QuantityRealizInCheck { get; }  //Количество реализовано в пределах чека
+        decimal SumRealizInCheck { get; }       //Сумма реализовано в пределах чека
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("6436EA01-6E79-4873-8162-ED70DC11D713"), ProgId("CashReg.ExellioFP2000.PLUInfo")]
+    public class PLUInfoM : IPLUInfoM
+    {
+        public int priCode = -1;
+        public bool prIsProgram = false;
+        public int priGroup = -1;
+        public string prDescription = "";
+        public decimal prPrice = 0;
+        public int priTax = -1;
+        public string prTaxCode = "";
+        public decimal prQuantityRealiz = 0;
+        public decimal prSumRealiz = 0;
+        public decimal prQuantityReturn = 0;
+        public decimal prSumReturn = 0;
+        public decimal prQuantityRealizInCheck = 0;
+        public decimal prSumRealizInCheck = 0;
+
+        public int iCode { get { return priCode; } }
+        public bool IsProgram { get { return prIsProgram; } }
+        public int iGroup { get { return priGroup; } }
+        public string Description { get { return prDescription; } }
+        public decimal Price { get { return prPrice; } }
+        public int iTax { get { return priTax; } }
+        public string TaxCode { get { return prTaxCode; } }
+        public decimal QuantityRealiz { get { return prQuantityRealiz; } }
+        public decimal SumRealiz { get { return prSumRealiz; } }
+        public decimal QuantityReturn { get { return prQuantityReturn; } }
+        public decimal SumReturn { get { return prSumReturn; } }
+        public decimal QuantityRealizInCheck { get { return prQuantityRealizInCheck; } }
+        public decimal SumRealizInCheck { get { return prSumRealizInCheck; } }
+    }
+
+    //TaxRateInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("4C3B4E8D-82BE-4548-81CB-E70BCF852B26")]
+    public interface ITaxRateInfoM
+    {
+        int iTax { get; }             //Номер(индекс) ставки
+        bool IsUse { get; }           //Используется ли ставка
+        string Code { get; }          //Символичный код
+        decimal TaxRate { get; }      //Налоговая ставка
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("B6AA5ED0-7457-4552-961B-1D198BD4A9BC"), ProgId("CashReg.ExellioFP2000.TaxRateInfo")]
+    public class TaxRateInfoM : ITaxRateInfoM
+    {
+        public int priTax = -1;
+        public bool prIsUse = false;
+        public string prCode = "";
+        public decimal prTaxRate = 0;
+
+        public int iTax { get { return priTax; } }
+        public bool IsUse { get { return prIsUse; } }
+        public string Code { get { return prCode; } }
+        public decimal TaxRate { get { return prTaxRate; } }
+    }
+
+    //DayReportInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("FBC1FF46-56AC-4333-A4DA-BB0C5C68F560")]
+    public interface IDayReportInfoM
+    {
+        int ReportNumber { get; }         //Номер дневного отчета
+        decimal SumTax1 { get; }          //Сумма всех продаж по налоговой ставке А
+        decimal SumTax2 { get; }          //Сумма всех продаж по налоговой ставке Б
+        decimal SumTax3 { get; }          //Сумма всех продаж по налоговой ставке В
+        decimal SumTax4 { get; }          //Сумма всех продаж по налоговой ставке Г
+        decimal SumTax5 { get; }          //Сумма всех продаж по налоговой ставке Д
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("C4B606AC-3351-4443-9E63-9D953AE2B4FD"), ProgId("CashReg.ExellioFP2000.DayReportInfo")]
+    public class DayReportInfoM : IDayReportInfoM
+    {
+        public int prReportNumber = -1;
+        public decimal prSumTax1 = 0;
+        public decimal prSumTax2 = 0;
+        public decimal prSumTax3 = 0;
+        public decimal prSumTax4 = 0;
+        public decimal prSumTax5 = 0;
+
+        public int ReportNumber { get { return prReportNumber; } }
+        public decimal SumTax1 { get { return prSumTax1; } }
+        public decimal SumTax2 { get { return prSumTax2; } }
+        public decimal SumTax3 { get { return prSumTax3; } }
+        public decimal SumTax4 { get { return prSumTax4; } }
+        public decimal SumTax5 { get { return prSumTax5; } }
+    }
+
+    //ZReportInfoM
+    [InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("5BBE7C5E-8C2E-40FE-8990-16CD5D5D6B09")]
+    public interface IZReportInfoM
+    {
+        int ReportNumber { get; }               //Номер Z-отчета
+        decimal SumRealizTax1 { get; }          //Сумма всех продаж по налоговой ставке А
+        decimal SumRealizTax2 { get; }          //Сумма всех продаж по налоговой ставке Б
+        decimal SumRealizTax3 { get; }          //Сумма всех продаж по налоговой ставке В
+        decimal SumRealizTax4 { get; }          //Сумма всех продаж по налоговой ставке Г
+        decimal SumRealizTax5 { get; }          //Сумма всех продаж по налоговой ставке Д
+        decimal SumReturnTax1 { get; }          //Сумма всех продаж по налоговой ставке А
+        decimal SumReturnTax2 { get; }          //Сумма всех продаж по налоговой ставке Б
+        decimal SumReturnTax3 { get; }          //Сумма всех продаж по налоговой ставке В
+        decimal SumReturnTax4 { get; }          //Сумма всех продаж по налоговой ставке Г
+        decimal SumReturnTax5 { get; }          //Сумма всех продаж по налоговой ставке Д
+        DateTime Date { get; }                  //Дата Z-отчета
+    }
+
+    [ClassInterface(ClassInterfaceType.None), Guid("800B28FB-20E1-4CB4-A4F2-63458A017C2C"), ProgId("CashReg.ExellioFP2000.ZReportInfo")]
+    public class ZReportInfoM : IZReportInfoM
+    {
+        public int prReportNumber = -1;
+        public decimal prSumRealizTax1 = 0;
+        public decimal prSumRealizTax2 = 0;
+        public decimal prSumRealizTax3 = 0;
+        public decimal prSumRealizTax4 = 0;
+        public decimal prSumRealizTax5 = 0;
+        public decimal prSumReturnTax1 = 0;
+        public decimal prSumReturnTax2 = 0;
+        public decimal prSumReturnTax3 = 0;
+        public decimal prSumReturnTax4 = 0;
+        public decimal prSumReturnTax5 = 0;
+        public DateTime prDate = DateTime.MinValue;
+
+        public int ReportNumber { get { return prReportNumber; } }
+        public decimal SumRealizTax1 { get { return prSumRealizTax1; } }
+        public decimal SumRealizTax2 { get { return prSumRealizTax2; } }
+        public decimal SumRealizTax3 { get { return prSumRealizTax3; } }
+        public decimal SumRealizTax4 { get { return prSumRealizTax4; } }
+        public decimal SumRealizTax5 { get { return prSumRealizTax5; } }
+        public decimal SumReturnTax1 { get { return prSumReturnTax1; } }
+        public decimal SumReturnTax2 { get { return prSumReturnTax2; } }
+        public decimal SumReturnTax3 { get { return prSumReturnTax3; } }
+        public decimal SumReturnTax4 { get { return prSumReturnTax4; } }
+        public decimal SumReturnTax5 { get { return prSumReturnTax5; } }
+        public DateTime Date { get { return prDate; } }
+    }
+
+
+[InterfaceType(ComInterfaceType.InterfaceIsDual), Guid("7FF3F72C-0092-4F96-AFCC-1D6D3794C598")]
+    public interface ICOMPort
+    {
+        //properties
+        string PortName { get; set; }    //Порт (Имя порта)
+        int BaudRate { get; set; }       //Порт (скорость порта)
+        int DataBits { get; set; }       //Порт (биты данных)
+        bool DiscardNull { get; set; }   //Порт (DiscardNull)
+        bool DtrEnable { get; set; }     //Порт (DtrEnable)
+        int ReadBufferSize { get; set; } //Порт (размер буфера)
+        int ReadTimeout { get; set; }    //Порт (таймаут чтения)
+        int ReceivedBytesThreshold { get; set; }    //Порт (ReceivedBytesThreshold)
+        bool RtsEnable { get; set; }     //Порт (RtsEnable)
+        string Stopbits { get; set; }    //Порт (стоповых битов)
+        int WriteBufferSize { get; set; }//Порт (размер буфера записи)
+        int WriteTimeout { get; set; }   //Порт (таймаут записи)
+        bool IsOpen { get; }             //Порт (открыт?)
+        string NewLine { get; set; }     //Задает строку, для интерпретации окончания строки в методе WriteLine и ReadLine
+        bool BreakState { get; set; }    //Читает или задает(только при открытом порте) состояние сигнала разрыва
+        int BytesToRead { get; }         //Получает число байт, находящиеся в буфере чтения
+        int BytesToWrite { get; }        //Получает число байт, находящиеся в буфере записи
+        bool CDHolding { get; }          //Получает состояние линии обнаружения несущей
+        bool CtsHolding { get; }         //Получает состояние линии готовности к приему
+        bool DsrHolding { get; }         //Получает состояние сигнала готовности данных (DSR)
+        Encoding Encoding { get; set; }  //Получает/устанавливает текущую кодировку
+        string EncodingName { get; }     //Получает имя текущей кодировки
+        int EncodingCodePage { get; }    //Получает идентификатор кодовой страницы текущей кодировки
+        string EncodingWebName { get; }   //Получает описание текущей кодировки Web
+        int EncodingWindowsCodePage { get; }   //Получает описание текущей кодировки, наиболее соответствующее кодировкам Windows
+        string Parity { get; set; }      //Порт (Четность)
+        string Handshake { get; set; }   //Порт (Квитирование)
+        byte ParityReplace { get; set; } //Порт (ParityReplace)
+
+        string LastIOError { get; }      //Последняя ошибка ввода-вывода
+        string LastIORead { get; }       //Последние данные полученные из порта
+        byte[] LastIOReadBytes { get; }  //Последние байты данных полученные из порта
+        string LastIOWrite { get; }      //Последние последнюю строку, записанную в буфер записи
+        byte[] LastIOWriteBytes { get; } //Последние байты данных записанные в порт
+
+        //methods
+        void Open();                         //Открыть порт
+        void Close();                        //Закрыть порт
+        void WriteLine(string str);          //Записывает строку и строку NewLine в выходной буфер порта
+        string ReadLine();                   //Считывает байты из входного буфера до значения NewLine
+        string ReadTo(string str);           //Считывает байты из входного буфера до указанного значения
+        void DiscardInBuffer();              //Удаляет данные из буфера приема
+        void DiscardOutBuffer();             //Удаляет данные из буфера записи
+        void Dispose();                      //Освободить все ресурсы
+        void WriteBytes(byte[] buffer, int offset, int count); //Записывает в порт определенное количество байт
+        byte[] ReadBytes(int offset, int count, bool wait); //Считывает байты из входного буфера (wait - ожидать нужное количество байт в буфере или вернуть существующие)
+        void Write(string str);   //Записывает в порт строку
+        string ReadExisting();    //Считывает строку из входного буфера
+
+    }

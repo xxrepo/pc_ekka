@@ -1,0 +1,132 @@
+object NaklInfoF: TNaklInfoF
+  Left = 331
+  Top = 324
+  BorderStyle = bsNone
+  Caption = 'NaklInfoF'
+  ClientHeight = 179
+  ClientWidth = 486
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  OldCreateOrder = False
+  OnActivate = FormActivate
+  OnShortCut = FormShortCut
+  DesignSize = (
+    486
+    179)
+  PixelsPerInch = 96
+  TextHeight = 13
+  object imFon: TImage
+    Left = 0
+    Top = 0
+    Width = 486
+    Height = 179
+    Align = alClient
+  end
+  object Label1: TLabel
+    Left = 0
+    Top = 0
+    Width = 486
+    Height = 179
+    Align = alClient
+    AutoSize = False
+    Transparent = True
+    OnMouseLeave = Label1MouseLeave
+  end
+  object Label2: TLabel
+    Left = 5
+    Top = 8
+    Width = 35
+    Height = 13
+    Caption = #1044#1072#1090#1072':'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+    Transparent = True
+  end
+  object Bevel1: TBevel
+    Left = 1
+    Top = 25
+    Width = 481
+    Height = 2
+    Anchors = [akLeft, akTop, akRight]
+  end
+  object SpeedButton1: TSpeedButton
+    Left = 459
+    Top = 2
+    Width = 23
+    Height = 22
+    Hint = #1047#1072#1082#1088#1099#1090#1100
+    Flat = True
+    Glyph.Data = {
+      36030000424D3603000000000000360000002800000010000000100000000100
+      18000000000000030000C40E0000C40E00000000000000000000FF0000FF0000
+      FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00
+      00FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+      0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF00008F8FFF9898FF
+      9C97FF5D72D581A0C1FF0000FF0000FF0000FF0000FF0000FF00007373FF5657
+      FC6258FF515AEE3560AA9A9AFF5252FF3F3BFF1221DF1036B397AFCFFF0000FF
+      0000FF0000FF00007B7BFE0000FE0000FF0000E90011BB5D80B9FF0000B3B3FF
+      6869FD635BFF393FF20021A798ACD6FF0000FF00008485FE0000FF211EFF0309
+      F20128B19DBAC6FF0000FF0000FF0000B2B2FF5C5CFE5F5CFF4D4EFD0018A3B6
+      CBD5B0ACFF1918FF2F2EFF1F1FFD0019A79EB6CFFF0000FF0000FF0000FF0000
+      FF0000ACACFE4C4BFF5B5BFF484AFB1D47AB2340C5493DFF3537FB0011A398AD
+      D6FF0000FF0000FF0000FF0000FF0000FF0000FF0000B2B2FE6464FF635EFF2F
+      3DE2363DEF343DED2143B99DB2D6FF0000FF0000FF0000FF0000FF0000FF0000
+      FF0000FF0000FF00006565FE6768FC7066FF6B5CFF152FCC0F488DFF0000FF00
+      00FF0000FF0000FF0000FF0000FF0000FF0000FF0000BBBBFE6E6EFF7C78FF50
+      52E24B4AEF3A44ED2245B99AAFD6FF0000FF0000FF0000FF0000FF0000FF0000
+      FF0000C0C0FE7675FF8281FF6C6CFB0749AB2250C57565FF484AFB0018A398AC
+      D6FF0000FF0000FF0000FF0000FF0000CCCCFF8D8DFE9491FF8C8CFD0822A300
+      C0D549C6FF6F50FF5B5BFF4D4EFD0021A797AFCFFF0000FF0000FF0000CBCBFF
+      9B9CFDB4ABFF7F85F2022DA79EACD6FF0000FF0000B4ABFE4C4CFF5F5CFF393F
+      F20B32B18EABC6FF0000BCBCFF9090FF9A95FF5969DF2349B38EA6CFFF0000FF
+      0000FF0000FF0000ACACFE5D5DFE544CFF101BE90C2DBB5679B9B5B5FFC1C1FF
+      D6D1FF758AD56F8EC1FF0000FF0000FF0000FF0000FF0000FF0000AEAEFF9B9C
+      FCAAA0FF7880EE2D58AAFF0000FF0000FF0000FF0000FF0000FF0000FF0000FF
+      0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000}
+    ParentShowHint = False
+    ShowHint = True
+    OnClick = SpeedButton1Click
+  end
+  object DBGrid1: TDBGrid
+    Left = 1
+    Top = 30
+    Width = 481
+    Height = 145
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    BorderStyle = bsNone
+    DataSource = DM.srNaklInfo
+    Options = [dgColumnResize, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+    TabOrder = 0
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -11
+    TitleFont.Name = 'MS Sans Serif'
+    TitleFont.Style = []
+    Columns = <
+      item
+        Expanded = False
+        FieldName = 'Names'
+        Width = 350
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'Kol'
+        Width = 51
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'Cena'
+        Visible = True
+      end>
+  end
+end

@@ -1,0 +1,47 @@
+object AboutF: TAboutF
+  Left = 342
+  Top = 294
+  Width = 372
+  Height = 147
+  BorderIcons = [biSystemMenu]
+  Caption = 'AboutF'
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  OldCreateOrder = False
+  Position = poScreenCenter
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Panel1: TPanel
+    Left = 2
+    Top = 5
+    Width = 115
+    Height = 113
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    TabOrder = 0
+  end
+  object BitBtn1: TBitBtn
+    Left = 257
+    Top = 93
+    Width = 105
+    Height = 25
+    Cancel = True
+    Caption = #1047#1072#1082#1088#1099#1090#1100
+    TabOrder = 1
+    OnClick = BitBtn1Click
+    Glyph.Data = {
+      F6000000424DF600000000000000760000002800000010000000100000000100
+      04000000000080000000D40E0000D40E00001000000010000000255B25002966
+      29002D712D00327E3200368836003B943B0041A5410048B6480054BC54005FC1
+      5F0071C771000000FF008ED38E00A4DCA400B2E1B200D1EED100BBB64BBBBBB4
+      4BBBBBB614BBBB424BBBBBB6304BB6534BBBBBB7D52137A44BBBBBB7FE63ACC2
+      6BBBBBB7FFFFEEA36BBBBBB7DDFFFE404BBBBB55EEEFFFA204BBB5AEEEEEFFEA
+      310B9EFFFFEEFFFFC5548889AAFEE669A88BBBBBB7FEE2BBBBBBBBBBBAFF94BB
+      BBBBBBBBBACE54BBBBBBBBBBBBAC26BBBBBBBBBBBB977BBBBBBB}
+  end
+end

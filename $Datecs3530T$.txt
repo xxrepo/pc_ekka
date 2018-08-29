@@ -1,0 +1,2 @@
+[EKKA]
+Articul=8

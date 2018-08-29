@@ -1,0 +1,73 @@
+[Version] 
+Signature="$WINDOWS NT$" 
+Class=Ports
+ClassGuid={4D36E978-E325-11CE-BFC1-08002BE10318} 
+Provider=Noname 
+DriverVer=07/02/14
+
+[Manufacturer] 
+Noname=DeviceList,NTamd64,NTia64
+
+[DestinationDirs] 
+DefaultDestDir=12 
+
+[SourceDisksFiles]
+
+[SourceDisksNames]
+
+;------------------------------------------------------------------------------
+; x86
+;------------------------------------------------------------------------------
+[DeviceList] 
+%DESCRIPTION%=USB_VCOM, USB\VID_FFFF&PID_1C01 
+
+;------------------------------------------------------------------------------
+; x64
+;------------------------------------------------------------------------------
+[DeviceList.NTamd64] 
+%DESCRIPTION%=USB_VCOM, USB\VID_FFFF&PID_1C01 
+
+;------------------------------------------------------------------------------
+; ia64
+;------------------------------------------------------------------------------
+[DeviceList.NTia64] 
+%DESCRIPTION%=USB_VCOM, USB\VID_FFFF&PID_1C01 
+
+;------------------------------------------------------------------------------
+;  Windows 2000/XP/Vista/7/8/8.1 x86 x64 Sections
+;------------------------------------------------------------------------------
+
+[USB_VCOM.nt] 
+include=mdmcpq.inf
+CopyFiles=DriverCopyFiles
+AddReg=USB_VCOM.nt.AddReg 
+
+[DriverCopyFiles]
+usbser.sys,,,0x20
+
+[USB_VCOM.nt.AddReg] 
+HKR,,DevLoader,,*ntkern 
+HKR,,NTMPDriver,,usbser.sys 
+HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider" 
+
+[USB_VCOM.nt.Services] 
+include=mdmcpq.inf
+AddService=usbser, 0x00000002, DriverService
+
+
+[USB_VCOM.nt.HW]
+include=mdmcpq.inf
+
+[DriverService] 
+DisplayName=%DESCRIPTION% 
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%12%\usbser.sys 
+
+;------------------------------------------------------------------------------
+;  String Definitions
+;------------------------------------------------------------------------------
+
+[Strings] 
+DESCRIPTION="USB VirtualCom Port" 

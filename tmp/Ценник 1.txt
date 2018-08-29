@@ -1,0 +1,178 @@
+procedure TPrintRep.PrintCennik(Firm:String; MaxSkd:Real; Skd:Byte=0; Param:Byte=0; Param1:Boolean=False);
+var k,i,j,RC,MaxL,y:Integer;
+    Tb,Tb1,Tb2:TTableObj;
+    EAN13:String;
+    Br:TBorder;
+
+ Begin
+  if Param1 then
+   begin
+    PrintRep.LeftMargin:=230;
+    PrintRep.RightMargin:=230;
+    PrintRep.TopMargin:=50;
+    PrintRep.BottomMargin:=50;
+   end;
+
+  if Qr=nil then Exit;
+  RC:=Qr.RecordCount;
+  if RC mod 3<>0 then RC:=RC+(3-(RC mod 3));
+  PrintRep.Font.Name:='Arial';
+  PrintRep.Font.Size:=4;
+  PrintRep.AddTable(1,RC div 3);
+  Tb:=PrintRep.LastTable;
+  Qr.First;
+  Br:=Border(clBlack,6,psSolid);
+  for j:=1 to RC div 3 do
+   begin
+    Tb.Cell[1,j].LeftMargin:=3; Tb.Cell[1,j].TopMargin:=3; Tb.Cell[1,j].BottomMargin:=3; Tb.Cell[1,j].RightMargin:=3;
+    if Param1 then Tb.Cell[1,j].AddTable(7,3) else
+    if Skd=0 then Tb.Cell[1,j].AddTable(6,3)
+             else Tb.Cell[1,j].AddTable(6,4);
+    Tb.SetBorders(1,j,1,j,Br);
+
+    Tb1:=Tb.Cell[1,j].LastTable;
+    if Param1 then Tb1.Cell[7,1].AddInterv(7);
+   {   Tb1.SetBorders(1,1,6,3,EMPTY_BORDER);
+
+    Tb1.Cell[2,1].LeftBorder:=DEFAULT_BORDER;
+    for k:=2 to 3 do Tb1.Cell[2,k].RightBorder:=DEFAULT_BORDER;
+
+    Tb1.Cell[4,1].LeftBorder:=DEFAULT_BORDER;
+    for k:=2 to 3 do Tb1.Cell[4,k].RightBorder:=DEFAULT_BORDER;
+}
+//    for k:=1 to 3 do Tb1.Cell[1,k].LeftBorder:=Br;
+
+    for k:=1 to 2 do Tb1.Cell[k*2-1,1].RightBorder:=Br;
+    for k:=1 to 2 do Tb1.Cell[k*2+1,2].LeftBorder:=Br;
+    for k:=1 to 2 do Tb1.Cell[k*2+1,3].LeftBorder:=Br;
+    for k:=1 to 2 do Tb1.Cell[k*2+1,4].LeftBorder:=Br;
+
+ {    begin
+      Tb1.Cell[1,k].RightBorder:=Br;
+      Tb1.Cell[3,k].LeftBorder:=Br;
+     end; }
+    Case Param1 of
+     False:Tb1.SetWidths('3900,6100,3900,6100,3900,6100');
+     True:begin
+           Tb1.SetWidths('4000,5900,4000,5900,4000,5900,5');
+           for k:=1 to 3 do Tb1.Cell[7,k].LeftBorder:=EMPTY_BORDER;
+          end;
+    end;
+    for i:=1 to 3 do
+     begin
+      if Qr.Eof then Break;
+      Tb1.MergeCells(i*2-1,1,i*2,1);
+{      Case Param1 of
+       False:
+       True:Tb1.Cell[i*2-1,1].Font.Size:=4;
+      end;}
+     { Tb1.Cell[i*2-1,1].Font.Size:=5;
+      Tb1.Cell[i*2-1,1].Font.Style:=[fsBold];
+      Tb1.Cell[i*2-1,1].Align:=AL_CENTER;
+      if Param1 then Tb1.Cell[i*2-1,1].AddInterv(1);
+      Tb1.Cell[i*2-1,1].AddText(Qr.FieldByName('Names').AsString);
+      }
+      Tb1.Cell[i*2-1,1].LeftMargin:=0;
+      Tb1.Cell[i*2-1,1].RightMargin:=0;
+      Tb1.Cell[i*2-1,1].TopMargin:=0;
+      Tb1.Cell[i*2-1,1].BottomMargin:=0;
+
+      Tb1.Cell[i*2-1,1].AddTable(2,1);
+      Tb2:=Tb1.Cell[i*2-1,1].LastTable;
+      Tb2.SetWidths('5000,1000');
+      Tb2.SetBorders(1,1,2,1,EMPTY_BORDER);
+      Tb2.Cell[1,1].Font.Size:=5;
+      Tb2.Cell[1,1].Font.Style:=[fsBold];
+      Tb1.Cell[1,1].Align:=AL_CENTER;
+      if Param1 then Tb2.Cell[1,1].AddInterv(1);
+      Tb2.Cell[1,1].AddText(Qr.FieldByName('Names').AsString);
+      Tb2.Cell[2,1].AddText('Клуб. цена'#10);
+      Tb2.Cell[2,1].Align:=AL_RIGHT;
+      Tb2.Cell[2,1].Font.Style:=[fsBold];
+      Tb2.Cell[2,1].AddText(CurrToStrF(((100-MaxSkd)/100)*Qr.FieldByName('Cena').AsCurrency,ffFixed,2));
+{      if Param1=False then
+       begin
+}        y:=3;
+
+        Tb1.Cell[i*2,2].Align:=AL_JUST;
+        if Param1=False then
+         begin
+          Tb1.Cell[i*2-1,2].Font.Size:=2;
+          Tb1.Cell[i*2-1,2].AddText(AnsiUpperCase(Firm));
+          Tb1.Cell[i*2,2].Font.Size:=2;
+          Tb1.Cell[i*2,2].AddText(DateToStr(Date)+' ');
+         end;
+
+        Tb1.Cell[i*2,2].Font.Size:=3;
+        if Param1=False then
+         begin
+          Tb1.Cell[i*2,2].AddText(IntToStr(Qr.FieldByName('P1').AsInteger)+'/');
+          Tb1.Cell[i*2,2].AddText(IntToStr(Qr.FieldByName('P2').AsInteger)+'/');
+          Tb1.Cell[i*2,2].AddText(IntToStr(Qr.FieldByName('P3').AsInteger)+' ');
+         end;
+
+        Case Param1 of
+         False:Tb1.Cell[i*2,2].AddText(IntToStr(Qr.FieldByName('Art_Code').AsInteger));
+         True:begin
+               Tb1.Cell[i*2,2].Align:=AL_RIGHT;
+               Tb1.Cell[i*2,2].AddText(IntToStr(Qr.FieldByName('Art_Code').AsInteger));
+               Tb1.Cell[i*2-1,2].RightBorder:=EMPTY_BORDER;
+              end;
+        end;
+//       end else y:=3;
+        // Добавление Штрих-Кода
+      Tb1.Cell[i*2,y].Align:=AL_RIGHT;
+      if Param1=False then
+       begin
+        if Skd=0 then Tb1.Cell[i*2,y].Font.Size:=9
+                 else Case Param of
+                       0:begin Tb1.Cell[i*2,y].Font.Style:=[fsBold]; Tb1.Cell[i*2,y].Font.Size:=4; end;
+                       1:begin Tb1.Cell[i*2,y].Font.Style:=[fsBold,fsStrikeOut]; Tb1.Cell[i*2,y].Font.Size:=7; end;
+                      end;
+       end else begin Tb1.Cell[i*2,y].Font.Style:=[fsBold]; Tb1.Cell[i*2,y].Font.Size:=9; end;
+
+//      if Param1 then Tb1.Cell[i*2,y].AddInterv(1);
+      Tb1.Cell[i*2,y].AddText(CurrToStrF(Qr.FieldByName('Cena').AsCurrency,ffFixed,2));
+      Tb1.Cell[i*2,y].Font.Size:=3;
+      Tb1.Cell[i*2,y].Font.Style:=[];
+      Tb1.Cell[i*2,y].AddText(' грн.');
+
+      if Param1 then Tb1.Cell[i*2,y].AddInterv(3);
+
+      if Param1=False then
+       begin
+        if Skd<>0 then
+         begin
+          Tb1.Cell[i*2-1,4].Font.Size:=4;
+          Tb1.Cell[i*2-1,4].Font.Style:=[fsBold];
+          Case Param of
+           0:Tb1.Cell[i*2-1,4].AddText('Со скидкой');
+           1:Tb1.Cell[i*2-1,4].AddText('Скидка '+IntToStr(Skd)+'%');
+          end;
+
+          Tb1.Cell[i*2,4].Align:=AL_RIGHT;
+          Tb1.Cell[i*2,4].Font.Size:=8;
+          Tb1.Cell[i*2,4].Font.Style:=[fsBold];
+          Tb1.Cell[i*2,4].AddText(CurrToStrF(((100-Skd)/100)*Qr.FieldByName('Cena').AsCurrency,ffFixed,2));
+          Tb1.Cell[i*2,4].Font.Size:=3;
+          Tb1.Cell[i*2,4].Font.Style:=[];
+          Tb1.Cell[i*2,4].AddText(' грн.');
+         end;
+       end;
+//      if Param1=False then
+       begin
+        EAN13:=Copy(Qr.FieldByName('EAN13').AsString,1,12);
+        if Length(EAN13)=12 then
+         begin
+          Tb1.Cell[i*2-1,y].Font.Name:='EanBwrP36Tt';
+          Tb1.Cell[i*2-1,y].Font.Size:=8;
+          Tb1.Cell[i*2-1,y].Font.CharSet:=ANSI_CHARSET;
+//        if Param1 then Tb1.Cell[i*2-1,y].AddInterv(2);
+          Tb1.Cell[i*2-1,y].AddText(GenEAN13(EAN13));
+         end;
+       end;
+      Qr.Next;
+     end;
+    if Qr.Eof then Break;
+   end;
+ end;

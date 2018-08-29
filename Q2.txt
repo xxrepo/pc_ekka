@@ -1,0 +1,11 @@
+
+select (case d.id_param_type when 5 then           
+                              (case when convert(numeric(15,5),e.parameter_value)>=86400 then convert(varchar,convert(int,e.parameter_value)/86400)+'C+' else '' end)+ 
+                              convert(varchar,convert(smalldatetime,convert(numeric(15,5),e.parameter_value)/86400.),8)                         
+                                                                                                                                                
+                             when 2 then convert(varchar,convert(datetime,e.parameter_value),4) else e.parameter_value end) as param_value,     
+       param_descr                                                                                                                              
+from inform..e_worktime_parameters e,                                                                                                           
+     inform..d_worktime_parameters d                                                                                                            
+where id_card=1345 and e.id_parameter=d.id and d.trash=0                                                                                        
+order by 2     

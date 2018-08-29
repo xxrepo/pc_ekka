@@ -1,0 +1,69 @@
+object ShowRecOnlyF: TShowRecOnlyF
+  Left = 712
+  Top = 374
+  BorderStyle = bsDialog
+  Caption = 'ShowRecOnlyF'
+  ClientHeight = 172
+  ClientWidth = 566
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  OldCreateOrder = False
+  Position = poScreenCenter
+  OnCreate = FormCreate
+  DesignSize = (
+    566
+    172)
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Label1: TLabel
+    Left = 5
+    Top = 10
+    Width = 557
+    Height = 129
+    Alignment = taCenter
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    AutoSize = False
+    Caption = 
+      #1042#1085#1080#1084#1072#1085#1080#1077'!!!! '#1055#1048#1051#1054#1058#1053#1067#1049' '#1055#1056#1054#1045#1050#1058#39'#10'#39' '#1044#1072#1085#1085#1099#1081' '#1087#1088#1077#1087#1072#1088#1072#1090' '#1042#1099' '#1084#1086#1078#1077#1090#1077' '#1086#1090#1087#1091 +
+      #1089#1090#1080#1090#1100' '#1087#1086#1082#1091#1087#1072#1090#1077#1083#1102' '#1090#1086#1083#1100#1082#1086' '#1087#1086' '#1087#1088#1077#1076#1098#1103#1074#1083#1077#1085#1080#1102' '#1056#1045#1062#1045#1055#1058#1040'!!!!! '#1054#1090#1087#1091#1089#1082' '#1087#1088#1077#1087 +
+      #1072#1088#1072#1090#1072' '#1073#1077#1079' '#1088#1077#1094#1077#1087#1090#1072' '#1057#1058#1056#1054#1043#1054' '#1047#1040#1055#1056#1045#1065#1045#1053'!!!!'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -16
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+    Layout = tlCenter
+    WordWrap = True
+  end
+  object BitBtn1: TBitBtn
+    Left = 230
+    Top = 144
+    Width = 106
+    Height = 25
+    Anchors = [akBottom]
+    Cancel = True
+    Caption = #1047#1072#1082#1088#1099#1090#1100
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 0
+    OnClick = BitBtn1Click
+    Glyph.Data = {
+      F6000000424DF600000000000000760000002800000010000000100000000100
+      04000000000080000000D40E0000D40E00001000000010000000000059002424
+      500026266900FF0000000101BD002929AF005D5DBB000707C8002828CA000000
+      F5002626F4006161D300A4A4D500D1D1DA00D7D7F200E3E3E400333E20000001
+      F33333E8744444441F333E874474444441F3E87844578578741F84DEC5C4EEBD
+      844194EBC8D4FBCCB44077BBC8D4FBCCFC40947BC5D4FBCD6C40746F88D4FBCC
+      BD4094DB88D4FBCCBD4094EBC7E4FBCCBD40A7CECCF6DDBEDC42EA8888888878
+      B45F3EA74444444445E333EA777777745F33333EA9999995E333}
+  end
+end

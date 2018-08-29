@@ -1,0 +1,13 @@
+*.cfg
+*.dcr
+*.ddp
+*.dcu
+~*
+~*.*
+*.dll
+*.bak
+*.exe
+*.dof
+*.0*
+*.upx
+*.~*

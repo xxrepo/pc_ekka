@@ -1,0 +1,699 @@
+object MotivationSystemF: TMotivationSystemF
+  Left = 358
+  Top = 172
+  BorderIcons = [biSystemMenu, biMaximize]
+  BorderStyle = bsSingle
+  Caption = 'MotivationSystemF'
+  ClientHeight = 648
+  ClientWidth = 1016
+  Color = clWhite
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  OldCreateOrder = False
+  Position = poScreenCenter
+  OnActivate = FormActivate
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  DesignSize = (
+    1016
+    648)
+  PixelsPerInch = 96
+  TextHeight = 13
+  object lbUser: TLabel
+    Left = 785
+    Top = 11
+    Width = 226
+    Height = 13
+    Alignment = taCenter
+    Anchors = [akLeft, akTop, akRight]
+    AutoSize = False
+    Caption = 'lbUser'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clMaroon
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object Image1: TImage
+    Left = 929
+    Top = 35
+    Width = 62
+    Height = 58
+    Hint = #1057#1090#1072#1090#1080#1089#1090#1080#1082#1072' '#1087#1086' '#1085#1072#1082#1086#1087#1083#1077#1085#1085#1099#1084' '#1073#1072#1083#1083#1072#1084', '#1073#1086#1085#1091#1089#1072#1084
+    Anchors = [akTop, akRight]
+    AutoSize = True
+    ParentShowHint = False
+    Picture.Data = {
+      0A544A504547496D61676590070000FFD8FFE000104A46494600010100000100
+      010000FFDB00430007050606060507060606080807090B120C0B0A0A0B171011
+      0D121B171C1C1A171A191D212A241D1F2820191A253225282C2D2F302F1D2334
+      38342E372A2E2F2EFFDB0043010808080B0A0B160C0C162E1E1A1E2E2E2E2E2E
+      2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E
+      2E2E2E2E2E2E2E2E2E2E2E2E2EFFC2001108003A003E03012200021101031101
+      FFC4001B00000301000301000000000000000000000304050600010207FFC400
+      1801000301010000000000000000000000000001020304FFDA000C0301000210
+      0310000001DDA9E811AB683059A49E1FA00D39E5A8A73A8A8E4112EA31BA5713
+      711DBC93BAF3F215982ADD624B59DB8A842D9ACE6F4B79A395DB7CA56BAEA765
+      32264FD3342C26C08767FFC40021100002010402030101000000000000000002
+      03010004111210131422332131FFDA00080101000105027375A29FCF798B9B40
+      626D2D454928F55C2CE96CDA814F0804E2E2E488412CEC079E908F9827372FB6
+      EE8A18C132331BC04817618C6207EFC4FF004E6447092A1248D0E6602265DC0E
+      CD95B37E48A4EA0FC5259C1832755DA1E23B54478A3D445372AC7D4846046FF3
+      E36714A8B74B371A6342212A48D116F56A2416ED8895C114DF6231E2DB5256B5
+      C542D7075FFFC4001E1100020202020300000000000000000000000102031131
+      1012132241FFDA0008010301013F018E0D712C11D91696C93C92D905F79B0A5F
+      AB14F2790B2CEC7FFFC4001B1100020203010000000000000000000000000102
+      2110123111FFDA0008010201013F017E965889732B84B311AB3535123FFFC400
+      3210000103020403040905000000000000000100021112210331415110426113
+      223252142372829192B1C1D1346281A1E1FFDA0008010100063F020CC3BE21FE
+      97ACC72D1ED44AA4E24B7A67F14E6B18CACF314C6B9ADED07337F2AEF7D2112C
+      7B8FBC6428759C1063461479AFF4FF00562173AB36BFD90A499262C2EA546AEE
+      B0B9BDE45F31034D552E7363D9E1887CCE5D426B18291900D505B541E61C1BB5
+      27EDC4A2436AE814D54F4365DCEF9FDB742441D907681A47D3F1C7D2309DE2C8
+      1C8850452EDB8D385F36C9BE5758DF541CDC8A73B60830D869754CC85673BE2A
+      A79247529D26130620897837D152DB04E03556CCD9115DF49D178911E23B0CCA
+      25BDEC502CD7E63F844939A635D32374E076584D2491564A22CBF4F85F2047B3
+      C36B6FA08E150C36876F1C3FFFC4002410000202010304030101000000000000
+      00011100213141516110718191A1B1C1F0E1FFDA0008010100013F21792F4477
+      31420B69903F2801A5E8609CC0B4948374753989E748359CF6184182B0D9F799
+      90FAF23D8E205959C37E444F182BDB9A455FC2D091FC60F98B5BA85879FA821A
+      9075060422F1041F2985E048D445C081357C8F3C5438D00BD5F7D0214BB3E00F
+      C8BC80C8C03AE8BD132FDA1A00019FD886BBA707B89426CE49E63201D48F3D42
+      85CC28421DC309449FAD8F46667ED3FC844B7E66A0404340E49FE3BF56881F88
+      5FDCC1F901F9BF4C0B859C1EBA2000964C5B964D9EC7DC665C93940313BA00A8
+      E98A8DC00E68AC18E3086D0E0390747934A96C3784B5CD28E1A67C4040230A35
+      E0C091B46DCA03771321AF036101F44B2841437D88E5964C0D8B623A59E66542
+      A56678801010D4629D9863599A0382E8E5F264D6DD29DA602FA7FFDA000C0301
+      0002000300000010CFAFABF5D7AD93FD083B5F8CFFC4001B1101010100030101
+      0000000000000000000111002131611041FFDA0008010301013F109F183B19E5
+      AE6D97E4C518950D1961C83D693DC01F74426FD266380D184937FFC4001B1100
+      0301010003000000000000000000000001112131104161FFDA0008010201013F
+      10F732F45E847D5E2AE41B720B81A0C454D2C83FB163A4F4FFC4002310010100
+      02010500020301000000000000011100213141516171911081A1B1C1F0FFDA00
+      08010100013F10554E49CF55FE6757C54D984050F7889E898E2280C3ADD06BEC
+      8F9707E1AA290785E8F3808A423152003810FD64DB684AD1E05FD6E700D0D7E4
+      02943CC91F370AA423B01D29C8FF001C64045244F90ECFFC735A7C8D30A80D00
+      807BD76840AC6FB6754070AB5A1D5683304024DC1A784447CF7A6198926A79DB
+      D8685DE8EA35154B898911505934BB49779AED7883651DC360E8B705F4E6DEC4
+      EA873F80314B7C9871321E528523B20F16F4C59D92C918ADEEBEE1D8B369C694
+      EDDC8E3922AAAEA9ABF5719984FDC48FCAFDC41E4FC10004567777FEE7113A60
+      D9D2EB1B22EF46FD227F588A2F1CF894D7B2865EB27129DA9CE774EB12A1EA0B
+      E3F2676834C3C53A5363A47B2D5AF1E5E8FB747C7C63FCE5A280395D062F1A1B
+      943C5D2FD3DE3DA866E412F9161B7919A1654044F674CE3AA20B2A1ADE3729C9
+      12036487043AEF390A16A2320F65749DE765053A38507DB86055EB0567AC04FF
+      000E82811DA54E82A90D629E459615D347814A5DE74D5762852073A27788909B
+      04A3D027B71234B4C81624DCFDBC5C0A91F78D4547469C0EAE12964FD369A5AE
+      2C2F9C44C23B11AF2771FEB396310A45615ABA988CDD028EB1C0D62D43093893
+      58BDD625893B4CD8BB16AF23F33DE0D10EB0DE20F20E1B404264FB0BF8FFD9}
+    ShowHint = True
+  end
+  object Label1: TLabel
+    Left = 924
+    Top = 100
+    Width = 72
+    Height = 13
+    Anchors = [akTop, akRight]
+    Caption = #1042#1072#1096#1072' '#1082#1086#1087#1080#1083#1082#1072
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    OnMouseEnter = Label1MouseEnter
+    OnMouseLeave = Label1MouseLeave
+  end
+  object Label6: TLabel
+    Left = 790
+    Top = 30
+    Width = 121
+    Height = 26
+    Alignment = taCenter
+    AutoSize = False
+    Caption = #1041#1086#1085#1091#1089#1086#1074' '#1079#1072' '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clNavy
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    WordWrap = True
+  end
+  object Image2: TImage
+    Left = 787
+    Top = 66
+    Width = 40
+    Height = 43
+    AutoSize = True
+    Picture.Data = {
+      0A544A504547496D6167652F0B0000FFD8FFE000104A46494600010101004800
+      480000FFDB004300010101010101010101010101010101010101010101010101
+      0101010101010101010101010202010102010101020202020202020202010202
+      0202020202020202FFDB00430101010101010101010101020101010202020202
+      0202020202020202020202020202020202020202020202020202020202020202
+      02020202020202020202020202FFC2001108002B002803012200021101031101
+      FFC4001A000100030101010000000000000000000008000709060503FFC40019
+      0100020301000000000000000000000000050602040703FFDA000C0301000210
+      0310000001DE1CFD439AF2B6817D91DFF4B3ECC281F84E8A6FCFF08F187B7AF7
+      EC622F9EAF7142BC731FBA00ED66E559C2E4DD58F2B0D3CE83E6CACD3D53FFC4
+      001D100002030003010100000000000000000004050203060001071316FFDA00
+      08010100010502607D0B45D3FA0E9CB83073ACFB25D6EDD65BE75E8806F40DF9
+      B7D6132A6000F3AA2FE11C6DEBCF1997E6B4DA16DD885A25CA68AE8092867B62
+      6BB681CBA763BED3CD8A978B96DC148C7FB68D6C0C66D8B5A6170D1EEF3273D5
+      FDB514A2CB8A4F9B193498F85F3E3346D78D1228755BEC7E7EA2B2D81C78FCAE
+      BAEA8FFFC4002B11000201020503020603000000000000000102030411000512
+      213113415106611422334263A17181B1FFDA0008010301013F01A24F81A28A58
+      6923A9CCAB15DD5E65D6B0C71DBE9C6415695EE086656D2380BBB60D769A784E
+      6150669AA2279006E9BC3F2970A9A3A66DAF48019240413C0B6F9964D2C72432
+      D1C0C60AB8D640BC98F50DD0DF9B763E39C2535354D1D1D89558A3431BA92196
+      CA2DB8DFFBE3B37188725A36AA153396CC65FC920603C5D42AEC3C1B8F6C7A95
+      EA5EB21D1318D427036FB8EFFAB0FE3DF195E77250274254EBD3DEE37B321EFA
+      4F83DD7CF71BE1FD4F0AA6B48E4763D8D97F7ADBFC18ACCC6A2B6769E43A49E0
+      0E00EC063FFFC4002A1100010303020504020300000000000000020103040511
+      12061300212231410714234232516191F0FFDA0008010201013F01AB5512AF5D
+      9D066D49FA769EA3BF16293715CD97664A948ABF3484203662B222424206DAB8
+      48BD44B836AC40DD993C687056347A6CC6E229366F8C8B1B6C19BF938FA0AED6
+      F2AB8DBACAF48F22525E9D39ADA04F8F35AA8C90665D3243B188BEAF6D2DB742
+      DE0BFDDF837EA306B15EDE26D1E9B25F192CC86D1C8AF5DD2250744B936437C9
+      A25B640A8AD125F9C8D43A91CA395320CC85A5E9A22A8AB058207315FCB071C7
+      48014BBEE058D3BE57E3D35A5D2E1D11E63DA23DB6EDB234C96D8095BA92F95C
+      948956CAAA5D85110535368A83A81D19AD9FB1A90A62AE0E49B83E05CC08096D
+      F52BAD93962BC33E99BE4E20C89A0822B7CEEEC834FE411EF8C57F4B892F149A
+      2C2A3C26A0C505DB6FC92DC889799112F9225EEBFD592C9C7FFFC40034100002
+      0201020403050607010000000000010203040511120006132114233122324142
+      510715243443611033525354727391FFDA0008010100063F0292DD8EA32C63D9
+      8E1432CF33FCB14112FBF21FFC1A12C42824483194EFD78CB3A256C6B450CFEC
+      12A4D9C9CC3585F703DA25F86847CC5A4C8D6F0A80077B592CCF3033A2B310AC
+      F2D3CB825890DA6D8BBED3DBB1E2BFDCDCC53493C9FCAC4676F4F94C3DFD1249
+      56BA7DF3057BB8A8DC44CB1C91F561690847B316E1ADAFC33E2B3B8997C2E730
+      939D66A563564EA4648064ACCF1C8012032B21461A8D4E5FC236B6B19CBB7AF5
+      78D3BB8B32C36FA6FB7FB83C22EDFF00A1FAF188B7424F194D7C2A746AB09D56
+      1685B709A184EE9ED4AA55230C408F7F540793A6A5859A869ACF99C553ADDB74
+      C4997CD319651AB4516B2F6D36ECDC54153C5496800228A732BD891BCC8AB9AF
+      2436E003F50CFD570C06D8F63FBAAC9E6E173D54221BD90A18BB6C88A1AF636E
+      4CB5F6C8DA6B27E1BA328D7F5210C78CA67C296AB8ABF357CAC1EF31C4F42A41
+      25D403D444F57ABFF31369A9EC5A6C46CB78AB603C468490477EAC7DFA7514CD
+      E55EA485DBA4B2ED7AC19D63660E5781907C7F32E4F2281D2BCB77C1C90D0595
+      4AC829C49663AD5D9909569557AA55B6972BDB87F11B71F476F9E24913AF2AFC
+      637743B6288FC74249F4DC071CB556BBC70E16A6552585E56082FBD23E22DBC5
+      AFBCAB0C2C8A476DF201F522FD8A54DB262B8993358209D49F2780BF34D72AE4
+      71B037E6E4824B176178F426508CABAB4615E6BBF67D944C8E2ECB176C13DF4A
+      994C79F57AD51ED830DA8D1868167E84B16855E6975D004299DC7AAAF98EFCA7
+      5AFEDDC3B86B75B24D07B27E60743EBC18EC35DCC4FDDE38AFE4E096844A350D
+      606331274AE83E659E6319D7475D38C7E43C4751E9DA8A28A4854450AA0D63E9
+      D5890691C1ED30503E4EFE9DB88AD60AC252E64C539B18BB2FDA39D4E9E231B6
+      9BFC5982AFFAC888FE80EB2C7CD1C99357CEC2A52CCF8F634B3008F292267A53
+      C56EDC6C35D8D199626046D63AF0C28FD9E73E65262DF97B679B6BD5F647B264
+      96ECA6375D7E075E0D5BE983E46C476EA63293D79F2B64E9EC87A946466694FA
+      79AD1FA6BEBC54B894A7A1CBF8F60F0BDB5DB62ECBA68D6A7EDEF6DD4220F741
+      3F53FC163CAE3AA5F54EF19B10ABC911FEA865D3742DFBA9078754AD6806D436
+      B97CC36A0F62096BFF004E05A4C0D36B03BF5A73359935FAEEB32B6BC08E2458
+      D17B2A2285503F603D38FFC4001E100101000300030003000000000000000001
+      110021314151716181F0FFDA0008010100013F21273647F8F713B0D0612E926A
+      FAD53425A5AC70C2B9F597C0984C2B192B977526AA6E725380C4505A0C227D80
+      636188EBABCE04FDFCB75F33ED1E34684A54644F1D518520C2E00B8544D2A2F2
+      6EE72F1995186E35E7BA373340DE66E9692F456A47AD498FC8702321C962A2A7
+      1E08E34B46A8063A11ACF5CB00325DAF4ABC698DA48CB9228F71C68089F31069
+      F067153587C3307790809831E9A1638B12EE8EBE2D81C3E7987AB080B6BBA275
+      E215480708B08D78B4234E009341E30C5E91A4A418F372A39F898EC201C48401
+      5642290934B55D396C3F7FBA38B788A1C8CE444BA2813283034C2EE2959A89FF
+      003776F1C9CD446506CA4FDE68888F26EC9AD1DF580E6A0BDC06033FFFDA000C
+      03010002000300000010F903A607D0193FFFC4001C1101010101010100030000
+      0000000000000111214100315171A1FFDA0008010301013F101FC8D0C646E640
+      DE01162974444A351E615795984DA2884217DB54148AE0CAAC129405970D292C
+      1617041107A0A768D1467BA6415160E12883815D4AA5B50941D147EC90742343
+      028621C225619A37EBC64603E25D1C3FBABAAFBFFFC4001A1101010101010101
+      00000000000000000001112100314171FFDA0008010201013F1061C44A299400
+      5455F27B16FD822C201D7153CA214BEC3933D290294C81F60103F236AE45FF00
+      3CF08797FF00156AFD1112F088708F2248281907D5730EB403F402413690C092
+      DFD3AA6983C141EFA1C9D97563DA7DB0A7E000FFC4001B100101010100030100
+      00000000000000000111002110314151FFDA0008010100013F108DCA2B082EE6
+      81220354F133BDD0C4E02CA10B44F5D9D9B1A424C3AB353EDDB3475BD40BB623
+      609FF0F56BBB0B648EAAD0204DB1AA387165CF3AE9912CB51FF5EFE43AA7E656
+      A65878DEA95CB2C64290767236D8B3329C747591579994B40873BD44FD42942B
+      770841817D1CA21645A06F380A6A2522C1A9BFA64BC4BE0DA95AB6280B649972
+      8E4BCBFD13DA1B567A425E6B2592A03B49FC11380096C4D4029CE7342E2753E6
+      61802476D38A53522C1326F6F4531C3865192CE6E5002329581AFC409DB92FDA
+      513062E00A5E8A44B8C9ABAC724CE0AA5A1262A90F478A4D18EEF615C2906610
+      4A0C2E7DD756049E2FA4681F358AEBEB234FA7E184C6C00907C0F806FFD9}
+    Transparent = True
+  end
+  object lbBonusAll: TLabel
+    Left = 830
+    Top = 66
+    Width = 84
+    Height = 44
+    Alignment = taCenter
+    AutoSize = False
+    Caption = '0'
+    Font.Charset = RUSSIAN_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -32
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    Layout = tlCenter
+  end
+  object Panel1: TPanel
+    Left = 4
+    Top = 5
+    Width = 337
+    Height = 311
+    Anchors = [akLeft, akTop, akBottom]
+    BevelOuter = bvNone
+    Caption = 'Panel1'
+    Color = 10842170
+    TabOrder = 0
+    DesignSize = (
+      337
+      311)
+    object imHead1: TImage
+      Left = 1
+      Top = 0
+      Width = 335
+      Height = 24
+    end
+    object Label2: TLabel
+      Left = 5
+      Top = 5
+      Width = 137
+      Height = 13
+      Caption = #1055#1077#1088#1077#1095#1077#1085#1100' '#1087#1088#1080#1086#1088#1080#1090#1077#1090#1086#1074
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentFont = False
+      Transparent = True
+    end
+    object sb1: TScrollBox
+      Left = 1
+      Top = 24
+      Width = 335
+      Height = 286
+      HorzScrollBar.Tracking = True
+      HorzScrollBar.Visible = False
+      VertScrollBar.Tracking = True
+      Anchors = [akLeft, akTop, akRight, akBottom]
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      BorderStyle = bsNone
+      Color = 14740703
+      ParentColor = False
+      TabOrder = 0
+    end
+  end
+  object Memo1: TMemo
+    Left = 695
+    Top = 60
+    Width = 51
+    Height = 36
+    Lines.Strings = (
+      'Memo1')
+    TabOrder = 1
+    Visible = False
+  end
+  object Panel2: TPanel
+    Left = 345
+    Top = 5
+    Width = 435
+    Height = 106
+    BevelOuter = bvNone
+    Color = clMaroon
+    TabOrder = 2
+    DesignSize = (
+      435
+      106)
+    object imHead2: TImage
+      Left = 1
+      Top = 0
+      Width = 433
+      Height = 24
+      Anchors = [akLeft, akTop, akRight]
+    end
+    object Label3: TLabel
+      Left = 5
+      Top = 5
+      Width = 52
+      Height = 13
+      Caption = #1059#1089#1083#1086#1074#1080#1103
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object Panel3: TPanel
+      Left = 1
+      Top = 24
+      Width = 433
+      Height = 81
+      Anchors = [akLeft, akTop, akRight, akBottom]
+      BevelOuter = bvNone
+      Color = clCream
+      TabOrder = 0
+      DesignSize = (
+        433
+        81)
+      object lb1: TLabel
+        Left = 1
+        Top = 1
+        Width = 431
+        Height = 78
+        Alignment = taCenter
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        AutoSize = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Layout = tlCenter
+        WordWrap = True
+      end
+    end
+  end
+  object pn4: TPanel
+    Left = 346
+    Top = 116
+    Width = 667
+    Height = 529
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    BevelInner = bvRaised
+    BevelOuter = bvLowered
+    Color = clWhite
+    TabOrder = 3
+    Visible = False
+    DesignSize = (
+      667
+      529)
+    object Label5: TLabel
+      Left = 10
+      Top = 20
+      Width = 152
+      Height = 20
+      Caption = #1055#1077#1088#1080#1086#1076' '#1076#1077#1081#1089#1090#1074#1080#1103
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clPurple
+      Font.Height = -16
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object Panel5: TPanel
+      Left = 4
+      Top = 61
+      Width = 658
+      Height = 230
+      Anchors = [akLeft, akTop, akRight]
+      BevelOuter = bvNone
+      Color = clSilver
+      TabOrder = 0
+      DesignSize = (
+        658
+        230)
+      object im1_4: TImage
+        Left = 1
+        Top = 1
+        Width = 656
+        Height = 25
+        Hint = #1057#1086#1074#1087#1072#1076#1077#1085#1080#1077' '#1089#1086#1089#1090#1072#1074#1072' '#1076#1077#1081#1089#1090#1074#1091#1102#1097#1080#1093' '#1074#1077#1097#1077#1089#1090#1074' '#1080' '#1080#1093' '#1076#1086#1079#1080#1088#1086#1074#1082#1080
+        Anchors = [akLeft, akTop, akRight]
+        ParentShowHint = False
+        ShowHint = True
+      end
+      object lb2: TLabel
+        Left = 8
+        Top = 5
+        Width = 179
+        Height = 16
+        Hint = #1057#1086#1074#1087#1072#1076#1077#1085#1080#1077' '#1089#1086#1089#1090#1072#1074#1072' '#1076#1077#1081#1089#1090#1074#1091#1102#1097#1080#1093' '#1074#1077#1097#1077#1089#1090#1074' '#1080' '#1080#1093' '#1076#1086#1079#1080#1088#1086#1074#1082#1080
+        Caption = #1047#1072#1084#1077#1085#1103#1077#1084#1099#1077' '#1087#1088#1077#1087#1072#1088#1072#1090#1099
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        Transparent = True
+      end
+      object dbg2: TDBGrid
+        Left = 1
+        Top = 26
+        Width = 656
+        Height = 203
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        BorderStyle = bsNone
+        Color = 14020596
+        DataSource = ds4_1
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        Options = [dgTitles, dgColumnResize, dgTabs, dgConfirmDelete, dgCancelOnExit]
+        ParentFont = False
+        TabOrder = 0
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'MS Sans Serif'
+        TitleFont.Style = []
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'Art_Code'
+            Title.Alignment = taCenter
+            Title.Caption = #1050#1086#1076
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clMaroon
+            Title.Font.Height = -11
+            Title.Font.Name = 'MS Sans Serif'
+            Title.Font.Style = [fsBold]
+            Width = 63
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'Names'
+            Title.Alignment = taCenter
+            Title.Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clMaroon
+            Title.Font.Height = -11
+            Title.Font.Name = 'MS Sans Serif'
+            Title.Font.Style = [fsBold]
+            Width = 396
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ostat'
+            Title.Alignment = taCenter
+            Title.Caption = #1050#1086#1083'-'#1074#1086
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clMaroon
+            Title.Font.Height = -11
+            Title.Font.Name = 'MS Sans Serif'
+            Title.Font.Style = [fsBold]
+            Width = 57
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'cena'
+            Title.Alignment = taCenter
+            Title.Caption = #1062#1077#1085#1072
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clMaroon
+            Title.Font.Height = -11
+            Title.Font.Name = 'MS Sans Serif'
+            Title.Font.Style = [fsBold]
+            Width = 60
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'cenaup'
+            Title.Alignment = taCenter
+            Title.Caption = #1062#1077#1085#1072' '#1091#1087'.'
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clMaroon
+            Title.Font.Height = -11
+            Title.Font.Name = 'MS Sans Serif'
+            Title.Font.Style = [fsBold]
+            Width = 60
+            Visible = True
+          end>
+      end
+    end
+    object Panel4: TPanel
+      Left = 4
+      Top = 294
+      Width = 658
+      Height = 230
+      Anchors = [akLeft, akTop, akRight]
+      BevelOuter = bvNone
+      Color = clSilver
+      TabOrder = 1
+      DesignSize = (
+        658
+        230)
+      object im2_4: TImage
+        Left = 1
+        Top = 1
+        Width = 656
+        Height = 25
+        Hint = #1057#1086#1074#1087#1072#1076#1077#1085#1080#1077' '#1089#1086#1089#1090#1072#1074#1072' '#1076#1077#1081#1089#1090#1074#1091#1102#1097#1080#1093' '#1074#1077#1097#1077#1089#1090#1074' '#1080' '#1080#1093' '#1076#1086#1079#1080#1088#1086#1074#1082#1080
+        Anchors = [akLeft, akTop, akRight]
+        ParentShowHint = False
+        ShowHint = True
+      end
+      object Label4: TLabel
+        Left = 8
+        Top = 5
+        Width = 174
+        Height = 16
+        Hint = #1057#1086#1074#1087#1072#1076#1077#1085#1080#1077' '#1089#1086#1089#1090#1072#1074#1072' '#1076#1077#1081#1089#1090#1074#1091#1102#1097#1080#1093' '#1074#1077#1097#1077#1089#1090#1074' '#1080' '#1080#1093' '#1076#1086#1079#1080#1088#1086#1074#1082#1080
+        Caption = #1055#1088#1077#1087#1072#1088#1072#1090#1099' '#1076#1083#1103' '#1079#1072#1084#1077#1085#1099
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        Transparent = True
+      end
+      object DBGrid1: TDBGrid
+        Left = 1
+        Top = 26
+        Width = 656
+        Height = 203
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        BorderStyle = bsNone
+        Color = 14020596
+        DataSource = ds4_2
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        Options = [dgTitles, dgColumnResize, dgTabs, dgConfirmDelete, dgCancelOnExit]
+        ParentFont = False
+        TabOrder = 0
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'MS Sans Serif'
+        TitleFont.Style = []
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'Art_Code'
+            Title.Alignment = taCenter
+            Title.Caption = #1050#1086#1076
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clMaroon
+            Title.Font.Height = -11
+            Title.Font.Name = 'MS Sans Serif'
+            Title.Font.Style = [fsBold]
+            Width = 63
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'Names'
+            Title.Alignment = taCenter
+            Title.Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clMaroon
+            Title.Font.Height = -11
+            Title.Font.Name = 'MS Sans Serif'
+            Title.Font.Style = [fsBold]
+            Width = 396
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ostat'
+            Title.Alignment = taCenter
+            Title.Caption = #1050#1086#1083'-'#1074#1086
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clMaroon
+            Title.Font.Height = -11
+            Title.Font.Name = 'MS Sans Serif'
+            Title.Font.Style = [fsBold]
+            Width = 57
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'cena'
+            Title.Alignment = taCenter
+            Title.Caption = #1062#1077#1085#1072
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clMaroon
+            Title.Font.Height = -11
+            Title.Font.Name = 'MS Sans Serif'
+            Title.Font.Style = [fsBold]
+            Width = 60
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'cenaup'
+            Title.Alignment = taCenter
+            Title.Caption = #1062#1077#1085#1072' '#1091#1087'.'
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clMaroon
+            Title.Font.Height = -11
+            Title.Font.Name = 'MS Sans Serif'
+            Title.Font.Style = [fsBold]
+            Width = 60
+            Visible = True
+          end>
+      end
+    end
+  end
+  object Panel6: TPanel
+    Left = 5
+    Top = 320
+    Width = 185
+    Height = 41
+    Caption = 'Panel6'
+    TabOrder = 4
+  end
+  object qr4_1: TADOQuery
+    Connection = DM.ADOCo
+    Parameters = <>
+    Left = 395
+    Top = 257
+  end
+  object qr4_2: TADOQuery
+    Connection = DM.ADOCo
+    Parameters = <>
+    Left = 470
+    Top = 257
+  end
+  object ds4_1: TDataSource
+    DataSet = qr4_1
+    Left = 395
+    Top = 317
+  end
+  object ds4_2: TDataSource
+    DataSet = qr4_2
+    Left = 470
+    Top = 317
+  end
+end

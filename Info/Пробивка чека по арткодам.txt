@@ -1,0 +1,3 @@
+- Добавить spY_WriteChek
+
+- Удалить spY_ClearChek

@@ -1,0 +1,9 @@
+select
+  f.ID, case when f.fname like 'FOLDER_%' then  SubString(f.fname, 14, Len(f.FName)) else f.fname end as Fname 
+from
+  INFORM.dbo.JFILES f
+  left join INFORM.dbo.FOLDERS d (nolock) on d.id_folder=f.SubFolderID
+where
+  f.FName like 'FOLDER[_]00060[_]%'
+  or d.DESCR like 'Папка 2'
+

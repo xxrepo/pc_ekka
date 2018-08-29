@@ -1,0 +1,25 @@
+//  aFiles[6].Num:=7;   aFiles[6].Name:='SPON';     aFiles[6].Descr:='Нулевые остатки';         aFiles[6].Requir:=True;
+
+        {S:='if Object_ID(N''tempdb..#tmpspr'') is not null drop table #tmpspr'+#10+
+           'select a.Names,a.Art_Code,a.Cena,a.F_NDS,a.Type_Tov '+
+           'into #tmpspr '+
+           'from Sprtov a,ArhCheks b '+
+           'where a.kod_name=b.kod_name and '+
+           '      b.Date_Chek>='''+FormatDateTime('yyyy-mm-dd',Date-2)+' 00:00:00'' and '+
+           '      a.Art_Code in (select Art_Code from SprTov group by Art_Code having Sum(Ostat)=0) '+
+           'group by a.Names,a.Art_Code,a.Cena,a.F_NDS,a.Type_Tov '+
+           'having Sum(Ostat)=0 '+
+           'order by a.F_NDS,a.Names '+
+           'insert into #tmpspr  '+
+           'select a.Names,a.Art_Code,a.Cena,a.F_NDS,a.Type_Tov '+
+           'from Sprtov a,Moves b '+
+           'where a.kod_name=b.kod_name and '+
+           '      b.Date_Nakl>='''+FormatDateTime('yyyy-mm-dd',Date-2)+' 00:00:00'' and '+
+           '      b.Debcrd=2 and '+
+           '      b.NN_Nakl not like ''ВЗР%''and '+
+           '      a.Art_Code in (select Art_Code from SprTov group by Art_Code having Sum(Ostat)=0) '+
+           '      and art_code not in (select Art_Code from #tmpspr) '+
+           'group by a.Names,a.Art_Code,a.Cena,a.F_NDS,a.Type_Tov '+
+           'having Sum(Ostat)=0 '+
+           'order by a.F_NDS,a.Names '+
+           'select Names,Art_Code,Cena,F_NDS,Type_Tov from #tmpspr ';}

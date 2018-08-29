@@ -1,0 +1,15 @@
+select e.id_card,(case e.id_day when 1 then 'Понедельник'  
+                                when 2 then 'Вторник'      
+                                when 3 then 'Среда'        
+                                when 4 then 'Четверг'      
+                                when 5 then 'Пятница'      
+                                when 6 then 'Суббота'      
+                                when 7 then 'Воскресенье' end) as SDay,           
+       convert(varchar,convert(smalldatetime,convert(numeric(15,5),e.time_beg)/86400.),8) as time_beg, 
+       convert(varchar,convert(smalldatetime,convert(numeric(15,5),e.time_end)/86400.),8) as time_end, 
+       d.worktime_position_name,                                  
+       d.worktime_position_description                            
+from inform..e_worktime_position e,                               
+     inform..d_worktime_position d                                
+where id_card=cast(cast('{04545590-C5A6-878F-11E5-3D00F9976312}' as uniqueidentifier) as binary(16)) and e.id_worktime_position=d.id   
+order by e.id_day 

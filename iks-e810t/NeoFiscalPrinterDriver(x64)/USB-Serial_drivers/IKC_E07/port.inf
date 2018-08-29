@@ -1,0 +1,89 @@
+;---------------------------------------------------------------------------------
+[Version] 
+Signature="$Windows NT$" 
+Class=Ports
+ClassGuid={4D36E978-E325-11CE-BFC1-08002BE10318} 
+Provider=%MFGNAME% 
+DriverVer=12/01/2015,1.0.1
+
+[Manufacturer] 
+%MFGNAME%=DeviceList,NTamd64
+
+
+;------------------------------------------------------------------------------
+;  Vendor and Product ID Definitions
+;------------------------------------------------------------------------------
+[DeviceList]
+%DESCRIPTION%=DriverInstall,USB\VID_FFFF&PID_1C05&MI_00
+
+[DeviceList.NTamd64] 
+%DESCRIPTION%=DriverInstall,USB\VID_FFFF&PID_1C05&MI_00
+
+
+;------------------------------------------------------------------------------
+;  Windows 32bit OSes Section
+;------------------------------------------------------------------------------
+[DriverInstall.nt] 
+include=mdmcpq.inf
+CopyFiles=FakeModemCopyFileSection 
+AddReg=DriverInstall.nt.AddReg 
+
+[DriverInstall.nt.AddReg] 
+HKR,,DevLoader,,*ntkern 
+HKR,,NTMPDriver,,%DRIVERFILENAME%.sys 
+HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider" 
+
+[DriverInstall.NT.Services]
+include=mdmcpq.inf 
+AddService=usbser, 0x00000002, LowerFilter_Service_Inst 
+
+
+;------------------------------------------------------------------------------
+;  Windows 64bit OSes Section
+;------------------------------------------------------------------------------
+[DriverInstall.NTamd64]
+include=mdmcpq.inf
+CopyFiles=FakeModemCopyFileSection
+AddReg=DriverInstall.NTamd64.AddReg 
+
+[DriverInstall.NTamd64.AddReg] 
+HKR,,DevLoader,,*ntkern 
+HKR,,NTMPDriver,,%DRIVERFILENAME%.sys 
+HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider" 
+
+[DriverInstall.NTamd64.Services] 
+include=mdmcpq.inf 
+AddService=usbser, 0x00000002, LowerFilter_Service_Inst 
+
+
+;------------------------------------------------------------------------------
+;  Common Sections
+;------------------------------------------------------------------------------
+[DestinationDirs] 
+DefaultDestDir=12 
+
+[SourceDisksNames]
+
+[SourceDisksFiles]
+
+[FakeModemCopyFileSection]
+
+[LowerFilter_Service_Inst]
+DisplayName= %SERVICE%
+ServiceType= 1
+StartType  = 3
+ErrorControl = 0
+ServiceBinary = %12%\usbser.sys
+
+
+;------------------------------------------------------------------------------
+;  String Definitions
+;------------------------------------------------------------------------------
+[Strings]
+MFGFILENAME="TFPK"
+DRIVERFILENAME ="usbser"
+MFGNAME="TFPK Ltd"
+DESCRIPTION="ECR Virtual ComPort"
+SERVICE="ECR Virtual ComPort"
+
+

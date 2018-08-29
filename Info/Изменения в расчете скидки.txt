@@ -1,0 +1,14 @@
+- В таблице Chek добавлены поля Art_Code,SumSkd,Skd,NumCard
+- В таблице ArhCheks добавлено поле SumSkd
+- В таблице TmpVozr добавлено поле SumSkd
+- В таблице SKD_LIMIT тип поля SKD изменен на numeric(8,2)
+
+- Добавлена spY_CalcSkd 
+
+- Изменена sp_EnterKol
+- Изменена spY_InsertArhCh
+
+- Удалена spY_GetSumChek
+- Удалена spY_GetSumSkd
+ 
+ 
