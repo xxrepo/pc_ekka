@@ -31,7 +31,7 @@ type
 
   end;
 
-var InsulinRepF: TInsulinRepF;
+var InsulinRepF:TInsulinRepF;
 
 implementation
 
@@ -71,13 +71,19 @@ procedure TInsulinRepF.BitBtn2Click(Sender: TObject);
 var Tb:TTableObj;
     Rc,i,j:Integer;
     SummAll,SumNDS:Currency;
+    MedNameRep:String;
  begin
+
   if ComboBox1.Text='' then
    begin
     MainF.MessBox('Выберите поликлинику!');
     Exit;
    end;
 
+  DM.QrEx.Close;
+  DM.QrEx.SQL.Text:='select top 1 MedNameRep from SprMed where MedName='''+ComboBox1.Text+'''';
+  DM.QrEx.Open;
+  MedNameRep:=DM.QrEx.FieldByName('MedNameRep').AsString;
 
   DM.QrEx.Close;
   DM.QrEx.SQL.Text:='exec spY_InsulinRep '''+FormatDateTime('yyyy-mm-dd',dtStart.Date)+''','''+FormatDateTime('yyyy-mm-dd hh:nn:ss',dtEnd.Date)+''','''+CorrSQLString1(ComboBox1.Text)+'''';
@@ -105,7 +111,7 @@ var Tb:TTableObj;
     AddText('Реєстр відшкодування вартості препаратів інсуліну'+#10);
     AddText('(згідно рецептів пільгового контингенту,які є невід"ємною частиною реєстру)'+#10);
     AddText('за період з '+DateToStr(dtStart.Date)+' по '+DateToStr(dtEnd.Date)+#10);
-    AddText('Лікувальний заклад : '+ComboBox1.Text+#10#10);
+    AddText('Лікувальний заклад : '+MedNameRep+#10#10);
 
     Font.Style:=[];
     Font.Size:=4;

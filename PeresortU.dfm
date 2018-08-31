@@ -1,6 +1,6 @@
 object PeresortF: TPeresortF
-  Left = 582
-  Top = 176
+  Left = 470
+  Top = 164
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'PeresortF'

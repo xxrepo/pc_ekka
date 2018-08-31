@@ -1,6 +1,6 @@
 object CheckSMSKodF: TCheckSMSKodF
-  Left = 754
-  Top = 480
+  Left = 651
+  Top = 583
   BorderStyle = bsDialog
   Caption = 'CheckSMSKodF'
   ClientHeight = 110

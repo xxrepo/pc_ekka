@@ -1,12 +1,10 @@
 object QuarantineF: TQuarantineF
-  Left = 989
-  Top = 351
+  Left = 1280
+  Top = 156
   Width = 640
   Height = 480
   Caption = 'QuarantineF'
   Color = clBtnFace
-  Constraints.MinHeight = 480
-  Constraints.MinWidth = 640
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -138,7 +136,7 @@ object QuarantineF: TQuarantineF
   object pnlQuarantine: TPanel
     Left = 4
     Top = 132
-    Width = 441
+    Width = 613
     Height = 165
     Caption = 'pnlQuarantine'
     TabOrder = 1
@@ -252,6 +250,18 @@ object QuarantineF: TQuarantineF
           FieldName = 'dt_seria'
           Title.Caption = #1057#1088#1086#1082' '#1075#1086#1076#1085#1086#1089#1090#1080
           Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'seria_fact'
+          Title.Caption = #1060#1072#1082#1090#1080#1095#1077#1089#1082#1072#1103' '#1089#1077#1088#1080#1103
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'dt_seria_fact'
+          Title.Caption = #1060#1072#1082#1090#1080#1095#1077#1089#1082#1080#1081' '#1089#1088#1086#1082' '#1075#1086#1076#1085#1086#1089#1090#1080
+          Visible = True
         end>
     end
     object dtDateFrom: TDateTimePicker
@@ -275,40 +285,49 @@ object QuarantineF: TQuarantineF
       OnChange = dtDateToChange
     end
     object btEditQuarantine: TBitBtn
-      Left = 4
+      Left = 136
       Top = 132
       Width = 101
       Height = 25
       Caption = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1090#1100
-      TabOrder = 3
+      TabOrder = 4
       OnClick = btEditQuarantineClick
     end
     object btUpdateQuarantine: TBitBtn
-      Left = 108
+      Left = 240
       Top = 132
       Width = 75
       Height = 25
       Caption = #1054#1073#1085#1086#1074#1080#1090#1100
-      TabOrder = 4
+      TabOrder = 5
       OnClick = btUpdateQuarantineClick
     end
     object btReturn: TBitBtn
-      Left = 188
+      Left = 320
       Top = 132
       Width = 121
       Height = 25
       Caption = #1042#1077#1088#1085#1091#1090#1100' '#1087#1086#1089#1090#1072#1074#1097#1080#1082#1091
-      TabOrder = 5
+      TabOrder = 6
       OnClick = btReturnClick
     end
     object btCloseQuarantine: TBitBtn
-      Left = 316
+      Left = 444
       Top = 132
       Width = 75
       Height = 25
       Caption = #1047#1072#1082#1088#1099#1090#1100
-      TabOrder = 6
+      TabOrder = 7
       OnClick = btCloseQuarantineClick
+    end
+    object btAddToQuarantine: TBitBtn
+      Left = 4
+      Top = 132
+      Width = 129
+      Height = 25
+      Caption = #1055#1086#1084#1077#1089#1090#1080#1090#1100' '#1074' '#1082#1072#1088#1072#1085#1090#1080#1085
+      TabOrder = 3
+      OnClick = btAddToQuarantineClick
     end
   end
   object qReturnOrders: TADOQuery

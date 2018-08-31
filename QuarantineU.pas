@@ -29,6 +29,7 @@ type
     btUpdateQuarantine: TBitBtn;
     btReturn: TBitBtn;
     btCloseQuarantine: TBitBtn;
+    btAddToQuarantine: TBitBtn;
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btCloseQuarantineClick(Sender: TObject);
@@ -42,6 +43,7 @@ type
     procedure dgReturnOrdersDrawColumnCell(Sender: TObject;
       const Rect: TRect; DataCol: Integer; Column: TColumn;
       State: TGridDrawState);
+    procedure btAddToQuarantineClick(Sender: TObject);
 
   private
     FPriorIDDOC: integer;
@@ -57,6 +59,7 @@ type
     procedure EditQuarantine;
     procedure SaveQuarantine;
     procedure GetOrder;
+    procedure AddToQuarantine;
 
     property id_record: string read F_id_record write F_id_record;
   public
@@ -89,7 +92,7 @@ const
 implementation
 
 uses
-  MainU, DataModuleU, ReturnToProviderU, QuarantineEditU;
+  MainU, DataModuleU, ReturnToProviderU, QuarantineEditU, WorkSprU;
 
 {$R *.dfm}
 
@@ -126,8 +129,13 @@ end;
 procedure TQuarantineF.UpdateQuarantine;
 var
   cr: TCursor;
+  id_rec: string;
 begin
   cr:=Screen.Cursor;
+  if DM.qrQuarantine.Active then
+    id_rec:=DM.qrQuarantine.FieldByName('id_record').AsString
+  else
+    id_rec:='';
   try
     with DM.qrQuarantine do
     begin
@@ -136,6 +144,8 @@ begin
       Open;
     end;
   finally
+    if not DM.qrQuarantine.Locate('id_record',id_rec,[]) then
+      DM.qrQuarantine.First;
     Screen.Cursor:=cr;
   end;
   dgQuarantine.SetFocus;
@@ -250,8 +260,18 @@ begin
       dt_seria.Left:=lb_date_seria.Left+lb_date_seria.Width+CONNECTED_SPACE_INDENT;
       dt_seria.Top:=lb_date_seria.Top;
 
+      lbSeriaFact.Left:=LEFT_INDENT;
+      lbSeriaFact.Top:=dt_seria.Top+dt_seria.Height+SPACE_INDENT;
+      edSeriaFact.Left:=lbSeriaFact.Left+lbSeriaFact.Width+CONNECTED_SPACE_INDENT;
+      edSeriaFact.Top:=lbSeriaFact.Top;
+      edSeriaFact.Width:=ClientWidth-edSeriaFact.Left-lbSrokFact.Width-dtSrokFact.Width-LEFT_INDENT-CONNECTED_SPACE_INDENT-SPACE_INDENT;
+      lbSrokFact.Left:=edSeriaFact.Left+edSeriaFact.Width+SPACE_INDENT;
+      lbSrokFact.Top:=edSeriaFact.Top;
+      dtSrokFact.Left:=lbSrokFact.Left+lbSrokFact.Width+CONNECTED_SPACE_INDENT;
+      dtSrokFact.Top:=lbSrokFact.Top;
+
       btSave.Left:=trunc(ClientWidth/2)-btSave.Width-trunc(SPACE_INDENT/2);
-      btSave.Top:=dt_seria.Top+dt_seria.Height+SPACE_INDENT;
+      btSave.Top:=dtSrokFact.Top+dtSrokFact.Height+SPACE_INDENT;
       btCancel.Left:=trunc(ClientWidth/2)+trunc(SPACE_INDENT/2);
       btCancel.Top:=btSave.Top;
 
@@ -327,17 +347,18 @@ begin
       begin
         QuarantineEditF.chSeriaIsAbsent.Checked:=false;
         QuarantineEditF.chSeriaIsAbsentClick(QuarantineF.btEditQuarantine);
+        cbSeria.Text:=DM.qrQuarantine.FieldByName('seria').AsString;
+        dt_seria.DateTime:=DM.qrQuarantine.FieldByName('dt_seria').AsDateTime;
       end
-      else
+      else if DM.qrQuarantine.FieldByName('SeriaIsEmpty').AsInteger = 1 then
       begin
-        if DM.qrQuarantine.FieldByName('SeriaIsEmpty').AsInteger = 1 then
-        begin
-          QuarantineEditF.chSeriaIsAbsent.Checked:=true;
-          QuarantineEditF.chSeriaIsAbsentClick(QuarantineF.btEditQuarantine);
-        end;
+        QuarantineEditF.chSeriaIsAbsent.Checked:=true;
+        QuarantineEditF.chSeriaIsAbsentClick(QuarantineF.btEditQuarantine);
+        edSeriaFact.Text:=DM.qrQuarantine.FieldByName('seria_fact').AsString;
+        dtSrokFact.DateTime:=DM.qrQuarantine.FieldByName('dt_seria_fact').AsDateTime;
       end;
-      cbSeria.Text:=DM.qrQuarantine.FieldByName('seria').AsString;
-      dt_seria.DateTime:=DM.qrQuarantine.FieldByName('dt_seria').AsDateTime;
+//      cbSeria.Text:=DM.qrQuarantine.FieldByName('seria').AsString;
+//      dt_seria.DateTime:=DM.qrQuarantine.FieldByName('dt_seria').AsDateTime;
     end;
 
     id_record:=DM.qrQuarantine.FieldByName('id_record').AsString;
@@ -358,6 +379,42 @@ begin
      try
         Connection:=DM.ADOCo;
         SQL.Clear;
+        SQL.Add('update');
+        SQL.Add('  Quarantine');
+        SQL.Add('set');
+        SQL.Add('  id_gamma1=:id_gamma,');
+        SQL.Add('  dt_gamma1=:dt_gamma, ');
+        SQL.Add('  IsUnload=null,  ');
+        SQL.Add('  seria=:seria,');
+        SQL.Add('  dt_seria=:dt_seria,');
+        if QuarantineEditF.chSeriaIsAbsent.Checked then
+          SQL.Add('  SeriaIsEmpty=1,')
+        else
+          SQL.Add('  SeriaIsEmpty=0,');
+        SQL.Add('  kod_name = :kod_name,');// + DM.qrQuarantine.FieldByName('kod_name').AsString);// + QuarantineEditF.cbSeria_KodName.Items[QuarantineEditF.cbSeria.ItemIndex]);
+        if (Length(trim(QuarantineEditF.edSeriaFact.Text)) > 0)and(QuarantineEditF.chSeriaIsAbsent.Checked) then
+        begin
+          SQL.Add('  seria_fact = :seria_fact,');
+          SQL.Add('  dt_seria_fact = :dt_seria_fact');
+        end
+        else
+        begin
+          SQL.Add('  seria_fact = '''',');
+          SQL.Add('  dt_seria_fact = '''+FormatDateTime('YYYY-MM-DD',0)+'''');
+        end;
+        SQL.Add('where ');
+        SQL.Add('  convert(uniqueidentifier,id_record)=:id_record');
+        SQL.Add('');
+        Parameters.Clear;
+        Parameters.CreateParameter('id_gamma',ftInteger,pdInputOutput,10,Prm.ID_Gamma);
+        Parameters.CreateParameter('dt_gamma',ftDateTime,pdInputOutput,23,FormatDateTime('YYYY-MM-DD HH:MM:SS',now()));
+        Parameters.CreateParameter('seria',ftString,pdInputOutput,50,trim(QuarantineEditF.cbSeria.Text));
+        Parameters.CreateParameter('dt_seria',ftDateTime,pdInputOutput,23,FormatDateTime('YYYY-MM-DD',QuarantineEditF.dt_seria.DateTime));
+        Parameters.CreateParameter('kod_name',ftInteger,pdInputOutput,10,DM.qrQuarantine.FieldByName('kod_name').AsInteger);
+        Parameters.CreateParameter('seria_fact',ftString,pdInputOutput,50,trim(QuarantineEditF.edSeriaFact.Text));
+        Parameters.CreateParameter('dt_seria_fact',ftDateTime,pdInputOutput,23,FormatDateTime('YYYY-MM-DD',QuarantineEditF.dtSrokFact.DateTime));
+        Parameters.CreateParameter('id_record',ftString,pdInputOutput,50,DM.qrQuarantine.FieldByName('id_record').Value);
+{
         SQL.Add('declare @id_gamma int set @id_gamma = '+IntToStr(Prm.ID_Gamma));
         SQL.Add('declare @dt_gamma datetime set @dt_gamma = '''+FormatDateTime('YYYY-MM-DD HH:MM:SS',now())+'''');
         SQL.Add('declare @seria varchar(50) set @seria = '''+trim(QuarantineEditF.cbSeria.Text)+'''');
@@ -381,6 +438,7 @@ begin
         SQL.Add('where ');
         SQL.Add('  id_record=@id_record');
         SQL.Add('');
+}
         //sql.SaveToFile('1234');
         ExecSQL;
       finally
@@ -543,6 +601,93 @@ begin
     dtDateTo.Left:=lbDateTo.Left+lbDateTo.Width+CONNECTED_SPACE_INDENT;
     dtDateTo.Top:=lbDateTo.Top;
 
+    btAddToQuarantine.Left:=LEFT_INDENT;
+    btAddToQuarantine.Top:=pnlQuarantine.Height-btEditQuarantine.Height-TOP_INDENT;
+    btEditQuarantine.Left:=btAddToQuarantine.Left+btAddToQuarantine.Width+SPACE_INDENT;
+    btEditQuarantine.Top:=btAddToQuarantine.Top;
+    btUpdateQuarantine.Left:=btEditQuarantine.Left+btEditQuarantine.Width+SPACE_INDENT;
+    btUpdateQuarantine.Top:=btEditQuarantine.Top;
+    btReturn.Left:=btUpdateQuarantine.Left+btUpdateQuarantine.Width+SPACE_INDENT;
+    btReturn.Top:=btUpdateQuarantine.Top;
+    btCloseQuarantine.Left:=pnlQuarantine.Width-btCloseQuarantine.Width-LEFT_INDENT;
+    btCloseQuarantine.Top:=btReturn.Top;
+
+    dgQuarantine.Left:=LEFT_INDENT;
+    dgQuarantine.Top:=dtDateTo.Top+dtDateTo.Height+SPACE_INDENT;
+    dgQuarantine.Width:=pnlQuarantine.Width-dgQuarantine.Left-LEFT_INDENT;
+    dgQuarantine.Height:=btCloseQuarantine.Top-dgQuarantine.Top-SPACE_INDENT;
+
+    with dgQuarantine do
+    begin
+      Columns[0].Width:=90; //dt_record
+      Columns[1].Width:=65; //kod_name
+      Columns[2].Width:=65; //art_code
+      Columns[3].Width:=trunc((QuarantineF.Width-(65*6+90)-50)/2)-7; //names
+      Columns[4].Width:=65; //kol
+      Columns[5].Width:=65; //cena
+      Columns[6].Width:=65; //f_nds
+      Columns[7].Width:=trunc((QuarantineF.Width-(65*6+90)-50)/2)-7; //seria
+      Columns[8].Width:=65; //dt_seria
+    end;
+  end;
+(*
+  with QuarantineF do
+  begin
+    pnlReturnOrders.Left:=LEFT_INDENT;
+    pnlReturnOrders.Top:=TOP_INDENT;
+    pnlReturnOrders.Width:=ClientWidth-pnlReturnOrders.Left-LEFT_INDENT;
+    pnlReturnOrders.Height:=trunc(ClientHeight/2);
+
+    Label6.AutoSize:=true;
+    Label6.Left:=trunc((pnlReturnOrders.Width-Label6.Width)/2);
+    Label6.Top:=TOP_INDENT;
+
+    lbToStockNotification.AutoSize:=true;
+    lbToStockNotification.Left:=trunc((pnlReturnOrders.Width-lbToStockNotification.Width)/2);
+    lbToStockNotification.Top:=Label6.Top+Label6.Height+CONNECTED_SPACE_INDENT;
+
+    dgReturnOrders.Left:=LEFT_INDENT;
+    dgReturnOrders.Top:=lbToStockNotification.Top+lbToStockNotification.Height+CONNECTED_SPACE_INDENT;
+    dgReturnOrders.Height:=pnlReturnOrders.Height-dgReturnOrders.Top-TOP_INDENT;
+
+    dgOrderDetail.Left:=dgReturnOrders.Left+dgReturnOrders.Width+CONNECTED_SPACE_INDENT;
+    dgOrderDetail.Top:=dgReturnOrders.Top;
+    dgOrderDetail.Width:=pnlReturnOrders.Width-dgOrderDetail.Left-LEFT_INDENT;
+    dgOrderDetail.Height:=pnlReturnOrders.Height-dgOrderDetail.Top-TOP_INDENT;
+    with dgOrderDetail do
+    begin
+      Columns[0].Width:=65;
+      Columns[1].Width:=trunc(dgOrderDetail.Width-65*4)-40;
+      Columns[2].Width:=65;
+      Columns[3].Width:=65;
+      Columns[4].Width:=65;
+    end;
+
+    pnlQuarantine.Left:=LEFT_INDENT;
+    if IsQuarantine then
+      pnlQuarantine.Top:=pnlReturnOrders.Top+pnlReturnOrders.Height+CONNECTED_SPACE_INDENT
+    else
+      pnlQuarantine.Top:=TOP_INDENT;
+    pnlQuarantine.Width:=ClientWidth-pnlQuarantine.Left-LEFT_INDENT;
+    pnlQuarantine.Height:=ClientHeight-pnlQuarantine.Top-TOP_INDENT;
+
+    Label2.AutoSize:=true;
+    Label2.Left:=trunc((pnlQuarantine.Width-Label2.Width)/2);
+    Label2.Top:=TOP_INDENT;
+
+    lbNotificationReturnToProvider.AutoSize:=true;
+    lbNotificationReturnToProvider.Left:=trunc((pnlQuarantine.Width-lbNotificationReturnToProvider.Width)/2);
+    lbNotificationReturnToProvider.Top:=Label2.Top+Label2.Height+CONNECTED_SPACE_INDENT;
+
+    lbDateFrom.Left:=LEFT_INDENT;
+    lbDateFrom.Top:=lbNotificationReturnToProvider.Top+lbNotificationReturnToProvider.Height+SPACE_INDENT;
+    dtDateFrom.Left:=lbDateFrom.Left+lbDateFrom.Width+CONNECTED_SPACE_INDENT;
+    dtDateFrom.Top:=lbDateFrom.Top;
+    lbDateTo.Left:=dtDateFrom.Left+dtDateFrom.Width+CONNECTED_SPACE_INDENT;
+    lbDateTo.Top:=dtDateFrom.Top;
+    dtDateTo.Left:=lbDateTo.Left+lbDateTo.Width+CONNECTED_SPACE_INDENT;
+    dtDateTo.Top:=lbDateTo.Top;
+
     btEditQuarantine.Left:=LEFT_INDENT;
     btEditQuarantine.Top:=pnlQuarantine.Height-btEditQuarantine.Height-TOP_INDENT;
     btUpdateQuarantine.Left:=btEditQuarantine.Left+btEditQuarantine.Width+SPACE_INDENT;
@@ -570,6 +715,7 @@ begin
       Columns[8].Width:=65; //dt_seria
     end;
   end;
+*)
 end;
 
 procedure TQuarantineF.btCloseQuarantineClick(Sender: TObject);
@@ -788,5 +934,15 @@ procedure TQuarantineF.dgReturnOrdersDrawColumnCell(Sender: TObject;
 begin
   if IsQuarantine then GetOrder;
 end;
+
+procedure TQuarantineF.btAddToQuarantineClick(Sender: TObject);
+begin
+  AddToQuarantine;
+end;
+
+procedure TQuarantineF.AddToQuarantine;
+ begin
+  ShowWorkSprF(W_QUARANTINE);
+ end;
 
 end.

@@ -1,11 +1,11 @@
 object AECardsF: TAECardsF
-  Left = 692
-  Top = 380
+  Left = 710
+  Top = 319
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'AECardsF'
   ClientHeight = 399
-  ClientWidth = 527
+  ClientWidth = 551
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,7 +17,7 @@ object AECardsF: TAECardsF
   OnActivate = FormActivate
   OnCreate = FormCreate
   DesignSize = (
-    527
+    551
     399)
   PixelsPerInch = 96
   TextHeight = 13
@@ -202,13 +202,13 @@ object AECardsF: TAECardsF
   object Panel1: TPanel
     Left = 0
     Top = 140
-    Width = 526
+    Width = 550
     Height = 225
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvLowered
     TabOrder = 2
     DesignSize = (
-      526
+      550
       225)
     object Label2: TLabel
       Left = 5
@@ -846,7 +846,7 @@ object AECardsF: TAECardsF
     object GroupBox1: TGroupBox
       Left = 5
       Top = 125
-      Width = 516
+      Width = 281
       Height = 66
       Caption = ' '#1055#1088#1080#1084#1077#1088#1085#1099#1081' '#1074#1086#1079#1088#1072#1089#1090' '
       Font.Charset = DEFAULT_CHARSET
@@ -856,6 +856,9 @@ object AECardsF: TAECardsF
       Font.Style = [fsBold, fsUnderline]
       ParentFont = False
       TabOrder = 8
+      DesignSize = (
+        281
+        66)
       object RadioButton1: TRadioButton
         Left = 10
         Top = 20
@@ -885,10 +888,11 @@ object AECardsF: TAECardsF
         TabOrder = 1
       end
       object RadioButton3: TRadioButton
-        Left = 325
+        Left = 135
         Top = 20
         Width = 136
         Height = 17
+        Anchors = [akTop, akRight]
         Caption = #1079#1088#1077#1083#1099#1081' (45-65 '#1083#1077#1090')'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -899,10 +903,11 @@ object AECardsF: TAECardsF
         TabOrder = 2
       end
       object RadioButton4: TRadioButton
-        Left = 325
+        Left = 135
         Top = 40
         Width = 136
         Height = 17
+        Anchors = [akTop, akRight]
         Caption = #1087#1086#1078#1080#1083#1086#1081' ('#1087#1086#1089#1083#1077' 65 '#1083#1077#1090')'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -954,6 +959,37 @@ object AECardsF: TAECardsF
       ItemHeight = 13
       TabOrder = 11
       OnCloseUp = cbb2CloseUp
+    end
+    object GroupBox2: TGroupBox
+      Left = 290
+      Top = 140
+      Width = 256
+      Height = 50
+      TabOrder = 12
+      Visible = False
+      object Label17: TLabel
+        Left = 28
+        Top = 8
+        Width = 199
+        Height = 13
+        Caption = #1055#1088#1086#1089#1082#1072#1085#1091#1081#1090#1077' '#1082#1072#1088#1090#1091' "'#1047#1076#1086#1088#1086#1074#1077#1085#1100#1082'i '#1073#1091#1083#1080'"'
+      end
+      object edNumCardOld: TEdit
+        Left = 83
+        Top = 23
+        Width = 89
+        Height = 21
+        TabOrder = 0
+      end
+    end
+    object CheckBox1: TCheckBox
+      Left = 290
+      Top = 128
+      Width = 256
+      Height = 17
+      Caption = #1054#1073#1084'i'#1085' '#1082#1072#1088#1090#1080' "'#1047#1076#1086#1088#1086#1074#1077#1085#1100#1082'i '#1073#1091#1083#1080'" '#1085#1072' '#1082#1072#1088#1090#1091' '#1040#1054#1062
+      TabOrder = 13
+      OnClick = CheckBox1Click
     end
   end
 end

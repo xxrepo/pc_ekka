@@ -1,6 +1,6 @@
 object RepIncomF: TRepIncomF
-  Left = 1322
-  Top = 259
+  Left = 1203
+  Top = 192
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'RepIncomF'

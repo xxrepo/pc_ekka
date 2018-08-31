@@ -108,8 +108,9 @@ var ln:Integer;
    if Ln<8 then Exit;
    if (Prm.AptekaSklad=False) and (((Prm.CR_BEGIN=Copy(S,1,Length(Prm.CR_BEGIN))) or ( (Copy(S,1,3)='550') and (Prm.FirmID<>5) ) ) and (ln=13)) then Result:=1 else // 1 - зеленые карточки (наши)
 
-   if (Prm.AptekaSklad=True) and (Prm.FirmID<>22) and ((Copy(S,1,3)='770') and (ln=13)) then Result:=1 else // Дисконтные карты оптовых цен
-   if (Prm.AptekaSklad=True) and (Prm.FirmID=22) and ((Copy(S,1,3)='262') and (ln=13)) then Result:=1 else // Дисконтные карты "Здоровенькi Були"
+   // с 08.08.2018 на "Здоровенькi Були" и Фармалай действуют карты АОЦ в полной мере (и выдача и прием)
+   if (Prm.AptekaSklad=True) {and (Prm.FirmID<>22)} and ((Copy(S,1,3)='770') and (ln=13)) then Result:=1 else // Дисконтные карты оптовых цен
+   if (Prm.AptekaSklad=True) {and (Prm.FirmID=22) } and ((Copy(S,1,3)='262') and (ln=13)) then Result:=1 else // Дисконтные карты "Здоровенькi Були"
 
    if (CR_DOCT1=Copy(S,1,Length(CR_DOCT1))) and (ln=13) then Result:=15 else       // карточки 5% на все препараты
    if (CR_KARAV=Copy(S,1,Length(CR_KARAV))) and (ln=13) then Result:=3 else        // 3 - дисконтные карты супермаркета "Караван"
