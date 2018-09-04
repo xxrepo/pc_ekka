@@ -12761,7 +12761,7 @@ procedure TMainF.tmrWaitMessTimer(Sender:TObject);
  begin
   try
    tmrWaitMess.Enabled:=False;
-//   if Design then Exit;
+   if Design then Exit;
    if Prm.UserID<0 then Exit;
    if Prm.UserRole=R_PROVIZ then Exit;
 
@@ -20612,7 +20612,7 @@ var S,Res:String;
     S:=S+DM.QrEx.FieldByName('NumTest').AsString+#10;
    end;
   if S<>'' then
-   MessBox('Номера непройденых тестов: '+#10#10+S,
+   MessBox('Вы не сдали нижеперечисленные уроки!'#10+'Обязательно пройдите их в указанные сроки (см. на сайте)!'+#10#10+S,
             48,GetFont('MS Sans Serif',12,clBlue,[fsBold]),0,Res);
 
  end;
@@ -20701,11 +20701,8 @@ zazforza
 
 
 Скайп
-
 sergio0523574825
-}
-
-{
+s0523574825
 
 УкрКард
 
@@ -20779,11 +20776,6 @@ insert into skd_limit(art_code,type_skd,skd,fix,dtstart,dtend) values(57156,54,0
 
 insert into skd_limit(art_code,type_skd,skd,fix,dtstart,dtend) values(,42,40,1,'2018-03-03','2018-03-11 23:59:59')
 
-delete from skd_limit where type_skd=31
-insert into skd_limit(art_code,type_skd,skd,fix,dtstart,dtend) values(222322,31,0,1,'2018-04-18','2018-04-30 23:59:59')
-insert into skd_limit(art_code,type_skd,skd,fix,dtstart,dtend) values(222323,31,0,1,'2018-04-18','2018-04-30 23:59:59')
-insert into skd_limit(art_code,type_skd,skd,fix,dtstart,dtend) values(222324,31,50,1,'2018-04-18','2018-04-30 23:59:59')
-insert into skd_limit(art_code,type_skd,skd,fix,dtstart,dtend) values(222325,31,50,1,'2018-04-18','2018-04-30 23:59:59')
 
 
 
