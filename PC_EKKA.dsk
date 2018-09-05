@@ -1,25 +1,27 @@
 [Closed Files]
-File_0=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\common\ComObj.pas',0,1,1252,1,1269,0,0
-File_1=SourceModule,'D:\Util\PC_EKKA\StartU.pas',0,1,1,1,1,0,0
-File_2=SourceModule,'D:\Util\PC_EKKA\ReestrU.pas',0,1,48,59,67,0,0
-File_3=SourceModule,'D:\Util\PC_EKKA\ChangeArticleCount.pas',0,1,1,29,12,1,0
-File_4=SourceModule,'c:\program files (x86)\borland\delphi7\source\vcl\adodb.pas',0,1,3452,1,3472,0,0
-File_5=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\Sys\variants.pas',0,1,690,1,710,0,0
-File_6=SourceModule,'D:\Util\PC_EKKA\AETabU.pas',0,1,476,17,482,1,0
-File_7=SourceModule,'D:\Util\PC_EKKA\CheckSMSKodU.pas',0,1,1,44,15,1,0
-File_8=SourceModule,'D:\Util\PC_EKKA\MoneyCashU.pas',0,1,169,38,196,1,0
+File_0=SourceModule,'c:\program files (x86)\borland\delphi7\Source\Indy\idhttp.pas',0,1,602,55,630,0,0
+File_1=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\common\ComObj.pas',0,1,1243,1,1269,0,0
+File_2=SourceModule,'D:\Util\PC_EKKA\StartU.pas',0,1,1,1,1,0,0
+File_3=SourceModule,'D:\Util\PC_EKKA\ReestrU.pas',0,1,48,59,67,0,0
+File_4=SourceModule,'D:\Util\PC_EKKA\ChangeArticleCount.pas',0,1,1,29,12,1,0
+File_5=SourceModule,'c:\program files (x86)\borland\delphi7\source\vcl\adodb.pas',0,1,3452,1,3472,0,0
+File_6=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\Sys\variants.pas',0,1,690,1,710,0,0
+File_7=SourceModule,'D:\Util\PC_EKKA\AETabU.pas',0,1,476,17,482,1,0
+File_8=SourceModule,'D:\Util\PC_EKKA\CheckSMSKodU.pas',0,1,1,44,15,1,0
+File_9=SourceModule,'D:\Util\PC_EKKA\MoneyCashU.pas',0,1,169,38,196,1,0
 
 [Modules]
 Module0=D:\Util\PC_EKKA\MainU.pas
 Module1=D:\Util\PC_EKKA\PiggyBankU.pas
-Module2=D:\Util\PC_EKKA\MotivationSystemU.pas
-Module3=D:\Util\PC_EKKA\TovInfoU.pas
-Module4=D:\Util\PC_EKKA\PrihTovU.pas
-Module5=D:\Util\PC_EKKA\RepIncomU.pas
+Module2=D:\Util\PC_EKKA\TovInfoU.pas
+Module3=D:\Util\PC_EKKA\PrihTovU.pas
+Module4=D:\Util\PC_EKKA\RepIncomU.pas
+Module5=D:\Util\PC_EKKA\MotivationSystemU.pas
 Module6=D:\Util\Classes\MicroHelpN707.pas
 Module7=D:\Util\Classes\EKKAU.pas
 Module8=D:\Util\PC_EKKA\PlanMotivationStatU.pas
-Count=9
+Module9=D:\Util\Classes\SendReceiveXML.pas
+Count=10
 EditWindowCount=1
 
 [D:\Util\PC_EKKA\MainU.pas]
@@ -32,11 +34,6 @@ ModuleType=SourceModule
 FormState=1
 FormOnTop=0
 
-[D:\Util\PC_EKKA\MotivationSystemU.pas]
-ModuleType=SourceModule
-FormState=1
-FormOnTop=1
-
 [D:\Util\PC_EKKA\TovInfoU.pas]
 ModuleType=SourceModule
 FormState=1
@@ -48,6 +45,11 @@ FormState=1
 FormOnTop=0
 
 [D:\Util\PC_EKKA\RepIncomU.pas]
+ModuleType=SourceModule
+FormState=1
+FormOnTop=0
+
+[D:\Util\PC_EKKA\MotivationSystemU.pas]
 ModuleType=SourceModule
 FormState=1
 FormOnTop=0
@@ -67,6 +69,11 @@ ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
+[D:\Util\Classes\SendReceiveXML.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
 [D:\Util\PC_EKKA\ProjectGroup1.bpg]
 FormState=0
 FormOnTop=0
@@ -80,7 +87,7 @@ FormState=0
 FormOnTop=0
 
 [EditWindow0]
-ViewCount=9
+ViewCount=10
 CurrentView=0
 View0=0
 View1=1
@@ -91,6 +98,7 @@ View5=5
 View6=6
 View7=7
 View8=8
+View9=9
 CodeExplorer=CodeExplorer@EditWindow0
 MessageView=MessageView@EditWindow0
 Create=1
@@ -110,65 +118,72 @@ LeftPanelData=00000400010000000C000000436F64654578706C6F726572000000000000000000
 RightPanelSize=0
 BottomPanelSize=0
 BottomPanelClients=MessageView@EditWindow0
-BottomPanelData=00000400010000000B0000004D65737361676556696577000000000000000000000000000000000001000000000000000000000000FFFFFFFF
+BottomPanelData=00000400010000000B0000004D657373616765566965778C060000000000000223010000000000000100000000000000000000000001000000008C06000000000000FFFFFFFF
 
 [View0]
 Module=D:\Util\PC_EKKA\MainU.pas
-CursorX=31
-CursorY=14615
-TopLine=14593
+CursorX=86
+CursorY=15201
+TopLine=15181
 LeftCol=1
 
 [View1]
+Module=D:\Util\Classes\SendReceiveXML.pas
+CursorX=19
+CursorY=33
+TopLine=20
+LeftCol=1
+
+[View2]
 Module=D:\Util\PC_EKKA\MotivationSystemU.pas
 CursorX=53
 CursorY=549
 TopLine=537
 LeftCol=1
 
-[View2]
+[View3]
 Module=D:\Util\PC_EKKA\PiggyBankU.pas
-CursorX=11
-CursorY=395
+CursorX=5
+CursorY=393
 TopLine=390
 LeftCol=1
 
-[View3]
+[View4]
 Module=D:\Util\PC_EKKA\PlanMotivationStatU.pas
 CursorX=1
 CursorY=19
 TopLine=1
 LeftCol=1
 
-[View4]
+[View5]
 Module=D:\Util\Classes\EKKAU.pas
 CursorX=39
 CursorY=3077
 TopLine=3057
 LeftCol=1
 
-[View5]
+[View6]
 Module=D:\Util\Classes\MicroHelpN707.pas
 CursorX=14
 CursorY=2562
 TopLine=2514
 LeftCol=1
 
-[View6]
+[View7]
 Module=D:\Util\PC_EKKA\TovInfoU.pas
 CursorX=13
 CursorY=917
 TopLine=905
 LeftCol=1
 
-[View7]
+[View8]
 Module=D:\Util\PC_EKKA\PrihTovU.pas
 CursorX=22
 CursorY=878
 TopLine=864
 LeftCol=1
 
-[View8]
+[View9]
 Module=D:\Util\PC_EKKA\RepIncomU.pas
 CursorX=1
 CursorY=8
@@ -197,7 +212,8 @@ LRDockWidth=421
 Dockable=1
 
 [Breakpoints]
-Count=0
+Count=1
+Breakpoint0='D:\Util\PC_EKKA\MainU.pas',15166,'',0,1,'',1,0,0,'',1,'','',''
 
 [AddressBreakpoints]
 Count=0
@@ -505,12 +521,12 @@ State=0
 Left=12
 Top=0
 Width=1664
-Height=148
+Height=291
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1664
-ClientHeight=148
-TBDockHeight=148
+ClientHeight=291
+TBDockHeight=291
 LRDockWidth=443
 Dockable=1
 
