@@ -9,7 +9,6 @@
 *.~*
 
 *.exe
-*.dll
 *.bpl
 *.bpi
 *.dcp
