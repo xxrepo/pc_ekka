@@ -15,6 +15,7 @@ object AECardsF: TAECardsF
   OldCreateOrder = False
   Position = poScreenCenter
   OnActivate = FormActivate
+  OnClose = FormClose
   OnCreate = FormCreate
   DesignSize = (
     551
