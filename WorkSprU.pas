@@ -1350,6 +1350,11 @@ var CP:TChekPos;
      CP.Date:=StrToDate(DateToStr(Date));
      DM.Qr1.Close;
      DM.Qr1.SQL.Clear;
+     DM.Qr1.SQL.Add(' declare @ResB_ smallint ');
+     DM.Qr1.SQL.Add(' exec spY_CanBackAll '+IntToStr(CP.Priznak)+',@ResB_ output ');
+
+     DM.Qr1.SQL.Add(' set @ResB_=1-@ResB_ ');
+
      DM.Qr1.SQL.Add('declare @part_code int, @pkol smallint, @piduser smallint ,@pscan smallint ');
      DM.Qr1.SQL.Add('declare Cur cursor local for select art_code,kol,id_user,printing from Inform..Tmp_Spis where priznak='+IntToStr(Flag)+' and compname=host_name() and id_user='+IntToStr(FUserID));
      DM.Qr1.SQL.Add('open Cur                                                             ');
@@ -1361,6 +1366,8 @@ var CP:TChekPos;
       DM.Qr1.SQL.Add('  exec spY_EnterKol @part_code,@pkol,@piduser,@pscan,@part_code,0,1,0,0,'''','''',0,-1,1,null,null,0,0,0,0,0,0,0,null,0  ')
      else
       DM.Qr1.SQL.Add('  exec spY_EnterKol @part_code,@pkol,@piduser,@pscan,@part_code,0,1,0,0,'''','''',0,-1,0,null,null,0,0,0,0,0,0,0,null,1  ');
+
+//     DM.Qr1.SQL.Add('  exec spY_EnterKol @part_code,@pkol,@piduser,@pscan,@part_code,0,1,0,0,'''','''',0,-1,0,null,null,0,0,0,0,0,0,0,null,@ResB_ ');
 
      DM.Qr1.SQL.Add('  fetch Cur into @part_code,@pkol,@piduser,@pscan                    ');
      DM.Qr1.SQL.Add(' end                                                                 ');

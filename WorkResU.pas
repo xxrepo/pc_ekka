@@ -4,7 +4,7 @@ interface
 
 uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
      Dialogs, StdCtrls, Grids, DBGrids, ComCtrls, Util, Buttons, ExtCtrls, DB,
-     PrintReport, ADODB, ShellAPI;
+     PrintReport, ADODB, ShellAPI, EKKAU;
 
 type
 
@@ -110,7 +110,6 @@ type
     FIODOctor1:String;
     DtRecipt:TDateTime;
 
-
     procedure FilterRes;
     procedure FilterResPos;
     procedure FlashStatus;
@@ -121,8 +120,7 @@ var WorkResF:TWorkResF;
 
 implementation
 
-uses MainU, DataModuleU, EnterValueU, AddResU, CancelResU, Pilot3U,
-  Uedit_filtr;
+uses MainU, DataModuleU, EnterValueU, AddResU, CancelResU, Pilot3U, Uedit_filtr;
 
 {$R *.dfm}
 
@@ -437,6 +435,12 @@ var
   if DM.qrRes.IsEmpty then Exit;
   if DM.qrResPos.IsEmpty then Exit;
   if DM.qrRes.FieldByName('Closed').AsInteger>=1 then Exit;
+
+  if (EKKA.TypeEKKA=EKKA_N707) and (DM.qrRes.FieldByName('Priznak').AsInteger=6) then
+   begin
+    MainF.MessBox('На данной кассе временно невозможно проводить продажи по страховым!');
+    Exit;
+   end;
 
   if AnsiUpperCase(DM.qrRes.FieldByName('FIO').AsString)=AnsiUpperCase('1-Сверка Товаров Страховой') then
    begin

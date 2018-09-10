@@ -2357,7 +2357,7 @@ var S:String;
    end;
 
 //  if Design then Exit;
-
+  if IsStudyRoom=False then
   try
    DM.Qr.Close;
    DM.Qr.SQL.Clear;
@@ -16503,7 +16503,11 @@ procedure TMainF.miChekPilotClick(Sender:TObject);
 //   if Not ShowQ('Присутствует ли в нижней части рецепта личная печать и подпись врача вашей поликлиники, который выписал данный рецепт?',5) then Exit;
 //   if Not ShowQ('Необходимо проверить правильность и полноту заполнения всех остальных данных в рецепте!',0) then Exit;
 
-
+   if EKKA.TypeEKKA=EKKA_N707 then
+    begin
+     MainF.MessBox('На данной кассе временно невозможно проводить продажи по программе "Доступные лекарства"');
+     Exit;
+    end;
 
    if edVesh.Text<>'Действ. вещество...' then imVeshClick(edVesh);
    if edDoz.Text<>'Дозировка...' then imVeshClick(edDoz);
@@ -19660,6 +19664,12 @@ procedure TMainF.N89Click(Sender: TObject);
 procedure TMainF.N90Click(Sender: TObject);
  begin
 
+   if EKKA.TypeEKKA=EKKA_N707 then
+    begin
+     MainF.MessBox('На данной кассе временно невозможно проводить продажи по страховым!');
+     Exit;
+    end;
+
 {
   if Opt.EmulEKKA then
    begin
@@ -20135,6 +20145,13 @@ procedure TMainF.miStickerForBoxClick(Sender: TObject);
 procedure TMainF.N110Click(Sender: TObject);
  begin
   try
+
+   if EKKA.TypeEKKA=EKKA_N707 then
+    begin
+     MainF.MessBox('На данной кассе временно невозможно проводить продажи по программе "Инсулины"!');
+     Exit;
+    end;
+
    sbSearchClearClick(sbSearchClear);
    FilterSklad;
 
