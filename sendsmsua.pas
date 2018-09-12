@@ -60,7 +60,7 @@ type
     property Active : Boolean read GetActive;
    { отправка СМС с кодом подтверждения для регистрации карточки
      отправка СМС напрямую через сайт www.smsc.ua}
-    function RegCard_SMSUA(P1,P2,P3 : String; IsLink : Boolean) : TSMSConfirmStatus;
+    function RegCard_SMSUA(P1,P2,P3 : String; IsLink : Boolean; aWithCheck : boolean = true) : TSMSConfirmStatus;
 
   end;
 
@@ -156,7 +156,7 @@ end;
 
 { отправка СМС с  кодами подтверждения для регистрации карточки }
 { отправка СМС напрямую через сайт www.smsc.ua}
-function TSendSms.RegCard_SMSUA(P1, P2, P3: String; IsLink: Boolean): TSMSConfirmStatus;
+function TSendSms.RegCard_SMSUA(P1, P2, P3: String; IsLink: Boolean; aWithCheck : boolean): TSMSConfirmStatus;
 var
   sKod : String;
   PhoneNum : string;
@@ -240,19 +240,23 @@ begin
          Exit;
        end;
        { отправим проверочный КОД клиенту }
-       if SendSMS(StringReplace(PhoneNum,'+38', '', [rfIgnoreCase]), sKod) > 0 then
-       begin { подтверждаем КОД }
-         CheckSMSKodF := TCheckSMSKodF.Create(Self);
-         try
-           CheckSMSKodF.Kod:=sKod;
-           CheckSMSKodF.ShowModal;
-           if CheckSMSKodF.Flag<>1 then
-           begin
-             Result := stNotConfirm;
-             Exit;
+       if (SendSMS(StringReplace(PhoneNum,'+38', '', [rfIgnoreCase]), sKod) > 0) then
+       begin
+         { подтверждаем КОД }
+         if aWithCheck then
+         begin
+           CheckSMSKodF := TCheckSMSKodF.Create(Self);
+           try
+             CheckSMSKodF.Kod:=sKod;
+             CheckSMSKodF.ShowModal;
+             if CheckSMSKodF.Flag<>1 then
+             begin
+               Result := stNotConfirm;
+               Exit;
+             end;
+           finally
+             CheckSMSKodF.Free;
            end;
-         finally
-           CheckSMSKodF.Free;
          end;
          Result := stOk;
        end else begin
@@ -276,7 +280,8 @@ procedure TSendSms.UnLoadLibrary;
 begin
     fSendSMS := nil;
     fGetBalance := nil;
-    FreeLibrary(HndLib);
+//    if (HndLib > 0) then
+      FreeLibrary(HndLib);
 end;
 
 end.
