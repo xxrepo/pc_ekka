@@ -379,7 +379,6 @@ var S:String;
 
    DM.Qr.Close;
    DM.Qr.SQL.Clear;
-   DM.Qr.SQL.Add('SET DATEFORMAT YMD');
    DM.Qr.SQL.Add('if SubString(@@version,1,26)<>''Microsoft SQL Server  2000''   ');
    DM.Qr.SQL.Add(' begin ');
    DM.Qr.SQL.Add('  use master ');
