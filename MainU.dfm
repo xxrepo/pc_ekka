@@ -1,6 +1,6 @@
 object MainF: TMainF
-  Left = 594
-  Top = 151
+  Left = 576
+  Top = 218
   Width = 1024
   Height = 738
   Caption = 'MainF'

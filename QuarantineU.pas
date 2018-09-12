@@ -405,6 +405,7 @@ begin
         SQL.Add('where ');
         SQL.Add('  convert(uniqueidentifier,id_record)=:id_record');
         SQL.Add('');
+
         Parameters.Clear;
         Parameters.CreateParameter('id_gamma',ftInteger,pdInputOutput,10,Prm.ID_Gamma);
         Parameters.CreateParameter('dt_gamma',ftDateTime,pdInputOutput,23,FormatDateTime('YYYY-MM-DD HH:MM:SS',now()));
