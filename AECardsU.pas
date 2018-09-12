@@ -3,7 +3,7 @@ unit AECardsU;
 interface
 
 uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-     Dialogs, ExtCtrls, StdCtrls, Buttons, Util, MainU, ComCtrls, sendsmsua;
+     Dialogs, ExtCtrls, StdCtrls, Buttons, Util, MainU, ComCtrls;
 
 type
   TAECardsF = class(TForm)
@@ -94,10 +94,8 @@ type
     procedure Edit4KeyUp(Sender: TObject; var Key: Word;  Shift: TShiftState);
     procedure cbb2CloseUp(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
 
   private
-    fSMSSend : TSendSms;
     procedure ShowList(CB:TComboBox);
     procedure ChMN(Cb1, Cb2: TComboBox; Ed1: TEdit);
     procedure LoadCbb(cb: TComboBox; Param: Byte);
@@ -186,10 +184,6 @@ procedure TAECardsF.FormCreate(Sender:TObject);
              CheckBox1.Visible:=False;
              GroupBox2.Visible:=False;
             end;
-
-  { инициализация отправки СМС через сервис https://smsc.ua }
-  { пароль и логин берем из БД}
-  fSMSSend :=  TSendSms.Create(Self);
  end;
 
 procedure TAECardsF.BitBtn2Click(Sender: TObject);
@@ -325,7 +319,7 @@ var FIO,AvgAge,Phone,db1,db2,db3,nC1,nC2,nC3,P1,P2,P3,Art:String;
     vIsLink:Boolean;
     vIsBirth:Byte;
     NumCardZB:Int64;
-    oSmsStatus : TSMSConfirmStatus;
+
  function IsNull(S:String):String;
   begin
    Result:='';
@@ -415,16 +409,8 @@ var FIO,AvgAge,Phone,db1,db2,db3,nC1,nC2,nC3,P1,P2,P3,Art:String;
 
               if Prm.RegCardFromSMS then
               begin
-                oSmsStatus := fSMSSend.RegCard_SMSUA(P1,P2,P3,IsLink);
-                if oSmsStatus in [stSendError, stNotActive]
-                then
-                begin
-                  if RegCardSMS(P1,P2,P3,IsLink)=false then
-                    Abort;
-                end else begin
-                  if oSmsStatus <> stOK then
-                    Abort;
-                end;
+                if RegCardSMS(P1,P2,P3,IsLink)=false then
+                  Abort;
               end;
 
               AvgAge:='';
@@ -744,12 +730,6 @@ procedure TAECardsF.CheckBox1Click(Sender: TObject);
   GroupBox2.Visible:=CheckBox1.Checked;
   if CheckBox1.Checked then edNumCardOld.SetFocus;
  end;
-
-procedure TAECardsF.FormClose(Sender: TObject; var Action: TCloseAction);
-begin
-  if Assigned(fSMSSend) then
-    FreeAndNil(fSMSSend);
-end;
 
 end.
 

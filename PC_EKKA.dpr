@@ -250,8 +250,7 @@ uses
   Uedit_filtr in 'Uedit_filtr.pas' {Fedit_filter},
   PlanMotivationStatU in 'PlanMotivationStatU.pas' {PlanMotivationStatF},
   Uadd_counter in 'Uadd_counter.pas' {Fadd_counter},
-  ChangeArticleCount in 'ChangeArticleCount.pas' {fmChangeCount},
-  sendsmsua in 'sendsmsua.pas';
+  ChangeArticleCount in 'ChangeArticleCount.pas' {fmChangeCount};
 
 {$R *.res}
 
