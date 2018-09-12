@@ -479,7 +479,7 @@ procedure TAETabF.cbDescrChange(Sender: TObject);
    begin
     cbKassa.ItemIndex:=-1;
     SetEnab1(True,1);
-    if cbDescr.ItemIndex in [1,7,8,9] then SetEnab1(False,0) else
+    if cbDescr.ItemIndex in [1,5,6,7] then SetEnab1(False,0) else
      begin
       edStart.Text:='00';
       edEnd.Text:='00';

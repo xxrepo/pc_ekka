@@ -70,6 +70,10 @@ type
     cbb1: TComboBox;
     cbb2: TComboBox;
     cbb3: TComboBox;
+    GroupBox2: TGroupBox;
+    CheckBox1: TCheckBox;
+    edNumCardOld: TEdit;
+    Label17: TLabel;
     procedure FormCreate(Sender:TObject);
     procedure BitBtn2Click(Sender:TObject);
     procedure BitBtn1Click(Sender: TObject);
@@ -89,16 +93,16 @@ type
     procedure Edit4Enter(Sender: TObject);
     procedure Edit4KeyUp(Sender: TObject; var Key: Word;  Shift: TShiftState);
     procedure cbb2CloseUp(Sender: TObject);
+    procedure CheckBox1Click(Sender: TObject);
 
   private
-
     procedure ShowList(CB:TComboBox);
     procedure ChMN(Cb1, Cb2: TComboBox; Ed1: TEdit);
     procedure LoadCbb(cb: TComboBox; Param: Byte);
 
     function  CheckValue(V:String; K:Integer):Boolean;
 
-    function  RegCardSMS(P1,P2,P3:String; IsLink:Boolean):Boolean;
+    function RegCardSMS(P1,P2,P3:String; IsLink:Boolean):Boolean;
 
   public
 
@@ -169,6 +173,17 @@ procedure TAECardsF.FormCreate(Sender:TObject);
    end;
 
   LoadCbb(cbb2,2);
+
+  if Prm.FirmID=22 then //"Здоровенькi були"
+   begin
+    GroupBox1.Width:=281;
+    CheckBox1.Visible:=True;
+    GroupBox2.Visible:=False;
+   end else begin
+             GroupBox1.Width:=541;
+             CheckBox1.Visible:=False;
+             GroupBox2.Visible:=False;
+            end;
  end;
 
 procedure TAECardsF.BitBtn2Click(Sender: TObject);
@@ -301,6 +316,9 @@ var Kod,Res:String;
 
 procedure TAECardsF.BitBtn1Click(Sender: TObject);
 var FIO,AvgAge,Phone,db1,db2,db3,nC1,nC2,nC3,P1,P2,P3,Art:String;
+    vIsLink:Boolean;
+    vIsBirth:Byte;
+    NumCardZB:Int64;
 
  function IsNull(S:String):String;
   begin
@@ -365,6 +383,18 @@ var FIO,AvgAge,Phone,db1,db2,db3,nC1,nC2,nC3,P1,P2,P3,Art:String;
   if (RadioButton1.Checked=False) and (RadioButton2.Checked=False) and (RadioButton3.Checked=False) and (RadioButton4.Checked=False) then
    begin
     MainF.MessBox('Выберите признак ''Примерный возраст''',48);
+   end else
+  if (CheckBox1.Checked) and (Length(edNumCardOld.Text)<>13) then
+   begin
+    MainF.MessBox('Штрихкод карты "Здоровенькi були" просканирован неполностью',48);
+    edNumCardOld.Text:='';
+    edNumCardOld.SetFocus;
+   end else
+  if (CheckBox1.Checked) and (Copy(edNumCardOld.Text,1,3)<>'262') then
+   begin
+    MainF.MessBox('Просканированный штрихкод не является картой "Здоровенькi були"!',48);
+    edNumCardOld.Text:='';
+    edNumCardOld.SetFocus;
    end else try
 
               FIO:=TrimRight(UpperLowerStr(CorrSQLString(Edit2.Text))+' '+
@@ -378,7 +408,10 @@ var FIO,AvgAge,Phone,db1,db2,db3,nC1,nC2,nC3,P1,P2,P3,Art:String;
               if IsEmptyPhone(Edit10.Hint)=False then begin P3:='+38'+Edit10.Hint; Phone:=Phone+IsNull(Phone)+P3 end;
 
               if Prm.RegCardFromSMS then
-               if RegCardSMS(P1,P2,P3,IsLink)=false then Abort;
+              begin
+                if RegCardSMS(P1,P2,P3,IsLink)=false then
+                  Abort;
+              end;
 
               AvgAge:='';
               db1:='null'; db2:='null'; db3:='null';
@@ -449,7 +482,19 @@ var FIO,AvgAge,Phone,db1,db2,db3,nC1,nC2,nC3,P1,P2,P3,Art:String;
 {               DM.QrCa.SQL.Add('select 789 as res');
                DM.QrCa.SQL.SaveToFile('C:\2234.txt');
 }
-
+{
+              if CheckBox1.Checked then
+               begin
+                UpdateCardInfo(NumCardZb,vIsLink,vIsBirth);
+               end;
+}
+              NumCardZb:=0;
+              if CheckBox1.Checked then
+              try
+               NumCardZb:=StrToInt64(Copy(edNumCardOld.Text,1,12))
+              except
+               NumCardZb:=0;
+              end;
               DM.QrCa.Close;
               DM.QrCa.SQL.Clear;
               DM.QrCa.SQL.Add('exec spY_RegisterCard ');
@@ -467,7 +512,12 @@ var FIO,AvgAge,Phone,db1,db2,db3,nC1,nC2,nC3,P1,P2,P3,Art:String;
               DM.QrCa.SQL.Add(''''+nC2+''',');
               DM.QrCa.SQL.Add(''''+nC3+''',');
               DM.QrCa.SQL.Add(''''+MainF.NPSvid+''',');
-              DM.QrCa.SQL.Add(Art);
+              DM.QrCa.SQL.Add(Art+',');
+              if CheckBox1.Checked then
+               DM.QrCa.SQL.Add(IntToStr(NumCardZB))
+              else
+               DM.QrCa.SQL.Add('0');
+
 //              DM.QrCa.SQL.SaveToFile('C:\log\2234.txt');
               DM.QrCa.Open;
 
@@ -672,6 +722,13 @@ var cb:TComboBox;
   except
    on E:Exception do MainF.MessBox('Ошибка ввода шаблона:'+E.Message);
   end;
+ end;
+
+procedure TAECardsF.CheckBox1Click(Sender: TObject);
+ begin
+  edNumCardOld.Text:='';
+  GroupBox2.Visible:=CheckBox1.Checked;
+  if CheckBox1.Checked then edNumCardOld.SetFocus;
  end;
 
 end.

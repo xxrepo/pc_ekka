@@ -4,7 +4,7 @@ interface
 
 uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
      Dialogs, StdCtrls, Grids, DBGrids, ComCtrls, Util, Buttons, ExtCtrls, DB,
-     PrintReport, ADODB, ShellAPI;
+     PrintReport, ADODB, ShellAPI, EKKAU;
 
 type
 
@@ -110,7 +110,6 @@ type
     FIODOctor1:String;
     DtRecipt:TDateTime;
 
-
     procedure FilterRes;
     procedure FilterResPos;
     procedure FlashStatus;
@@ -121,8 +120,7 @@ var WorkResF:TWorkResF;
 
 implementation
 
-uses MainU, DataModuleU, EnterValueU, AddResU, CancelResU, Pilot3U,
-  Uedit_filtr;
+uses MainU, DataModuleU, EnterValueU, AddResU, CancelResU, Pilot3U, Uedit_filtr;
 
 {$R *.dfm}
 
@@ -438,6 +436,12 @@ var
   if DM.qrResPos.IsEmpty then Exit;
   if DM.qrRes.FieldByName('Closed').AsInteger>=1 then Exit;
 
+  if (EKKA.TypeEKKA=EKKA_N707) and (DM.qrRes.FieldByName('Priznak').AsInteger=6) then
+   begin
+    MainF.MessBox('На данной кассе временно невозможно проводить продажи по страховым!');
+    Exit;
+   end;
+
   if AnsiUpperCase(DM.qrRes.FieldByName('FIO').AsString)=AnsiUpperCase('1-Сверка Товаров Страховой') then
    begin
     MainF.MessBox('Данную бронь добавлять в чек нельзя! По данному вопросу обращайтесь в офис!');
@@ -699,11 +703,12 @@ var Res:Integer;
 //----- Кнопка печать заказа ---------------------------------------------------
 procedure TWorkResF.BitBtn4Click(Sender: TObject);
 var
-  f: TextFile;
-  tmpADOQuery: TADOQuery;
+//  f: TextFile;
+//  tmpADOQuery: TADOQuery;
   cSumma: Currency;
   sSumma: String;
- begin
+  Tb: TTableObj;
+begin
   if DM.qrRes.IsEmpty then Exit;
 
   if DM.qrRes.FieldByName('Priznak').AsInteger=6 then //страховая
@@ -722,95 +727,80 @@ var
     PrintRep.Font.Size:=5;
 
     PrintRep.Font.Style:=[fsBold];
-    PrintRep.AddText('Чек/заказ готов №'+DM.qrRes.FieldByName('idres').AsString+' от '+FormatDateTime('DD.MM.YYYY',DM.qrRes.FieldByName('date_res').AsDateTime)+#10);
+    PrintRep.Align:=AL_CENTER;
+    PrintRep.AddText('Чек/заказ №'+DM.qrRes.FieldByName('idres').AsString+' от '+FormatDateTime('DD.MM.YYYY',DM.qrRes.FieldByName('date_res').AsDateTime)+#10#10);
     PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.Align:=AL_LEFT;
     PrintRep.Font.Size:=4;
-
-    //PrintRep.Font.Style:=[fsUnderline];
-    PrintRep.AddText('Фирма: '+Prm.FirmNameRU+#10);
-    //PrintRep.Font.Style:=PrintRep.Font.Style-[fsUnderline];
-    PrintRep.AddText(#10);
-    PrintRep.AddText('Заказ страховой: '+DM.qrRes.FieldByName('StrahDescr').AsString+#10);
-    PrintRep.AddText('ЗЛ: '+DM.qrRes.FieldByName('fio_assembly').AsString+', полис: '+DM.qrRes.FieldByName('nn_polis').AsString+', тел.:'+DM.qrRes.FieldByName('phone').AsString+#10);
-    PrintRep.AddText(#10);
+    PrintRep.AddText('По заявке: ');
     PrintRep.Font.Style:=[fsBold];
-    PrintRep.AddText('Бронь в аптеке:'+#10);
+    PrintRep.AddText(DM.qrRes.FieldByName('NumOrder').AsString+#10#10);
     PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
-    //Параметры бывают пустыми. Чтобы не было строки с запятыми делаем проверку
-    if (Prm.eStr1<>'') or (Prm.eStr2<>'') or (Prm.eStr3<>'') or (Prm.eStr4<>'') then
-      begin
-        //PrintRep.Font.Style:=[fsUnderline];
-        PrintRep.AddText(Prm.eStr1+', '+Prm.eStr2+', '+Prm.eStr3+', '+Prm.eStr4+#10);
-        PrintRep.AddText(Prm.AptekaNameRU+', '+Prm.aCity+', '+Prm.aAdress+#10);
-        //PrintRep.Font.Style:=PrintRep.Font.Style-[fsUnderline];
-      end;
 
-    PrintRep.AddText('Комментарии к заказу: '+DM.qrRes.FieldByName('Comment').AsString+#10);
-    PrintRep.AddText('Дата выполнения заказа: '+FormatDateTime('DD.MM.YYYY HH:MM',Now())+#10);
     PrintRep.AddText(#10);
+    PrintRep.AddText('Страховая компания: ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(DM.qrRes.FieldByName('StrahDescr').AsString+#10);
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText('Застрахованное лицо: ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(DM.qrRes.FieldByName('fio_assembly').AsString);
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText(', полис: ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(DM.qrRes.FieldByName('nn_polis').AsString);
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText(', тел.: ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(DM.qrRes.FieldByName('phone').AsString+#10);
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
     PrintRep.AddText(#10);
 
-    //Потом удалить
-    {
-    AssignFile(f, 'C:\MY\qrRes.txt');
-    Rewrite(f);
-    Write (f, DM.qrRes.SQL.Text);
-    CloseFile (f);
-    }
-
-    //Получаем сумму по заказу
-    tmpADOQuery:= TADOQuery.Create(self);
-    with tmpADOQuery do
+    PrintRep.AddText('Аптека: ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(Prm.AptekaNameRU);
+    with TADOQuery.Create(self) do
     begin
       try
         Connection:=DM.ADOCo;
         SQL.Clear;
-        SQL.Text:=
-          'select SUM(KOL*cena) SUMMA  '
-          +' from                 '
-          +'   DTRES (nolock)     '
-          +' where                '
-          +'   IDRES = '
-          +DM.qrRes.FieldByName('idres').AsString;
+        SQL.Add('select isnull(adress,0) as adress from APTEKS where id_apteka = '+IntToStr(Prm.AptekaID));
+        SQL.Add('');
         Open;
-        cSumma := tmpADOQuery.FieldByName('SUMMA').AsCurrency;
-        // Высвечивает точку вместо запятой. Для единообразия пользуемся CurrencyToStr
-        // sSumma := tmpADOQuery.FieldByName('SUMMA').AsString;
-        sSumma := CurrencyToStr(tmpADOQuery.FieldByName('SUMMA').AsCurrency);
+        if (not IsEmpty)and(length(trim(FieldByName('adress').AsString))>0) then
+          PrintRep.AddText(' ('+FieldByName('adress').AsString+')'+#10)
+        else
+          PrintRep.AddText(#10);
       finally
-        tmpADOQuery.Free;
+        Free;
       end;
     end;
-
-    PrintRep.AddText('Сумма заказа = '+sSumma + ' грн ' +#10);
-    //Франшиза без процентов
-    //PrintRep.AddText('Франшиза - '+'% = '+DM.qrRes.FieldByName('fransh').AsString+#10);
-
-    //Процент франшизы от суммы
-    PrintRep.AddText('Франшиза - '
-                                  +CurrencyToStr(DM.qrRes.FieldByName('fransh').AsCurrency/cSumma*100)
-                                  +'% = '+CurrencyToStr(DM.qrRes.FieldByName('fransh').AsCurrency)+#10);
-                                  //Так не годится - точка вместо запятой. Единообразие нужно
-                                  //+'% = '+DM.qrRes.FieldByName('fransh').AsString+#10);
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
 
 
-    //Процент франшизы от страховой
-    {PrintRep.AddText('Франшиза - '
-                                  +CurrencyToStr(DM.qrRes.FieldByName('fransh').AsCurrency/DM.qrRes.FieldByName('Bezn1').AsCurrency*100)
-                                  +'% = '+CurrencyToStr(DM.qrRes.FieldByName('fransh').AsCurrency)+#10);
-                                  //Так не годится - точка вместо запятой. Единообразие нужно
-                                  //+'% = '+DM.qrRes.FieldByName('fransh').AsString+#10);
-    }
+    PrintRep.AddText('Юридическое лицо: ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(Prm.FirmNameRU+#10);
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText('Телефон для справки: +38 (044) 593-12-03'+#10);
 
-    PrintRep.AddText('Оплата страховой = '+CurrencyToStr(DM.qrRes.FieldByName('Bezn1').AsCurrency)+' грн '+#10);
+    if length(trim(DM.qrRes.FieldByName('Comment').AsString))>0 then
+    begin
+      PrintRep.AddText('Комментарии к заказу: ');
+      PrintRep.Font.Style:=[fsBold];
+      PrintRep.AddText(DM.qrRes.FieldByName('Comment').AsString+#10);
+      PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+
+      PrintRep.AddText('Дата выполнения заказа: ');
+      PrintRep.Font.Style:=[fsBold];
+      PrintRep.AddText(FormatDateTime('DD.MM.YYYY HH:MM',Now())+#10);
+      PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    end;
     PrintRep.AddText(#10);
-    PrintRep.AddText(#10);
-    PrintRep.AddText('Товары в заказе: '+#10+#10);
+    PrintRep.AddText('Товары в заказе: '+#10#10);
     //Таблица
     PrintRep.Font.Size:=4;
-    //PrintRep.PrintTable(Nds:Boolean; It:Integer; Kol:Integer; Остальные по-умолчанию); Нужно разбираться, что это за процедура
     PrintRep.PrintTable(False,0,0);
-
     PrintRep.Font.Size:=4;
 
     //Саша Малахов 02.08.2018 звонил (Сергею?) и выяснил, что
@@ -818,10 +808,256 @@ var
     //PrintRep.Font.Style:=[fsUnderline];
     PrintRep.AddText(#10);
     PrintRep.Align:=AL_RIGHT;
-    PrintRep.AddText('ИТОГО ПО ЗАКАЗУ  '+CurrencyToStr(DM.qrRes.FieldByName('Bezn1').AsCurrency) +' грн.'+#10);
-    //PrintRep.Font.Style:=PrintRep.Font.Style-[fsUnderline];
+    PrintRep.AddText('Итого по заказу ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(CurrencyToStr(DM.qrRes.FieldByName('Bezn1').AsCurrency));
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText(' грн.'+#10);
+
+    //Получаем сумму по заказу
+    with TADOQuery.Create(self) do
+    begin
+      try
+        Connection:=DM.ADOCo;
+        SQL.Clear;
+        SQL.Add('select');
+        SQL.Add('  SUM(KOL*cena) as SUMMA');
+        SQL.Add('from');
+        SQL.Add('  DTRES (nolock)');
+        SQL.Add('where');
+        SQL.Add('  IDRES = ' + DM.qrRes.FieldByName('idres').AsString);
+        SQL.Add('');
+        Open;
+        cSumma:=FieldByName('SUMMA').AsCurrency;
+        sSumma:=CurrencyToStr(FieldByName('SUMMA').AsCurrency);
+      finally
+        Free;
+      end;
+    end;
+    //PrintRep.AddText(#10);
+    //PrintRep.AddText(#10);
+
+    PrintRep.Align:=AL_RIGHT;
+    //PrintRep.AddText('Сумма заказа = ');
+    //PrintRep.Font.Style:=[fsBold];
+    //PrintRep.AddText(sSumma);
+    //PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    //PrintRep.AddText(' грн.'+#10);
+
+    //Процент франшизы от суммы
+    PrintRep.AddText('Франшиза (');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(CurrencyToStr(DM.qrRes.FieldByName('fransh').AsCurrency/cSumma*100));
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText('%) ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(CurrencyToStr(DM.qrRes.FieldByName('fransh').AsCurrency));
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText(' грн.'+#10);
+
+    PrintRep.AddText('ВСЕГО К ОПЛАТЕ ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(CurrencyToStr(DM.qrRes.FieldByName('Bezn1').AsCurrency));
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText(' грн '+#10);
+    //PrintRep.AddText(#10);
+    //PrintRep.AddText(#10);
+    PrintRep.AddText(#10);
+    PrintRep.AddText(#10);
+    PrintRep.AddText(#10);
+
+    Tb:=nil;
+    PrintRep.AddTable(2,2);
+    Tb:=PrintRep.LastTable;
+    Tb.SetWidths('1500,1000');
+    Tb.SetBorders(1,1,2,2,EMPTY_BORDER);
+    Tb.Cell[1,1].Font.Size:=4;
+    Tb.Cell[1,1].Align:=AL_CENTER;
+    Tb.Cell[1,1].Font.Style:=[fsBold];
+    Tb.Cell[1,1].AddText(DM.qrRes.FieldByName('fio_assembly').AsString+#10);
+    Tb.Cell[1,1].Font.Style:=Tb.Cell[1,1].Font.Style-[fsBold];
+    //Tb.Cell[1,2].TopBorder:=DEFAULT_BORDER;
+    Tb.Cell[2,2].TopBorder:=DEFAULT_BORDER;
+    Tb.Cell[1,2].Align:=AL_CENTER;
+    Tb.Cell[2,2].Align:=AL_CENTER;
+    Tb.Cell[1,2].Font.Size:=3;
+    Tb.Cell[2,2].Font.Size:=3;
+    Tb.Cell[1,2].AddText('(Ф.И.О. клиента)');
+    Tb.Cell[2,2].AddText('(подпись клиента)');
+
 
     PrintRep.PreView;
+(*
+    DM.Qr.Close;
+    //2 - параметр в запросе ( отдельный запрос в хранимой процедуре spY_DtResList). Идет условие if @Param=2
+    DM.Qr.SQL.Text:='exec spY_DtResList '+DM.qrRes.FieldByName('idres').AsString+',2';
+    DM.Qr.Open;
+
+    PrintRep.Clear;
+    PrintRep.SetDefault;
+    PrintRep.Qr:=DM.Qr;
+
+    PrintRep.Orientation:=O_PORTR;      //Ориентация страницы
+    PrintRep.Font.Name:='Arial';
+    PrintRep.Font.Size:=5;
+
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.Align:=AL_CENTER;
+    PrintRep.AddText('Чек/заказ №'+DM.qrRes.FieldByName('idres').AsString+' от '+FormatDateTime('DD.MM.YYYY',DM.qrRes.FieldByName('date_res').AsDateTime)+#10#10);
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.Align:=AL_LEFT;
+    PrintRep.Font.Size:=4;
+    PrintRep.AddText('По заявке: ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(DM.qrRes.FieldByName('NumOrder').AsString+#10#10);
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText('Фирма: ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText('Фирма: '+Prm.FirmNameRU+#10);
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText('(телефон справки аптеки страховых: +38 (044) 593-12-03)'+#10);
+    PrintRep.AddText(#10);
+    PrintRep.AddText('Заказ страховой: ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(DM.qrRes.FieldByName('StrahDescr').AsString+#10);
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText('ЗЛ: ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(DM.qrRes.FieldByName('fio_assembly').AsString);
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText(', полис: ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(DM.qrRes.FieldByName('nn_polis').AsString);
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText(', тел.: ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(DM.qrRes.FieldByName('phone').AsString+#10);
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText(#10);
+    PrintRep.AddText('Бронь в аптеке: ');
+    PrintRep.Font.Style:=[fsBold];
+    with TADOQuery.Create(self) do
+    begin
+      try
+        Connection:=DM.ADOCo;
+        SQL.Clear;
+        SQL.Add('select isnull(adress,0) as adress from APTEKS where id_apteka = '+IntToStr(Prm.AptekaID));
+        SQL.Add('');
+        Open;
+        if (not IsEmpty)and(length(trim(FieldByName('adress').AsString))>0) then
+          PrintRep.AddText(FieldByName('adress').AsString+#10)
+        else
+          PrintRep.AddText(#10);
+      finally
+        Free;
+      end;
+    end;
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+
+    if length(trim(DM.qrRes.FieldByName('Comment').AsString))>0 then
+    begin
+      PrintRep.AddText('Комментарии к заказу: ');
+      PrintRep.Font.Style:=[fsBold];
+      PrintRep.AddText(DM.qrRes.FieldByName('Comment').AsString+#10);
+      PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+
+      PrintRep.AddText('Дата выполнения заказа: ');
+      PrintRep.Font.Style:=[fsBold];
+      PrintRep.AddText(FormatDateTime('DD.MM.YYYY HH:MM',Now())+#10);
+      PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    end;
+    PrintRep.AddText(#10);
+    PrintRep.AddText('Товары в заказе: '+#10#10);
+    //Таблица
+    PrintRep.Font.Size:=4;
+    PrintRep.PrintTable(False,0,0);
+    PrintRep.Font.Size:=4;
+
+    //Саша Малахов 02.08.2018 звонил (Сергею?) и выяснил, что
+    //Итого за заказ - это оплата страховой, а франшиза и сумма заказа никак не влияет на итого
+    //PrintRep.Font.Style:=[fsUnderline];
+    PrintRep.AddText(#10);
+    PrintRep.Align:=AL_RIGHT;
+    PrintRep.AddText('ИТОГО ПО ЗАКАЗУ ');
+    PrintRep.Font.Style:=[fsBold,fsUnderline];
+    PrintRep.AddText(CurrencyToStr(DM.qrRes.FieldByName('Bezn1').AsCurrency));
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold,fsUnderline];
+    PrintRep.AddText(' грн.'+#10);
+
+    //Получаем сумму по заказу
+    with TADOQuery.Create(self) do
+    begin
+      try
+        Connection:=DM.ADOCo;
+        SQL.Clear;
+        SQL.Add('select');
+        SQL.Add('  SUM(KOL*cena) as SUMMA');
+        SQL.Add('from');
+        SQL.Add('  DTRES (nolock)');
+        SQL.Add('where');
+        SQL.Add('  IDRES = ' + DM.qrRes.FieldByName('idres').AsString);
+        SQL.Add('');
+        Open;
+        cSumma:=FieldByName('SUMMA').AsCurrency;
+        sSumma:=CurrencyToStr(FieldByName('SUMMA').AsCurrency);
+      finally
+        Free;
+      end;
+    end;
+    PrintRep.AddText(#10);
+    PrintRep.AddText(#10);
+
+    PrintRep.Align:=AL_LEFT;
+    PrintRep.AddText('Сумма заказа = ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(sSumma);
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText(' грн.'+#10);
+
+    //Процент франшизы от суммы
+    PrintRep.AddText('Франшиза - ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(CurrencyToStr(DM.qrRes.FieldByName('fransh').AsCurrency/cSumma*100));
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText('% = ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(CurrencyToStr(DM.qrRes.FieldByName('fransh').AsCurrency));
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText(' грн.'+#10);
+
+    PrintRep.AddText('Оплата страховой = ');
+    PrintRep.Font.Style:=[fsBold];
+    PrintRep.AddText(CurrencyToStr(DM.qrRes.FieldByName('Bezn1').AsCurrency));
+    PrintRep.Font.Style:=PrintRep.Font.Style-[fsBold];
+    PrintRep.AddText(' грн '+#10);
+    PrintRep.AddText(#10);
+    PrintRep.AddText(#10);
+    PrintRep.AddText(#10);
+    PrintRep.AddText(#10);
+    PrintRep.AddText(#10);
+
+    Tb:=nil;
+    PrintRep.AddTable(2,2);
+    Tb:=PrintRep.LastTable;
+    Tb.SetWidths('1500,1000');
+    Tb.SetBorders(1,1,2,2,EMPTY_BORDER);
+    Tb.Cell[1,1].Font.Size:=4;
+    Tb.Cell[1,1].Align:=AL_CENTER;
+    Tb.Cell[1,1].Font.Style:=[fsBold];
+    Tb.Cell[1,1].AddText(DM.qrRes.FieldByName('fio_assembly').AsString+#10);
+    Tb.Cell[1,1].Font.Style:=Tb.Cell[1,1].Font.Style-[fsBold];
+    Tb.Cell[1,2].TopBorder:=DEFAULT_BORDER;
+    Tb.Cell[2,2].TopBorder:=DEFAULT_BORDER;
+    Tb.Cell[1,2].Align:=AL_CENTER;
+    Tb.Cell[2,2].Align:=AL_CENTER;
+    Tb.Cell[1,2].Font.Size:=3;
+    Tb.Cell[2,2].Font.Size:=3;
+    Tb.Cell[1,2].AddText('(Ф.И.О. клиента)');
+    Tb.Cell[2,2].AddText('(подпись клиента)');
+
+
+    PrintRep.PreView;
+*)
   end
   else
   //Это не интернет заказ и этот работает, как надо
@@ -849,7 +1085,7 @@ var
 
     PrintRep.PreView;
   end;
- end;
+end;
 
 procedure TWorkResF.BitBtn5Click(Sender: TObject);
 var Blob:TMemoryStream;

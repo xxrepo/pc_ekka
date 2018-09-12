@@ -1,8 +1,8 @@
 object QuarantineEditF: TQuarantineEditF
-  Left = 1641
-  Top = 383
-  Width = 286
-  Height = 180
+  Left = 1305
+  Top = 635
+  Width = 327
+  Height = 182
   Caption = 'QuarantineEditF'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -172,6 +172,20 @@ object QuarantineEditF: TQuarantineEditF
     Height = 13
     Caption = #1057#1088#1086#1082' '#1075#1086#1076#1085#1086#1089#1090#1080' '
   end
+  object lbSeriaFact: TLabel
+    Left = 4
+    Top = 96
+    Width = 105
+    Height = 13
+    Caption = #1060#1072#1082#1090#1080#1095#1077#1089#1082#1072#1103' '#1089#1077#1088#1080#1103':'
+  end
+  object lbSrokFact: TLabel
+    Left = 152
+    Top = 96
+    Width = 73
+    Height = 13
+    Caption = #1089#1088#1086#1082' '#1075#1086#1076#1085#1086#1089#1090#1080
+  end
   object dt_seria: TDateTimePicker
     Left = 184
     Top = 72
@@ -183,20 +197,20 @@ object QuarantineEditF: TQuarantineEditF
   end
   object btSave: TBitBtn
     Left = 4
-    Top = 96
+    Top = 116
     Width = 75
     Height = 25
     Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
-    TabOrder = 3
+    TabOrder = 5
     OnClick = btSaveClick
   end
   object btCancel: TBitBtn
     Left = 80
-    Top = 96
+    Top = 116
     Width = 75
     Height = 25
     Caption = #1054#1090#1084#1077#1085#1080#1090#1100
-    TabOrder = 4
+    TabOrder = 6
     OnClick = btCancelClick
   end
   object chSeriaIsAbsent: TCheckBox
@@ -220,22 +234,39 @@ object QuarantineEditF: TQuarantineEditF
   end
   object cbSeria_Srok: TComboBox
     Left = 136
-    Top = 100
+    Top = 120
     Width = 65
     Height = 21
     ItemHeight = 13
-    TabOrder = 6
+    TabOrder = 8
     Text = 'cbSeria_Srok'
     Visible = False
   end
   object cbSeria_KodName: TComboBox
     Left = 200
-    Top = 100
+    Top = 120
     Width = 65
     Height = 21
     ItemHeight = 13
-    TabOrder = 5
+    TabOrder = 7
     Text = 'cbSeria_KodName'
     Visible = False
+  end
+  object edSeriaFact: TEdit
+    Left = 112
+    Top = 96
+    Width = 37
+    Height = 21
+    TabOrder = 3
+    Text = 'edSeriaFact'
+  end
+  object dtSrokFact: TDateTimePicker
+    Left = 228
+    Top = 96
+    Width = 81
+    Height = 21
+    Date = 43333.536762465280000000
+    Time = 43333.536762465280000000
+    TabOrder = 4
   end
 end

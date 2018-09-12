@@ -971,6 +971,7 @@ procedure TRepIncomF.edBankChange(Sender:TObject);
      18:edKr.Text:='26004010517445';  //'2600222331';
      19:edKr.Text:='26002010461009';
      21:edKr.Text:='26003010548169';
+     24:edKr.Text:='26007010546662';
     end;
     edMFO.Text:='Ã‘Œ: 307123';
     FBank:=edBank.Text;

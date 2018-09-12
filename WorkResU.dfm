@@ -1,6 +1,6 @@
 object WorkResF: TWorkResF
-  Left = 923
-  Top = 308
+  Left = 485
+  Top = 285
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'WorkResF'
@@ -387,8 +387,7 @@ object WorkResF: TWorkResF
           Title.Font.Height = -11
           Title.Font.Name = 'MS Sans Serif'
           Title.Font.Style = []
-          Width = 92
-          Visible = True
+          Visible = False
         end>
     end
   end

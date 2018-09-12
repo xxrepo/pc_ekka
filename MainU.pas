@@ -1063,6 +1063,7 @@ Type TFake=class(TCustomGrid);
     BitBtn10: TBitBtn;
     N112: TMenuItem;
     N113: TMenuItem;
+    imNPT: TImage;
 
        procedure FormActivate(Sender:TObject);
        procedure miUsersClick(Sender:TObject);
@@ -1612,6 +1613,7 @@ Type TFake=class(TCustomGrid);
        procedure InitProxy;
        procedure ShowReklamaMess;
        procedure ShowNotMarkedBack(Sender:TObject);
+       procedure ShowNotPassedTests(Sender:TObject);
        procedure SetMaxSpisSum(const Value:Currency);
        procedure WaitMessTimer;
 
@@ -2074,6 +2076,8 @@ Const MFC='Регистрация продаж';  // Надпись на главном окне
       // 298000000002
       // 299000000002
       // 301000000001
+      // 302000000001
+      // 303000000001
 
       { --- Признаки работы со справочником товара ---}
       W_CENNIK=1;     // Печать ценников
@@ -2082,11 +2086,10 @@ Const MFC='Регистрация продаж';  // Надпись на главном окне
       W_BACK=4;       // Формирование возврата по списку
       W_BACK1=5;      // Формирование возврата вручную
       W_LTM=6;        // Формирование лишнего товара по минусовой реализации
-      W_CENNIKSROK=7; // Печать ценников на сроковые товары
-      W_ZAKAZSKL=8;   // Заказ на складе
-      W_ZAKAZWAIT=9;  // Бронь ожидаемого товара
-
-//      W_QUARANTINE1=10; //Перемещение товара в карантин
+      W_CENNIKSROK=7;  // Печать ценников на сроковые товары
+      W_ZAKAZSKL=8;    // Заказ на складе
+      W_ZAKAZWAIT=9;   // Бронь ожидаемого товара
+      W_QUARANTINE=10; //Перемещение товара в карантин
 
       { --- Признаки формирования пересорта ---}
       P_MONTH=1;      // Пересорт за месяц
@@ -2317,6 +2320,7 @@ procedure TMainF.InitScripts;
 var S:String;
     V:Integer;
  begin
+//  Exit;
   try
 
    DM.Qr.Close;
@@ -2353,7 +2357,7 @@ var S:String;
    end;
 
 //  if Design then Exit;
-
+  if IsStudyRoom=False then
   try
    DM.Qr.Close;
    DM.Qr.SQL.Clear;
@@ -3619,6 +3623,19 @@ var T:TDateTime;
   pnBarDop.Top:=0;
   pnBarDop.Height:=pnHead.Height;
   pnBarDop.Kind:=brBtns;
+
+  With pnBarDop.Tabs.Add do
+   begin
+    Btn.Caption:='          ';
+    Btn.ShowHint:=True;
+    Btn.Hint:='У Вас есть непройденные тесты';
+    Btn.Tag:=4;
+    Btn.ColorDown:=$00DCE1E4;
+    Btn.OnClick:=ShowNotPassedTests;
+    Btn.Visible:=False;
+    Btn.Glyph.Assign(imNPT.Picture);
+   end;
+
   With pnBarDop.Tabs.Add do
    begin
     Btn.Caption:='Не собр. в.';
@@ -3627,6 +3644,7 @@ var T:TDateTime;
     Btn.OnClick:=ShowNotMarkedBack;
     Btn.Visible:=False;
    end;
+
   With pnBarDop.Tabs.Add do
    begin
     Btn.Caption:='                ';
@@ -3990,7 +4008,8 @@ var Com,S:String;
   EKKA.IPAddr:=Opt.IPAddrEKKA;
   EKKA.ConnectString:=Prm.ConStr;
 
-  if (Prm.AptekaID=565) then EKKA.DiscOnAllSum:=False;
+ // if (Prm.AptekaID=565) then
+  EKKA.DiscOnAllSum:=True;
 
   {if EKKA.EmulEKKA then}
   ShowIndic(CenterStr(FormatDateTime('hh-nn',Now),10));
@@ -12357,20 +12376,26 @@ procedure TMainF.tmWaitCommTimer(Sender:TObject);
    //if Prm.Dobraia then Exit;
 
    try  // Несобранные возвраты
+    if pnBarDop.Tabs.Items[1].Btn.Visible then
+     pnBarDop.Tabs.Items[1].Btn.Flash:=Not pnBarDop.Tabs.Items[1].Btn.Flash;
+   except
+   end;
+
+   try  // Несданные уроки
     if pnBarDop.Tabs.Items[0].Btn.Visible then
      pnBarDop.Tabs.Items[0].Btn.Flash:=Not pnBarDop.Tabs.Items[0].Btn.Flash;
    except
    end;
 
    try  // Интернет заказы
-    if pnBarDop.Tabs.Items[1].Btn.Visible then
-     pnBarDop.Tabs.Items[1].Btn.Flash:=Not pnBarDop.Tabs.Items[1].Btn.Flash;
+    if pnBarDop.Tabs.Items[2].Btn.Visible then
+     pnBarDop.Tabs.Items[2].Btn.Flash:=Not pnBarDop.Tabs.Items[2].Btn.Flash;
    except
    end;
 
    try  // Сообщения
-    if pnBarDop.Tabs.Items[2].Btn.Tag>0 then
-     pnBarDop.Tabs.Items[2].Btn.Flash:=Not pnBarDop.Tabs.Items[2].Btn.Flash;
+    if pnBarDop.Tabs.Items[3].Btn.Tag>0 then
+     pnBarDop.Tabs.Items[3].Btn.Flash:=Not pnBarDop.Tabs.Items[3].Btn.Flash;
    except
    end;
 
@@ -12764,6 +12789,14 @@ var i,ID:Integer;
 
 //  if dbgChek.Visible=True then Exit;
   try
+   DM.TimerQr.Close;
+   DM.TimerQr.SQL.Text:='select top 1 id_gamma from NotPassedTests where id_gamma='+IntToStr(Prm.ID_Gamma);
+   DM.TimerQr.Open;
+   pnBarDop.Tabs.Items[0].Btn.Visible:=Not DM.TimerQr.IsEmpty;
+  except
+  end;
+
+  try
    try // Несобранные возвраты
     DM.TimerQr.Close;
     DM.TimerQr.SQL.Text:='exec spY_NotMarketBack ';
@@ -12777,15 +12810,15 @@ var i,ID:Integer;
       try
 
        B:=True;
-       pnBarDop.Tabs.Items[0].Btn.Visible:=False;
+       pnBarDop.Tabs.Items[1].Btn.Visible:=False;
 
-       pnBarDop.Tabs.Items[0].Btn.ShowHint:=True;
-       pnBarDop.Tabs.Items[0].Btn.Hint:='Несобранных возвратов: '+IntToStr(Rc);
+       pnBarDop.Tabs.Items[1].Btn.ShowHint:=True;
+       pnBarDop.Tabs.Items[1].Btn.Hint:='Несобранных возвратов: '+IntToStr(Rc);
 
        PrepareIm(imNotV,Rc,0,Bm);
 
-       pnBarDop.Tabs.Items[0].Btn.Glyph.Assign(Bm);
-       pnBarDop.Tabs.Items[0].Btn.Visible:=True;
+       pnBarDop.Tabs.Items[1].Btn.Glyph.Assign(Bm);
+       pnBarDop.Tabs.Items[1].Btn.Visible:=True;
 
       finally
        Bm.Free;
@@ -12813,26 +12846,26 @@ var i,ID:Integer;
      DM.TimerQr.SQL.Add('exec spY_CheckNewMess '+IntToStr(Prm.UserID)+','+ss+',2');
 
      DM.TimerQr.Open;
-     pnBarDop.Tabs.Items[2].Btn.Tag:=DM.TimerQr.FieldByName('Cnt').AsInteger;
+     pnBarDop.Tabs.Items[3].Btn.Tag:=DM.TimerQr.FieldByName('Cnt').AsInteger;
 
-     if pnBarDop.Tabs.Items[2].Btn.Tag>0 then
+     if pnBarDop.Tabs.Items[3].Btn.Tag>0 then
       try
        Bm:=TBitMap.Create;
        try
 
-        pnBarDop.Tabs.Items[2].Btn.ShowHint:=True;
-        pnBarDop.Tabs.Items[2].Btn.Hint:='Сообщений: '+IntToStr(pnBarDop.Tabs.Items[2].Btn.Tag);
+        pnBarDop.Tabs.Items[3].Btn.ShowHint:=True;
+        pnBarDop.Tabs.Items[3].Btn.Hint:='Сообщений: '+IntToStr(pnBarDop.Tabs.Items[2].Btn.Tag);
 
-        PrepareIm(imHist,pnBarDop.Tabs.Items[2].Btn.Tag,0,Bm);
+        PrepareIm(imHist,pnBarDop.Tabs.Items[3].Btn.Tag,0,Bm);
 
-        pnBarDop.Tabs.Items[2].Btn.Glyph.Assign(Bm);
-        pnBarDop.Tabs.Items[2].Btn.Visible:=True;
+        pnBarDop.Tabs.Items[3].Btn.Glyph.Assign(Bm);
+        pnBarDop.Tabs.Items[3].Btn.Visible:=True;
 
        finally
         Bm.Free;
        end;
       except
-      end else pnBarDop.Tabs.Items[2].Btn.Glyph.Assign(imHist.Picture);
+      end else pnBarDop.Tabs.Items[3].Btn.Glyph.Assign(imHist.Picture);
 
     except
     end;
@@ -12854,16 +12887,16 @@ var i,ID:Integer;
        if DM.TimerQr.FieldByName('ZState').AsInteger<>0 then
         begin
          B:=True;
-         pnBarDop.Tabs.Items[1].Btn.Visible:=False;
+         pnBarDop.Tabs.Items[2].Btn.Visible:=False;
         end;
 
-       pnBarDop.Tabs.Items[1].Btn.ShowHint:=True;
-       pnBarDop.Tabs.Items[1].Btn.Hint:='Активных интернет заказов: '+DM.TimerQr.FieldByName('Cnt').AsString;
+       pnBarDop.Tabs.Items[2].Btn.ShowHint:=True;
+       pnBarDop.Tabs.Items[2].Btn.Hint:='Активных интернет заказов: '+DM.TimerQr.FieldByName('Cnt').AsString;
 
        PrepareIm(imIZak,DM.TimerQr.FieldByName('Cnt').AsInteger,DM.TimerQr.FieldByName('CntNA').AsInteger,Bm);
 
-       pnBarDop.Tabs.Items[1].Btn.Glyph.Assign(Bm);
-       pnBarDop.Tabs.Items[1].Btn.Visible:=True;
+       pnBarDop.Tabs.Items[2].Btn.Glyph.Assign(Bm);
+       pnBarDop.Tabs.Items[2].Btn.Visible:=True;
 
        T:=Time;
 
@@ -12893,7 +12926,7 @@ var i,ID:Integer;
        Bm.Free;
       end;
      except
-     end else pnBarDop.Tabs.Items[1].Btn.Visible:=False;
+     end else pnBarDop.Tabs.Items[2].Btn.Visible:=False;
     except
     end;
 
@@ -16470,7 +16503,11 @@ procedure TMainF.miChekPilotClick(Sender:TObject);
 //   if Not ShowQ('Присутствует ли в нижней части рецепта личная печать и подпись врача вашей поликлиники, который выписал данный рецепт?',5) then Exit;
 //   if Not ShowQ('Необходимо проверить правильность и полноту заполнения всех остальных данных в рецепте!',0) then Exit;
 
-
+   if EKKA.TypeEKKA=EKKA_N707 then
+    begin
+     MainF.MessBox('На данной кассе временно невозможно проводить продажи по программе "Доступные лекарства"');
+     Exit;
+    end;
 
    if edVesh.Text<>'Действ. вещество...' then imVeshClick(edVesh);
    if edDoz.Text<>'Дозировка...' then imVeshClick(edDoz);
@@ -19627,6 +19664,12 @@ procedure TMainF.N89Click(Sender: TObject);
 procedure TMainF.N90Click(Sender: TObject);
  begin
 
+   if EKKA.TypeEKKA=EKKA_N707 then
+    begin
+     MainF.MessBox('На данной кассе временно невозможно проводить продажи по страховым!');
+     Exit;
+    end;
+
 {
   if Opt.EmulEKKA then
    begin
@@ -19658,7 +19701,7 @@ procedure TMainF.N90Click(Sender: TObject);
 
     if AddStrahF.RadioButton1.Checked then FTypeDostStrah:=0  // Доставка
                                       else FTypeDostStrah:=1; // Самовывоз
-
+    TypeChek:=TC_MAIN;
     OpenChek;
    finally
     AddStrahF.Free;
@@ -20102,6 +20145,13 @@ procedure TMainF.miStickerForBoxClick(Sender: TObject);
 procedure TMainF.N110Click(Sender: TObject);
  begin
   try
+
+   if EKKA.TypeEKKA=EKKA_N707 then
+    begin
+     MainF.MessBox('На данной кассе временно невозможно проводить продажи по программе "Инсулины"!');
+     Exit;
+    end;
+
    sbSearchClearClick(sbSearchClear);
    FilterSklad;
 
@@ -20565,6 +20615,25 @@ procedure TMainF.N113Click(Sender: TObject);
   OpenChek;
  end;
 
+procedure TMainF.ShowNotPassedTests(Sender: TObject);
+var S,Res:String;
+    i:Integer;
+ begin
+  DM.QrEx.Close;
+  DM.QrEx.SQL.Text:='select NumTest from NotPassedTests where id_gamma='+IntToStr(Prm.ID_Gamma)+' order by 1';
+  DM.QrEx.Open;
+  S:='';
+  for i:=1 to DM.QrEx.RecordCount do
+   begin
+    if i=1 then DM.QrEx.First else DM.QrEx.Next;
+    S:=S+DM.QrEx.FieldByName('NumTest').AsString+#10;
+   end;
+  if S<>'' then
+   MessBox('Вы не сдали нижеперечисленные уроки!'#10+'Обязательно пройдите их в указанные сроки (см. на сайте)!'+#10#10+S,
+            48,GetFont('MS Sans Serif',12,clBlue,[fsBold]),0,Res);
+
+ end;
+
 END.
 
 //        MainF.RegisterError('Автоматическое снятие Z-отчета',E.Message,True);
@@ -20649,11 +20718,8 @@ zazforza
 
 
 Скайп
-
 sergio0523574825
-}
-
-{
+s0523574825
 
 УкрКард
 
@@ -20724,13 +20790,9 @@ delete from skd_limit where type_skd=54
 insert into skd_limit(art_code,type_skd,skd,fix,dtstart,dtend) values(57156,54,0,1,'2018-06-15','2018-07-31 23:59:59')
 
 
+
 insert into skd_limit(art_code,type_skd,skd,fix,dtstart,dtend) values(,42,40,1,'2018-03-03','2018-03-11 23:59:59')
 
-delete from skd_limit where type_skd=31
-insert into skd_limit(art_code,type_skd,skd,fix,dtstart,dtend) values(222322,31,0,1,'2018-04-18','2018-04-30 23:59:59')
-insert into skd_limit(art_code,type_skd,skd,fix,dtstart,dtend) values(222323,31,0,1,'2018-04-18','2018-04-30 23:59:59')
-insert into skd_limit(art_code,type_skd,skd,fix,dtstart,dtend) values(222324,31,50,1,'2018-04-18','2018-04-30 23:59:59')
-insert into skd_limit(art_code,type_skd,skd,fix,dtstart,dtend) values(222325,31,50,1,'2018-04-18','2018-04-30 23:59:59')
 
 
 
@@ -20745,4 +20807,9 @@ Frankie Goes To Hollywood - Relax (Final DJs Relax On The Beach Remix)
 
 }
 
+{
+Сдам на длительный срок гараж, пос. Жуковского. "Старт" 400 грн/мес. Тел. : 068-806-95-30.
 
+}
+
+138239285 310574

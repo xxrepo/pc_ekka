@@ -30,6 +30,10 @@ type
     cbSeria: TComboBox;
     cbSeria_KodName: TComboBox;
     cbSeria_Srok: TComboBox;
+    lbSeriaFact: TLabel;
+    edSeriaFact: TEdit;
+    lbSrokFact: TLabel;
+    dtSrokFact: TDateTimePicker;
 
     procedure FormActivate(Sender: TObject);
     procedure btCancelClick(Sender: TObject);
@@ -42,7 +46,8 @@ type
     fl_editing:boolean;
   end;
 
-var QuarantineEditF:TQuarantineEditF;
+var
+  QuarantineEditF: TQuarantineEditF;
 
 implementation
 
@@ -75,6 +80,10 @@ begin
   lb_f_nds.Caption:='';
   cbSeria.ItemIndex:=-1;
   dt_seria.DateTime:=Now();
+  edSeriaFact.Text:='';
+  edSeriaFact.Enabled:=false;
+  dtSrokFact.DateTime:=Now();
+  dtSrokFact.Enabled:=false;
 end;
 
 procedure TQuarantineEditF.btSaveClick(Sender: TObject);
@@ -93,6 +102,8 @@ begin
     cbSeria.Enabled:=false;
     dt_seria.DateTime:=StrToDate(SERIA_IS_ABSENT_DATE);
     dt_seria.Enabled:=false;
+    edSeriaFact.Enabled:=true;
+    dtSrokFact.Enabled:=true;
   end
   else
   begin
@@ -109,6 +120,8 @@ begin
       dt_seria.DateTime:=DM.qrQuarantine.FieldByName('dt_seria').AsDateTime
     else
       dt_seria.DateTime:=Now();
+    edSeriaFact.Enabled:=false;
+    dtSrokFact.Enabled:=false;
   end;
 end;
 

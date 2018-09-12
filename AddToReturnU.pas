@@ -140,6 +140,8 @@ var
         SQL.Add('declare @srokgodn datetime set @srokgodn = ''' + FormatDateTime('YYYY-MM-DD HH:MM:SS',ReturnToProviderF.qInternalNakl.FieldByName('srokgodn').AsDateTime) + '''');
 
         SQL.Add('');
+        SQL.Add('if @srokgodn<=convert(datetime,0) set @srokgodn=convert(datetime,0) ');
+
         SQL.Add('insert into chk_vozr (');
         SQL.Add('    KOD_NAME,   NAMES,   KOL,  CENA,   F_NDS,   TYPE_TOV,');
         SQL.Add('    ID_USER,   ART_CODE,   ART_NAME,   DATEINS,   PR1, CompName,');
@@ -198,7 +200,7 @@ var
         //Parameters.CreateParameter('numseriya',ftString,pdInput,50,ReturnToProviderF.qInternalNakl.FieldByName('numseriya').AsString);
         //Parameters.CreateParameter('srokgodn',ftDateTime,pdInput,23,ReturnToProviderF.qInternalNakl.FieldByName('srokgodn').AsDateTime);
 
-        //SQL.SaveToFile('1234');
+//        SQL.SaveToFile('c:\log\1234');
         ExecSQL;
       finally
         Free;

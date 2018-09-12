@@ -1,6 +1,6 @@
 object StartF: TStartF
-  Left = 533
-  Top = 304
+  Left = 704
+  Top = 438
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = #1056#1077#1075#1080#1089#1090#1088#1072#1094#1080#1103' '#1087#1088#1086#1076#1072#1078

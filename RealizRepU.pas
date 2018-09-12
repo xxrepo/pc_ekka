@@ -236,6 +236,12 @@ var RC,i:Integer;
 //   PrintRep.AddText('КОПИЯ ЧЕКА'+#10#10);
 //   PrintRep.Font.Size:=3;
    PrintRep.Font.Style:=[];
+
+{
+   PrintRep.Align:=AL_CENTER;
+   PrintRep.AddText('Товарный чек'+#10#10);
+   PrintRep.Align:=AL_LEFT;
+}
    PrintRep.AddText(Prm.AptekaNameRU+#10#10);
    Nch:=DM.spY_ChekList.FieldByName('Numb_Chek').AsInteger;
    if Nch<0 then Nch:=-1*NCh;

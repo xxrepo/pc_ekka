@@ -2511,7 +2511,7 @@ object DM: TDM
         Attributes = [paNullable]
         DataType = ftBCD
         Precision = 1
-        Value = Null
+        Value = 0c
       end>
     Left = 825
     Top = 56

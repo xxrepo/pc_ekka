@@ -194,6 +194,12 @@ var mi:TMenuItem;
      Exit;
     end;
 
+   if (mi.Tag=8) and (DM.qrTab.FieldByName('id_role').AsInteger<>4) then
+    begin
+     MainF.MessBox('Строку "Уборщик служебных помещений" можно добавлять только для заведующего или зам. зав. !');
+     Exit;
+    end;
+
    if (mi.Tag=1) and (DM.qrTab.FieldByName('id_type').AsInteger in [20,10]) then
     begin
      MainF.MessBox('Администраторов по товару и Комплектовщиков интернет-заказов нельзя ставить в ночную смену!');

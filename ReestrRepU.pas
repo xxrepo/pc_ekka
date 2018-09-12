@@ -86,7 +86,7 @@ procedure TReestrRepF.BitBtn2Click(Sender: TObject);
 var Tb:TTableObj;
     Rc,i,j:Integer;
     SummAll,SumNDS:Currency;
-    ss,s1:String;
+    ss,s1,MedNameRep:String;
  begin
   if ComboBox1.Text='' then
    begin
@@ -97,6 +97,11 @@ var Tb:TTableObj;
   if CheckBox1.Checked then ss:='0' else ss:='1';
 
   if ComboBox3.ItemIndex<=0 then s1:='' else s1:=ComboBox3.Text;
+
+  DM.QrEx.Close;
+  DM.QrEx.SQL.Text:='select top 1 MedNameRep from SprMed where MedName='''+CorrSQLString1(ComboBox1.Text)+'''';
+  DM.QrEx.Open;
+  MedNameRep:=DM.QrEx.FieldByName('MedNameRep').AsString;
 
   DM.QrEx.Close;
   DM.QrEx.SQL.Text:='exec spY_ReestrRep '''+FormatDateTime('yyyy-mm-dd',dtStart.Date)+''','''+FormatDateTime('yyyy-mm-dd hh:nn:ss',dtEnd.Date)+''','''+CorrSQLString1(ComboBox1.Text)+''',1,'+ss+','''+s1+'''';
@@ -133,7 +138,7 @@ var Tb:TTableObj;
     AddText('за пер≥од з '+DateToStr(dtStart.Date)+' по '+DateToStr(dtEnd.Date)+#10);
     AddText(Prm.FirmNameUA+' '+MainF.Address+ #10);
     AddText('про в≥дпущен≥ л≥карськ≥ засоби, варт≥сть €ких п≥дл€гаЇ повному або частковому в≥дшкодуванню,'#10);
-    AddText('за рецептами '+ComboBox1.Text+#10);
+    AddText('за рецептами '+MedNameRep+#10);
     if ComboBox1.Text=' «ќ« "’арк≥вська м≥ська пол≥кл≥н≥ка є22"' then
      begin
       Case Prm.FirmID of
