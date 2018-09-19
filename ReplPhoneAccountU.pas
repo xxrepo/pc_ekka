@@ -304,7 +304,19 @@ function SERVICE_Request(pObject: widestring; TmpPath: ansistring; TmpFile: ansi
 procedure BALANCE_Request(pUserKey: widestring; pUserName: widestring; pPassword: widestring; pObject: widestring; pBaseURL: widestring; TmpPath: ansistring; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt; IsError: boolean = false); stdcall; external 'ColibryDLL.dll';
 procedure GenerateOrderGUID(TmpPath: ansistring; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt); stdcall; external 'ColibryDLL.dll';
 //procedure ACCOUNT_Request(pUserKey: WideString; pUserName: WideString; pPassword: WideString; pObject: WideString; pBaseURL: WideString; pAccount: WideString; pAccType: WideString; pAmount: WideString; pService: WideString; pOrderGuid: ansistring; TmpPath: ansistring; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt; IsError: boolean = false); stdcall; external 'ColibryDLL.dll';
-procedure ACCOUNT_Request({pUserName: WideString; pPassword: WideString; pBaseURL: WideString;}pUserKey: WideString; pObject: WideString; pAccount: WideString; pAccType: WideString; pAmount: WideString; pService: WideString; pOrderGuid: ansistring; TmpPath: ansistring; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt; IsError: boolean = false); stdcall; external 'ColibryDLL.dll';
+procedure ACCOUNT_Request({pUserName: WideString; pPassword: WideString; pBaseURL: WideString;}
+                          pUserKey: WideString;
+                          pObject: WideString;
+                          pAccount: WideString;
+                          pAccType: WideString;
+                          pAmount: WideString;
+                          pService: WideString;
+                          pOrderGuid: ansistring;
+                          TmpPath: ansistring;
+                          TmpFile: ansistring;
+                          TmpPathLen: LongInt;
+                          TmpFileLen: LongInt;
+                          IsError: boolean = false); stdcall; external 'ColibryDLL.dll';
 procedure ORDER_Request(pUserKey: WideString; pUserName: WideString; pPassword: WideString; pObject: WideString; pBaseURL: WideString; pAccount: WideString; pAccType: WideString; pAmount: WideString; pService: WideString; pOrderGuid: ansistring; TmpPath: ansistring; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt; IsError: boolean = false); stdcall; external 'ColibryDLL.dll';
 procedure STATUS_Request(pUserKey: widestring; pUserName: widestring; pPassword: widestring; pObject: widestring; pBaseURL: widestring; pOrderGUID: ansistring; TmpPath: ansistring; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt; IsError: boolean = false); stdcall; external 'ColibryDLL.dll';
 
@@ -1756,7 +1768,7 @@ begin
       TmpFileLen:= length(TmpFile);
 
       try
-        Result:=SERVICE_Request(Colibry.pObject,TmpPath,TmpFile,TmpPathLen,TmpFileLen);
+          Result:=SERVICE_Request(Colibry.pObject,TmpPath,TmpFile,TmpPathLen,TmpFileLen);
       except
         on E:Exception do
           Exception.Create('Произошла ошибка в подключаемой библиотеке'+#13+E.Message);
@@ -1770,7 +1782,7 @@ begin
         Read(tmpF,ServiceRslt);
         CloseFile(tmpF);
       end;
-              
+
       if not FillServiceResponse(ServiceRslt) then
         raise Exception.Create('Ошибка расшифровки ответа от сервиса пополнения: '+ErrorResponse.code+' '+ErrorResponse.error);
 
@@ -2516,12 +2528,15 @@ begin
 end;
 
 function TReplPhoneAccountF.PrintChek(var CP:TChekPos):Boolean;
+const   TerminalIdTemplate = '00000000';
 var
   Mess, Nm, Nm1: string;
   F_NDS: integer;
   SumA, SumF: real;
   Ty: Integer;
   TakedSum, SumChek: Currency;
+  Licens : string;
+  PhoneNum : string;
 begin
   //оригинал - procedure TOptSumF.BitBtn1Click(Sender: TObject);
   Result:=False;
@@ -2555,15 +2570,57 @@ begin
     if Not EKKA.fpOpenFiscalReceipt then AbortM('Ошибка открытия чека: '+EKKA.LastErrorDescr);
     if Not EKKA.fpAddFinStr(StatusResponse.service.name) then AbortM('Ошибка добавления строк: '+EKKA.LastErrorDescr);
 
-    Nm1:='Сумма пополнения';
+    Nm1:='Електроннi грошi';
+    {      
     if ReplPhoneAccountF.lbService.Caption='Vodafone' then Nm1:='Послуги ПрАТ "МТС УКРАЇНА"' else
     if ReplPhoneAccountF.lbService.Caption='Kyivstar' then Nm1:='Київстар, 8gmn' else
     if ReplPhoneAccountF.lbService.Caption='LifeCell' then Nm1:='Послуги LifeCell';
-
+    }
+    {Уберем из номера телефона пробелы т +38}
+    PhoneNum := StringReplace(EKKA.FirmNameUA, ' ','',[rfReplaceAll]);
+    PhoneNum := StringReplace(PhoneNum, '+38','',[rfReplaceAll]);
     if Not EKKA.fpAddSale(Nm1, 1, SumA, 1, 0, 3, 0, '') then AbortM('Ошибка пробития позиции чека: '+EKKA.LastErrorDescr);
-    if Not EKKA.fpAddSale('Комиссия за пополнение', 1, SumF, 1, 0, 1, 0, '') then AbortM('Ошибка пробития позиции чека: '+EKKA.LastErrorDescr);
+    if Not EKKA.fpAddSale('Комисія, шт', 1, SumF, 1, 0, 1, 0, '') then AbortM('Ошибка пробития позиции чека: '+EKKA.LastErrorDescr);
 
-    EKKA.fpServiceText(1,1,0,'Тел.: '+ReplPhoneAccountF.edAccount.Text);
+    EKKA.fpServiceText(1,1,0,'№ терминала: '+Copy(TerminalIdTemplate,1,Length(TerminalIdTemplate)-Length(Prm.c_code)) + Prm.c_code);
+    EKKA.fpServiceText(1,1,0,'№ тел.:'+ReplPhoneAccountF.edAccount.Text);
+    EKKA.fpServiceText(1,1,0,'Агент розповсюдження '+StringReplace(EKKA.FirmNameUA, '"','''',[rfReplaceAll]));
+    EKKA.fpServiceText(1,1,0,'ЄДРПОУ  '+EKKA.sID);
+    EKKA.fpServiceText(1,1,0,'Номер підтримки: ' );
+    EKKA.fpServiceText(1,1,0,'    0504030444');
+    EKKA.fpServiceText(1,1,0,'    0675794774');
+    EKKA.fpServiceText(1,1,0,'    0931977155');
+
+    EKKA.fpServiceText(1,1,0,'Генеральний агент');
+    EKKA.fpServiceText(1,1,0,'ТОВ ''ЕЛЕКТРУМ ПЕЙМЕНТ СІСТЕМ''');
+    EKKA.fpServiceText(1,1,0,'м.Київ,вул.Столичне шосе, 103');
+    EKKA.fpServiceText(1,1,0,' ');
+    EKKA.fpServiceText(1,1,0,'ЄДРПОУ 40243180');
+    EKKA.fpServiceText(1,1,0,'РР 26507008000057');
+    EKKA.fpServiceText(1,1,0,'у АК ''УКРГАЗБАНК''');
+    EKKA.fpServiceText(1,1,0,'МФО 320478');
+    EKKA.fpServiceText(1,1,0,'');
+    case Prm.FirmID of
+      //ПФ "Гамма-55"
+      1: Licens := '1702/39 від 16.04.2018';
+      // ПП "Аптека 2011"
+      3: Licens := '1702/36 від 12.04.2018';
+      // ПП "Темп 2011"
+      4: Licens := '1702/40 від 16.04.2018';
+      //ПП "ФАРМАРОСТ 2011"
+      6: Licens := '1702/33 від 11.04.2018';
+      //ТОВ "ДАНУНЦ"
+      9: Licens := '1702/35 від 11.04.2018';
+      // ТОВ "Аптека №308"
+      13: Licens := '1702/37 від 12.04.2018';
+      // 16 ЦРА
+      14: Licens := '1702/38 від 12.04.2018';
+      // ТОВ "Регiонфарм 2016"
+      18:Licens := '1702/41 від 16.04.2018';
+
+    end;
+
+    EKKA.fpServiceText(1,1,0,'Договір '+Licens);
 
     SumChek:=StrToCurr(ReplPhoneAccountF.edPaySum.Text);
     Ty:=4;
