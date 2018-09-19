@@ -298,17 +298,6 @@ uses
 
 function CreateColibryAPI(TmpPath: ansistring; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt): boolean; stdcall;external'ColibryDLL.dll';
 function AUTH_Request(TmpPath: ansistring; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt): boolean; stdcall; external 'ColibryDLL.dll';
-//function AUTH_Request(TmpPath: PAnsiChar; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt): boolean; stdcall; external 'ColibryDLL.dll';
-{  procedure AUTH_Request(pUserKey   :   PAnsiChar;
-                         pUserName  :   PAnsiChar;
-                         pPassword  :   PAnsiChar;
-                         pBaseURL   :   PAnsiChar;
-                         TmpPath    :   ansistring;
-                         TmpFile    :   ansistring;
-                         TmpPathLen :   LongInt;
-                         TmpFileLen :   LongInt;
-                         IsError    :   boolean = false); stdcall; external 'ColibryDLL.dll';}
-
 //procedure SERVICE_Request(pUserKey: widestring; pUserName: widestring; pPassword: widestring; pObject: widestring; pBaseURL: widestring; TmpPath: ansistring; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt; IsError: boolean = false); stdcall; external 'ColibryDLL.dll';
 function SERVICE_Request(pObject: widestring; TmpPath: ansistring; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt): boolean; stdcall; external 'ColibryDLL.dll';
 
