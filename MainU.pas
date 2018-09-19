@@ -19860,15 +19860,28 @@ procedure TMainF.N96Click(Sender: TObject);
  end;
 
 procedure TMainF.N98Click(Sender: TObject);
- begin
+begin
   if Prm.IsReplPhone=False then Exit;
-  try
-   ReplPhoneAccountF:=TReplPhoneAccountF.Create(MainF);
-   ReplPhoneAccountF.ShowModal;
-  finally
-   ReplPhoneAccountF.Free;
+
+  if ChekOpened then
+  begin
+    MainF.MessBox('Сначала необходимо закрыть чек!');
+    Exit;
   end;
- end;
+   {Пока договоров нет в БД и нет их синхронизации, то действуем так}
+  if not (Prm.FirmID in [1,3,4,6,9,13,14,18]) then
+  begin
+//  MainF.MessBox(Format('Фірма %S не уклала договір з агентом розповсюдження ТОВ "ЕЛЕКТРУМ ПЕЙМЕНТ СИСТЕМ"',[Prm.FirmNameUA]));
+    MainF.MessBox( Format('Фирма %S не заключила договор c агентом распространения ТОВ "ЭЛЕКТРУМ ПЕЙМЕНТ СИСТЕМ"',[Prm.FirmNameRU]));
+    Exit;
+  end;
+  try
+    ReplPhoneAccountF:=TReplPhoneAccountF.Create(MainF);
+    ReplPhoneAccountF.ShowModal;
+  finally
+    ReplPhoneAccountF.Free;
+  end;
+end;
 
 procedure TMainF.N99Click(Sender: TObject);
  begin
