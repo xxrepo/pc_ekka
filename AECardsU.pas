@@ -319,7 +319,6 @@ var FIO,AvgAge,Phone,db1,db2,db3,nC1,nC2,nC3,P1,P2,P3,Art:String;
     vIsLink:Boolean;
     vIsBirth:Byte;
     NumCardZB:Int64;
-
  function IsNull(S:String):String;
   begin
    Result:='';
@@ -410,7 +409,7 @@ var FIO,AvgAge,Phone,db1,db2,db3,nC1,nC2,nC3,P1,P2,P3,Art:String;
               if Prm.RegCardFromSMS then
               begin
                 if RegCardSMS(P1,P2,P3,IsLink)=false then
-                  Abort;
+                   Abort;
               end;
 
               AvgAge:='';

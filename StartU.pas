@@ -707,7 +707,7 @@ var i:Integer;
 
    if OpenADOSQL(DM.Qr,S)>0 then
     begin
-//     DM.Qr.SQL.SaveToFile('c:\SprUser.txt');
+     DM.Qr.SQL.SaveToFile('c:\log\SprUser.txt');
      SetLength(FuList,0);
      SetLength(FuList,DM.Qr.RecordCount);
      ComboBox1.Clear;

@@ -29,7 +29,8 @@ type
 
     FNumCard:Int64;
     FKod:String;
-    FFlag:Integer;    
+    FFlag:Integer;
+
   public
 
     property Flag:Integer read FFlag;
