@@ -641,19 +641,6 @@ begin
 end;
 (*----------------------------------------------------------------------------*)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 procedure TReplPhoneAccountF.edAccountEnter(Sender:TObject);
 begin
   EditEnter(Sender);
@@ -2571,7 +2558,7 @@ begin
     if Not EKKA.fpAddFinStr(StatusResponse.service.name) then AbortM('Ошибка добавления строк: '+EKKA.LastErrorDescr);
 
     Nm1:='Електроннi грошi';
-    {
+    {      
     if ReplPhoneAccountF.lbService.Caption='Vodafone' then Nm1:='Послуги ПрАТ "МТС УКРАЇНА"' else
     if ReplPhoneAccountF.lbService.Caption='Kyivstar' then Nm1:='Київстар, 8gmn' else
     if ReplPhoneAccountF.lbService.Caption='LifeCell' then Nm1:='Послуги LifeCell';
@@ -2583,8 +2570,10 @@ begin
     if Not EKKA.fpAddSale('Комисія, шт', 1, SumF, 1, 0, 1, 0, '') then AbortM('Ошибка пробития позиции чека: '+EKKA.LastErrorDescr);
 
     EKKA.fpServiceText(1,1,0,'№ терминала: '+Copy(TerminalIdTemplate,1,Length(TerminalIdTemplate)-Length(Prm.c_code)) + Prm.c_code);
-    EKKA.fpServiceText(1,1,0,'№ тел.:'+ReplPhoneAccountF.edAccount.Text);
-    EKKA.fpServiceText(1,1,0,'Агент розповсюдження '+StringReplace(EKKA.FirmNameUA, '"','''',[rfReplaceAll]));
+    EKKA.fpServiceText(1,1,0,'Поповнення рахунку:');
+    EKKA.fpServiceText(1,1,0,'   ' + ReplPhoneAccountF.edAccount.Text);
+    EKKA.fpServiceText(1,1,0,'Агент розповсюдження:');
+    EKKA.fpServiceText(1,1,0,'   '+StringReplace(EKKA.FirmNameUA, '"','''',[rfReplaceAll]));
     EKKA.fpServiceText(1,1,0,'ЄДРПОУ  '+EKKA.sID);
     EKKA.fpServiceText(1,1,0,'Номер підтримки: ' );
     EKKA.fpServiceText(1,1,0,'    0504030444');
