@@ -30,6 +30,7 @@
 *.projdata
 *.tvsconfig
 *.dsk
+PC_EKKA.ini
 
 __history/
 __recovery/
