@@ -298,17 +298,6 @@ uses
 
 function CreateColibryAPI(TmpPath: ansistring; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt): boolean; stdcall;external'ColibryDLL.dll';
 function AUTH_Request(TmpPath: ansistring; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt): boolean; stdcall; external 'ColibryDLL.dll';
-//function AUTH_Request(TmpPath: PAnsiChar; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt): boolean; stdcall; external 'ColibryDLL.dll';
-{  procedure AUTH_Request(pUserKey   :   PAnsiChar;
-                         pUserName  :   PAnsiChar;
-                         pPassword  :   PAnsiChar;
-                         pBaseURL   :   PAnsiChar;
-                         TmpPath    :   ansistring;
-                         TmpFile    :   ansistring;
-                         TmpPathLen :   LongInt;
-                         TmpFileLen :   LongInt;
-                         IsError    :   boolean = false); stdcall; external 'ColibryDLL.dll';}
-
 //procedure SERVICE_Request(pUserKey: widestring; pUserName: widestring; pPassword: widestring; pObject: widestring; pBaseURL: widestring; TmpPath: ansistring; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt; IsError: boolean = false); stdcall; external 'ColibryDLL.dll';
 function SERVICE_Request(pObject: widestring; TmpPath: ansistring; TmpFile: ansistring; TmpPathLen: LongInt; TmpFileLen: LongInt): boolean; stdcall; external 'ColibryDLL.dll';
 
@@ -651,19 +640,6 @@ begin
   end;
 end;
 (*----------------------------------------------------------------------------*)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 procedure TReplPhoneAccountF.edAccountEnter(Sender:TObject);
 begin
@@ -2579,13 +2555,17 @@ begin
     CP.NumbChek:=EKKA.ReceiptNumber+1;
 
     if Not EKKA.fpOpenFiscalReceipt then AbortM('Ошибка открытия чека: '+EKKA.LastErrorDescr);
-    if Not EKKA.fpAddFinStr(StatusResponse.service.name) then AbortM('Ошибка добавления строк: '+EKKA.LastErrorDescr);
+    //if Not EKKA.fpAddFinStr(StatusResponse.service.name) then AbortM('Ошибка добавления строк: '+EKKA.LastErrorDescr);
 
     Nm1:='Електроннi грошi';
+<<<<<<< HEAD
 <<<<<<< HEAD
     {      
 =======
     {
+>>>>>>> master
+=======
+    {      
 >>>>>>> master
     if ReplPhoneAccountF.lbService.Caption='Vodafone' then Nm1:='Послуги ПрАТ "МТС УКРАЇНА"' else
     if ReplPhoneAccountF.lbService.Caption='Kyivstar' then Nm1:='Київстар, 8gmn' else
@@ -2599,7 +2579,8 @@ begin
 
     EKKA.fpServiceText(1,1,0,'№ терминала: '+Copy(TerminalIdTemplate,1,Length(TerminalIdTemplate)-Length(Prm.c_code)) + Prm.c_code);
     EKKA.fpServiceText(1,1,0,'№ тел.:'+ReplPhoneAccountF.edAccount.Text);
-    EKKA.fpServiceText(1,1,0,'Агент розповсюдження '+StringReplace(EKKA.FirmNameUA, '"','''',[rfReplaceAll]));
+    EKKA.fpServiceText(1,1,0,'Агент розповсюдження ');
+    EKKA.fpServiceText(1,1,0,StringReplace(EKKA.FirmNameUA, '"','''',[rfReplaceAll]));
     EKKA.fpServiceText(1,1,0,'ЄДРПОУ  '+EKKA.sID);
     EKKA.fpServiceText(1,1,0,'Номер підтримки: ' );
     EKKA.fpServiceText(1,1,0,'    0504030444');

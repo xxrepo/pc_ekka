@@ -68,6 +68,16 @@ type
     procedure SetCheckOnly(const Value: Boolean);
 
   public
+    { Возвращает префикс карты
+      возвращает первые aLength символов номера карты aCardNum}
+    class function GetPrefixCardByNum(aCardNum : String; aLength : Integer = 3) : String;
+   { IsUniversalCorpCard - проверяет является ли карта с номером aCardNum
+     корпоративной универсальной картой
+    Возвращает
+      True если дисконтная карта aCardNum - это универсаная корпоративная карта
+      False - в других случаях}
+    class function IsUniversalCorpCard(aCardNum : String) : Boolean; overload;
+    class function IsUniversalCorpCard(aCardNum : Int64) : Boolean; overload;
 
     property KodEAN:Integer read FKodEAN write FKodEAN;
     property IsReg:Boolean read FIsReg write FIsReg;
@@ -106,10 +116,10 @@ var ln:Integer;
    Result:=0;
    ln:=Length(S);
    if Ln<8 then Exit;
-   if (Prm.AptekaSklad=False) and (((Prm.CR_BEGIN=Copy(S,1,Length(Prm.CR_BEGIN))) or ( (Copy(S,1,3)='550') and (Prm.FirmID<>5) ) ) and (ln=13)) then Result:=1 else // 1 - зеленые карточки (наши)
+   if (Prm.AptekaSklad=False) and (((Prm.CR_BEGIN=Copy(S,1,Length(Prm.CR_BEGIN))) or (((Copy(S, 1, 3) ='550') or TCardReadF.IsUniversalCorpCard(S)) and (Prm.FirmID<>5) ) ) and (ln=13)) then Result:=1 else // 1 - зеленые карточки (наши)
 
    // с 08.08.2018 на "Здоровенькi Були" и Фармалай действуют карты АОЦ в полной мере (и выдача и прием)
-   if (Prm.AptekaSklad=True) {and (Prm.FirmID<>22)} and ((Copy(S,1,3)='770') and (ln=13)) then Result:=1 else // Дисконтные карты оптовых цен
+   if (Prm.AptekaSklad=True) {and (Prm.FirmID<>22)} and (((Copy(S, 1, 3)='770') or TCardReadF.IsUniversalCorpCard(S)) and (ln=13)) then Result:=1 else // Дисконтные карты оптовых цен
    if (Prm.AptekaSklad=True) {and (Prm.FirmID=22) } and ((Copy(S,1,3)='262') and (ln=13)) then Result:=1 else // Дисконтные карты "Здоровенькi Були"
 
    if (CR_DOCT1=Copy(S,1,Length(CR_DOCT1))) and (ln=13) then Result:=15 else       // карточки 5% на все препараты
@@ -421,8 +431,10 @@ var sNC:String;
           Case KodEAN of
            1:begin
 
-              if Prm.AptekaSklad=True then sNC:=IntToStr(GetNumCard(Edit1.Text))
-                                      else sNC:=Copy(IntToStr(GetNumCard(Edit1.Text)),3,10);
+              if Prm.AptekaSklad=True  or TCardReadF.IsUniversalCorpCard(Edit1.Text) then 
+                sNC:=IntToStr(GetNumCard(Edit1.Text))
+              else 
+                sNC:=Copy(IntToStr(GetNumCard(Edit1.Text)),3,10);
               if Not (CheckBlockCard(StrToInt64(sNC))) then Exit;
               if Not (CheckSuperCard(StrToInt64(sNC))) then Exit;
               if Not (MainF.CheckLimitSkd(StrToInt64(sNC))) then Exit;
@@ -784,12 +796,22 @@ procedure TCardReadF.SetCheckOnly(const Value:Boolean);
   SpeedButton1.Visible:=Not Value;
  end;
 
+class function TCardReadF.GetPrefixCardByNum(aCardNum: String; aLength: Integer): String;
+begin
+  Result := Copy(aCardNum,1,aLength);
+end;
+
+class function TCardReadF.IsUniversalCorpCard(aCardNum: String): Boolean;
+begin
+  Result := TCardReadF.GetPrefixCardByNum(aCardNum, Length(CR_UNUVERSAL_CORP_CARD_PREFIX111)) = CR_UNUVERSAL_CORP_CARD_PREFIX111;
+end;
+
+class function TCardReadF.IsUniversalCorpCard(aCardNum: Int64): Boolean;
+begin
+   Result := TCardReadF.IsUniversalCorpCard(IntToStr(aCardNum));
+end;
+
+
 end.
-
-
-
-
-
-
 
 

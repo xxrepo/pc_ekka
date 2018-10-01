@@ -426,9 +426,10 @@ var FIO,AvgAge,Phone,db1,db2,db3,nC1,nC2,nC3,P1,P2,P3,Art:String;
                 nC1:=Edit12.Text;
                 nC2:=Edit13.Text;
                 nC3:=Edit14.Text;
-               end else
-              if Prm.AptekaSklad=False then Art:='1'  //Карты 911
-                                       else Art:='7'; //Карты АОЦ
+               end else if TCardReadF.IsUniversalCorpCard(NumCard) then
+                 Art := '273229'
+               else if Prm.AptekaSklad=False then Art:='1'  //Карты 911
+               else Art:='7'; //Карты АОЦ
 
               if RadioButton1.Checked then AvgAge:=RadioButton1.Caption else
               if RadioButton2.Checked then AvgAge:=RadioButton2.Caption else

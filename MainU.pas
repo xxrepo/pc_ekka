@@ -1064,6 +1064,7 @@ Type TFake=class(TCustomGrid);
     N112: TMenuItem;
     N113: TMenuItem;
     imNPT: TImage;
+    WebApi1: TMenuItem;
 
        procedure FormActivate(Sender:TObject);
        procedure miUsersClick(Sender:TObject);
@@ -1382,6 +1383,7 @@ Type TFake=class(TCustomGrid);
     procedure N111Click(Sender: TObject);
     procedure BitBtn10Click(Sender: TObject);
     procedure N113Click(Sender: TObject);
+    procedure WebApi1Click(Sender: TObject);
 
      private
 
@@ -1976,7 +1978,7 @@ Const MFC='Регистрация продаж';  // Надпись на главном окне
       CR_PROH='216';    // Акция социальный проект  "PROHEPAR CARD".
       CR_PL2PERC='27'; {Буквенный префикс "NU" }  // Карточки 2 % для аптек пластик
       CR_EMPLO='271'; // Сотрудники, которые сканируются карточками
-
+      CR_UNUVERSAL_CORP_CARD_PREFIX111 = '111'; // Префик дисконтных корпоративных карточек 
       // 287 - карточка терафлю
 
       // 221000000001  - 10%
@@ -2240,7 +2242,8 @@ Uses
   ViolationDiagU, PrintAnnotU, ReplPhoneAccountU, Un_to_chek,
   UGarant_remont, UDeliveryCashInput, QuarantineU, UTmp_change_employee,
   ClaimesU, ViewLessonsU, FarmZamAndSoputstvU, MesHranSrokU,
-  StickerForBoxU, InsulinU, DocumentsExtendedU, InsulinRepU, ChangeArticleCount;
+  StickerForBoxU, InsulinU, DocumentsExtendedU, InsulinRepU, ChangeArticleCount,
+  WinHttpRequest;
 
 {$R *.dfm}
 
@@ -7977,6 +7980,15 @@ var SumChek,SumCh,SumCard:Real;
 //                if CheckBox1.Checked then Abort;
 
                 if FPercentSkd<Prm.MinSkd then FPercentSkd:=Prm.MinSkd;
+                { Если это универсальная корпоративная карта, тогда для 911 накопление 5% для АОЦ - 2% }
+                 if TCardReadF.IsUniversalCorpCard(NumCard)
+                    and (Prm.Dobraia=False)
+                 then
+                 begin
+                   { Если аптека склад (АОЦ) - накопление не более 2% если 911 накопление не более 5% }
+                   FPercentSkd := IfThen(Prm.AptekaSklad,Min(FPercentSkd,2),Min(FPercentSkd,5));
+                 end;
+
                 FSafePercentSkd:=FPercentSkd;
                except
                 on E:Exception do
@@ -20647,6 +20659,26 @@ var S,Res:String;
 
  end;
 
+procedure TMainF.WebApi1Click(Sender: TObject);
+var
+    http : TWinHttpRequest;
+    respCode : integer;
+    respText : string;
+
+begin
+  http := TWinHttpRequest.Create(Self,
+                        'https://api.nph.com.ua/Token',
+                        tmPOST);
+  try
+    http.Send('{"login":"user","password":"12345"}',
+              respCode,
+              respText);
+    ShowMessage(IntToStr(respCode) +' : ' + respText);
+  finally
+    FreeAndNil(http);
+  end;
+end;
+
 END.
 
 //        MainF.RegisterError('Автоматическое снятие Z-отчета',E.Message,True);
@@ -20785,7 +20817,7 @@ insert into skd_limit(art_code,type_skd,skd,fix,dtstart,dtend) values(249242,30,
 insert into skd_limit(art_code,type_skd,skd,fix,dtstart,dtend) values(249619,30,99.99,1,'2018-02-01','2018-03-31 23:59:59')
 
 
-
+delete from skd_limit where type_skd=40
 insert into skd_limit(art_code,type_skd,skd,fix,dtstart,dtend) values(239424,40,20,1,'2018-02-09','2018-02-15 23:59:59')
 
 
@@ -20826,6 +20858,10 @@ Frankie Goes To Hollywood - Relax (Final DJs Relax On The Beach Remix)
 
 }
 
+<<<<<<< HEAD
+=======
+//138239285 310574
+>>>>>>> master
 {
 Ракута
  ТимВ     138239285 310574
