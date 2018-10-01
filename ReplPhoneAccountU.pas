@@ -2555,22 +2555,13 @@ begin
     CP.NumbChek:=EKKA.ReceiptNumber+1;
 
     if Not EKKA.fpOpenFiscalReceipt then AbortM('Ошибка открытия чека: '+EKKA.LastErrorDescr);
-    //if Not EKKA.fpAddFinStr(StatusResponse.service.name) then AbortM('Ошибка добавления строк: '+EKKA.LastErrorDescr);
+    if Not EKKA.fpAddFinStr(StatusResponse.service.name) then AbortM('Ошибка добавления строк: '+EKKA.LastErrorDescr);
 
     Nm1:='Електроннi грошi';
-<<<<<<< HEAD
-<<<<<<< HEAD
-    {      
-=======
-    {
->>>>>>> master
-=======
-    {      
->>>>>>> master
-    if ReplPhoneAccountF.lbService.Caption='Vodafone' then Nm1:='Послуги ПрАТ "МТС УКРАЇНА"' else
+{    if ReplPhoneAccountF.lbService.Caption='Vodafone' then Nm1:='Послуги ПрАТ "МТС УКРАЇНА"' else
     if ReplPhoneAccountF.lbService.Caption='Kyivstar' then Nm1:='Київстар, 8gmn' else
     if ReplPhoneAccountF.lbService.Caption='LifeCell' then Nm1:='Послуги LifeCell';
-    }
+}
     {Уберем из номера телефона пробелы т +38}
     PhoneNum := StringReplace(EKKA.FirmNameUA, ' ','',[rfReplaceAll]);
     PhoneNum := StringReplace(PhoneNum, '+38','',[rfReplaceAll]);
