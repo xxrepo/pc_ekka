@@ -2555,7 +2555,7 @@ begin
     CP.NumbChek:=EKKA.ReceiptNumber+1;
 
     if Not EKKA.fpOpenFiscalReceipt then AbortM('Ошибка открытия чека: '+EKKA.LastErrorDescr);
-    if Not EKKA.fpAddFinStr(StatusResponse.service.name) then AbortM('Ошибка добавления строк: '+EKKA.LastErrorDescr);
+    //if Not EKKA.fpAddFinStr(StatusResponse.service.name) then AbortM('Ошибка добавления строк: '+EKKA.LastErrorDescr);
 
     Nm1:='Електроннi грошi';
     {      
@@ -2570,10 +2570,9 @@ begin
     if Not EKKA.fpAddSale('Комисія, шт', 1, SumF, 1, 0, 1, 0, '') then AbortM('Ошибка пробития позиции чека: '+EKKA.LastErrorDescr);
 
     EKKA.fpServiceText(1,1,0,'№ терминала: '+Copy(TerminalIdTemplate,1,Length(TerminalIdTemplate)-Length(Prm.c_code)) + Prm.c_code);
-    EKKA.fpServiceText(1,1,0,'Поповнення рахунку:');
-    EKKA.fpServiceText(1,1,0,'   ' + ReplPhoneAccountF.edAccount.Text);
-    EKKA.fpServiceText(1,1,0,'Агент розповсюдження:');
-    EKKA.fpServiceText(1,1,0,'   '+StringReplace(EKKA.FirmNameUA, '"','''',[rfReplaceAll]));
+    EKKA.fpServiceText(1,1,0,'№ тел.:'+ReplPhoneAccountF.edAccount.Text);
+    EKKA.fpServiceText(1,1,0,'Агент розповсюдження ');
+    EKKA.fpServiceText(1,1,0,StringReplace(EKKA.FirmNameUA, '"','''',[rfReplaceAll]));
     EKKA.fpServiceText(1,1,0,'ЄДРПОУ  '+EKKA.sID);
     EKKA.fpServiceText(1,1,0,'Номер підтримки: ' );
     EKKA.fpServiceText(1,1,0,'    0504030444');

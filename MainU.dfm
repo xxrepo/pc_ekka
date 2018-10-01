@@ -25,7 +25,7 @@ object MainF: TMainF
   OnShow = FormShow
   DesignSize = (
     1016
-    692)
+    687)
   PixelsPerInch = 96
   TextHeight = 13
   object pnWrkEKKA: TPanel
@@ -5265,7 +5265,7 @@ object MainF: TMainF
   end
   object stMain: TStatusBar
     Left = 0
-    Top = 671
+    Top = 666
     Width = 1016
     Height = 21
     Panels = <
@@ -8731,6 +8731,10 @@ object MainF: TMainF
         C0C0C0C0C0C0C0C0C3C4C47C969E506E80AEBCC4C0C0C0C0C0C0}
       Caption = 'Extempore'
       OnClick = Extempore1Click
+    end
+    object WebApi1: TMenuItem
+      Caption = 'WebApi'
+      OnClick = WebApi1Click
     end
   end
   object alMain: TActionList
