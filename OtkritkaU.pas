@@ -8,14 +8,16 @@ uses
 
 type
   TOtkritkaF = class(TForm)
+
     imOtkr: TImage;
     BitBtn1: TBitBtn;
     procedure BitBtn1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+
   private
-    { Private declarations }
+
   public
-    { Public declarations }
+
   end;
 
 var OtkritkaF: TOtkritkaF;
@@ -37,3 +39,4 @@ procedure TOtkritkaF.FormCreate(Sender: TObject);
  end;
 
 end.
+

@@ -1679,7 +1679,7 @@ var NCh,Ac,Ty,RC,i,Nds,q:Integer;
                     end;
 
                     if Not ((Prm.Region=1) and (Prm.AptekaSklad=True)) then
-                     EKKA.fpServiceText(1,1,0,CenterStr('www.apteka911.com.ua',30));
+                     EKKA.fpServiceText(1,1,1,CenterStr('apteka911.ua',15));
 
                     {
                     if EKKA.IsFLP=False then
@@ -1703,13 +1703,13 @@ var NCh,Ac,Ty,RC,i,Nds,q:Integer;
                                begin
                                  EKKA.fpServiceText(1,1,0,'Пошук та резервування лiкiв');
                                  EKKA.fpServiceText(1,1,1,'0-800-505-911');
-                                 EKKA.fpServiceText(1,1,0,CenterStr('www.apteka911.com.ua',26));
+                                 EKKA.fpServiceText(1,1,1,CenterStr('apteka911.ua',15));
                                end
                                else
                                begin
                                  EKKA.fpServiceText(1,1,0,'Пошук та резервування лiкiв');
                                  EKKA.fpServiceText(1,1,1,'0-800-505-911');
-                                 EKKA.fpServiceText(1,1,0,CenterStr('www.apteka911.com.ua',30));
+                                 EKKA.fpServiceText(1,1,1,CenterStr('apteka911.ua',15));
                                end;
                                {
                                if EKKA.IsFLP=False then
@@ -1723,7 +1723,7 @@ var NCh,Ac,Ty,RC,i,Nds,q:Integer;
                              begin
                                EKKA.fpServiceText(1,1,0,'Пошук та резервування');
                                EKKA.fpServiceText(1,1,1,'лiкiв 0-800-505-911');
-                               EKKA.fpServiceText(1,1,0,CenterStr('www.apteka911.com.ua',20));
+                               EKKA.fpServiceText(1,1,1,CenterStr('apteka911.ua',15));
                                {
                                if EKKA.IsFLP=False then
                                 begin

@@ -496,8 +496,10 @@ var i,AC,AC1:Integer;
               DM.qrSpr.SQL.Add('order by 2  ');
 
              end;
-
-//   DM.qrSpr.SQL.SaveToFile('C:\Log\987.txt');
+   try
+    DM.qrSpr.SQL.SaveToFile('C:\Log\987.txt');
+   except
+   end;
 
    DM.qrSpr.Open;
    if Not DM.qrSpr.Locate('Art_Code',AC,[]) then DM.qrSpr.Locate('Art_Code',AC1,[]);
