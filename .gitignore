@@ -1,3 +1,5 @@
+*.txt
+*.bat
 *.cfg
 *.ddp
 ~*
@@ -30,6 +32,8 @@
 *.projdata
 *.tvsconfig
 *.dsk
+*.dll
+
 PC_EKKA.ini
 ErrorLog.txt
 
