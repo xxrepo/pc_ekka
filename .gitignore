@@ -31,6 +31,7 @@
 *.tvsconfig
 *.dsk
 PC_EKKA.ini
+ErrorLog.txt
 
 __history/
 __recovery/
