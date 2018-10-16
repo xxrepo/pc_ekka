@@ -2,7 +2,7 @@ unit WinHttpRequest;
 
 interface
 uses
-  Classes, uJSON, TypInfo;
+  Classes, uJSONforOptima, TypInfo;
 
 const
     HOST_NPH = 'https://api.nph.com.ua';
@@ -21,6 +21,15 @@ type
 
   protected
     procedure Open;
+    procedure SaveLog(aServiceType : string;
+                      aReqTime : TDateTime;
+                      aReqMessage : string;
+                      aCode : Integer;
+                      aRespTime : TDateTime;
+                      aRespText :string;
+                      aHost : string;
+                      aUserID : Integer
+                      );
   public
     function Send(const aMessage : string; out aCode : Integer; out aResponseText : string) : boolean;
     destructor Destroy;
@@ -36,7 +45,7 @@ var
 
 implementation
 uses
-  ComObj, SysUtils;
+  ComObj, SysUtils, DataModuleU, DB, ADODB;
 
 procedure init;
 begin
@@ -70,12 +79,16 @@ begin
 end;
 
 function TWinHttpRequest.Send(const aMessage : string; out aCode : Integer; out aResponseText : string) : boolean;
+var
+  response_dt, request_dt : TDateTime;
 begin
   Result := False;
   Self.Open;
   try
+    request_dt := Now;
     http.Send(aMessage);
     http.WaitForResponse;
+    response_dt := Now;
     aCode := http.status;
     aResponseText := http.ResponseText;
     try
@@ -89,13 +102,23 @@ begin
       Result := False;
     end;
   finally
-
+     SaveLog('OPTIMA',
+             request_dt,
+             aMessage,
+             aCode,
+             response_dt,
+             aResponseText,
+             host,
+             0);
   end;
 end;
 
 procedure TWinHttpRequest.Open;
+var
+  methodName : String;
 begin
-  http.Open('POST', fHost, True);
+  methodName := GetMethodName(Self.fMethod);
+  http.Open(methodName, fHost, True);
   http.SetRequestHeader('Content-Type','application/json');
   http.SetRequestHeader('Accept','application/json');
   http.SetRequestHeader('Cache-Control','no-cache');
@@ -109,8 +132,53 @@ begin
   then
   begin
     fToken := Value;
-
   end;
+end;
+
+
+procedure TWinHttpRequest.SaveLog(aServiceType: string;
+                                  aReqTime: TDateTime;
+                                  aReqMessage: string;
+                                  aCode: Integer;
+                                  aRespTime: TDateTime;
+                                  aRespText, aHost: string;
+                                  aUserID: Integer);
+var
+   Q : TADOStoredProc;
+begin
+  Q := TADOStoredProc.Create(nil);
+  with Q do
+  try
+    try
+      Connection:=DM.ADOCo;
+      Parameters.Clear;
+      ProcedureName:= 'sprSaveToJournWebService';
+//      SQL.Add(' if OBJECT_ID(''sprSaveToJournWebService'') is not null ');
+     // SQL.Add(' exec sprSaveToJournWebService :ServiceType, '''+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz',aReqTime)+''', :ReqMessage, :Code, '''+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz',aRespTime)+''', :RespText, :Host, :UserID ');
+     { SQL.Add(' exec sprSaveToJournWebService '''+aServiceType+''','+
+               ''''+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz',aReqTime) +''','+
+               ''''+aReqMessage+''', '+IntToStr(aCode)+', '''+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz',aRespTime)+ ''''+
+               ', '''+aRespText+''', '''+aHost+''', '+IntTostr(aUserID)+' ');
+      }
+
+      Parameters.CreateParameter('@service_type',  ftString,   pdInput,   15,    aServiceType);
+      Parameters.CreateParameter('@request_time',  ftDateTime, pdInput,   23,    aReqTime);
+      Parameters.CreateParameter('@request_data',  ftString,   pdInput,   2000,  aReqMessage);
+      Parameters.CreateParameter('@code_operation',ftInteger,  pdInput,   10,    aCode);
+      Parameters.CreateParameter('@response_time', ftDateTime, pdInput,   23,    aRespTime);
+      Parameters.CreateParameter('@response_text', ftString,   pdInput,   2000,  aRespText);
+      Parameters.CreateParameter('@request_host',  ftString,   pdInput,   500,   aHost);
+      Parameters.CreateParameter('@user_id',       ftInteger,  pdInput,   10,    aUserID);
+
+
+      ExecProc;
+    except
+
+    end;
+  finally
+     FreeAndNil(Q);
+  end;
+
 end;
 
 initialization

@@ -9,7 +9,7 @@ Uses OpenLib, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls
      ClipBrd, VCLZip, jpeg, ShellApi, DBCtrls, Volume, DateUtils,
      SendReceiveXML, SOAPHTTPTrans, OpenOffice, Types,
      svButtons, Math, IdTCPServer, Registry, MPlayer, SHDocVw,
-     CPDrv, ImageEn, ExtImage, StrUtils, Printers, uJSON;
+     CPDrv, ImageEn, ExtImage, StrUtils, Printers, OptimaDiscount, uJSON;
 
 Type TFake=class(TCustomGrid);
 
@@ -325,12 +325,17 @@ Type TFake=class(TCustomGrid);
 
                 ForceEnterCash:Boolean; // Призна принудительного ввода полученных денег от покупателя
 
-                SiteGeptralAPI: string;  //расположение сайта АПИ Гептрал
-                TokenGeptral: string; //токен доступа к АПИ Гептрал
-                PharmCardGeptral: string; //карта аптеки Гептрал
+                SiteGeptralAPI   : string;  // расположение сайта АПИ Гептрал
+                TokenGeptral     : string;  // токен доступа к АПИ Гептрал
+                PharmCardGeptral : string;  // карта аптеки Гептрал
+
+                OptimaAddressID    : string; // Виста сервис. Адрес аптеки  для отправки по Json
+                OptimaUserLogin    : string; // Виста сервис. Логин для поулчения Токена
+                OptimaUserPassword : string; // Виста сервис. Пароль для получения Токена
 
                 r_r1:String; // Расчетный счет
-                mfo1:String; // МФО банка 
+                mfo1:String; // МФО банка
+                OrderChek:Byte;
                end;
 
      TChekPos=Record   // Параметры позиции чека
@@ -1064,7 +1069,7 @@ Type TFake=class(TCustomGrid);
     N112: TMenuItem;
     N113: TMenuItem;
     imNPT: TImage;
-    WebApi1: TMenuItem;
+    sbOptima: TSpeedButton;
 
        procedure FormActivate(Sender:TObject);
        procedure miUsersClick(Sender:TObject);
@@ -1383,7 +1388,7 @@ Type TFake=class(TCustomGrid);
     procedure N111Click(Sender: TObject);
     procedure BitBtn10Click(Sender: TObject);
     procedure N113Click(Sender: TObject);
-    procedure WebApi1Click(Sender: TObject);
+    procedure sbOptimaClick(Sender: TObject);
 
      private
 
@@ -1533,7 +1538,7 @@ Type TFake=class(TCustomGrid);
        FIsBirth:Byte;
        FRRN: string;
        FBankCard: string;
-
+       fOptimaDiscount : TOptimaDiscount; // Дисконтная карта Виста
        curr_data:AnsiString;    //сохраняем сюда текущий ввод
        date_begin:TDateTime;    //дата и время начала записи текущего ввода(обновляется при пробитии чека)
        FGeptralPatientPrice: double; //цена для продажи после обработки АПИ Гептрал
@@ -2080,6 +2085,7 @@ Const MFC='Регистрация продаж';  // Надпись на главном окне
       // 301000000001
       // 302000000001
       // 303000000001
+      // 304000000001
 
       { --- Признаки работы со справочником товара ---}
       W_CENNIK=1;     // Печать ценников
@@ -2242,8 +2248,7 @@ Uses
   ViolationDiagU, PrintAnnotU, ReplPhoneAccountU, Un_to_chek,
   UGarant_remont, UDeliveryCashInput, QuarantineU, UTmp_change_employee,
   ClaimesU, ViewLessonsU, FarmZamAndSoputstvU, MesHranSrokU,
-  StickerForBoxU, InsulinU, DocumentsExtendedU, InsulinRepU, ChangeArticleCount,
-  WinHttpRequest;
+  StickerForBoxU, InsulinU, DocumentsExtendedU, InsulinRepU, ChangeArticleCount;
 
 {$R *.dfm}
 
@@ -3899,7 +3904,9 @@ var B:Integer;
    DM.qrChek.SQL.Add('order by a.names                      ');
 }
 
-   DM.qrChek.Parameters.ParamByName('pid').Value:=Prm.UserID;
+   DM.qrChek.Parameters.ParamByName('pid').  Value:=Prm.UserID;
+   DM.qrChek.Parameters.ParamByName('pord'). Value:=Prm.OrderChek;
+
    DM.qrChek.Open;
    if DM.qrChek.IsEmpty then Abort;
    if B=-1 then
@@ -4278,6 +4285,7 @@ procedure TMainF.FormActivate(Sender:TObject);
 
   Constraints.MaxWidth:=Screen.Width;
   Constraints.MaxHeight:=Screen.Height-55;
+  sbOptima.Enabled := Trim(Prm.OptimaAddressID) <> '';
  end; {FormActivate}
 
 procedure TMainF.ResizePnFi;
@@ -4750,6 +4758,7 @@ var NC:Int64;
  Begin
 //   if not EKKA.fpGetStatus then
 //     EKKA.fpGetStatus;
+  TOptimaDiscount.DropTempTable_SkdLimit;
 
   if EKKA.TypeEKKA=EKKA_N707 then
    begin
@@ -4957,6 +4966,11 @@ procedure TMainF.ClearChekFull(Param:Integer);
    FIsPayMaster:=False;
    FIsIAptekaCredit:=False;
    SetSkdMag(nil,False);
+    if Assigned(fOptimaDiscount) then
+    begin
+      FreeAndNil(fOptimaDiscount);
+      sbOptima.Down := False;
+    end;
    if Param=CC_CANCEL then DM.ADOCo.BeginTrans;
    try
     if Param=CC_CANCEL then
@@ -5406,9 +5420,9 @@ procedure TMainF.ShowDatePrih;
    DM.QrEx.Open;
 
    if DM.QrEx.FieldByName('IsPrih').AsInteger=1 then
-    begin
+   begin
 
-     lbNextDateTov.Caption:=DM.QrEx.FieldByName('Dt').AsString;
+      lbNextDateTov.Caption:=DM.QrEx.FieldByName('Dt').AsString;
 
     end else lbNextDateTov.Caption:='нового товара нет';
 
@@ -5625,7 +5639,7 @@ var sq:String;
 
    if db.DataSource.DataSet.Locate('ART_CODE',AnsiUpperCase(IntToStr(AC)),[loCaseInsensitive,loPartialKey]) then
     begin
-     if B then
+      if B then
       begin
        PrevEnterKol(EK_SCAN,0,AC);
 
@@ -7122,6 +7136,17 @@ T:=Time;
                    48,GetFont('MS Sans Serif',12,clBlue,[fsBold]),5,Res);
           end;
 
+          if Assigned(fOptimaDiscount) and
+             TOptimaDiscount.ArtCodeInOptima(ArtCode) then
+          begin
+            fOptimaDiscount.SetDiscount;
+            if fOptimaDiscount.NeedRefresh then
+              ReopenChek;
+          end  else
+          if (Trim(Prm.OptimaAddressID) <> '') AND
+             TOptimaDiscount.ArtCodeInOptima(ArtCode) then
+             MessBox('Товар находится в сервисе Виста. Спросите у пациента карточку клиента.');
+
         except
          on E:EAbort do
           begin
@@ -7153,6 +7178,8 @@ procedure TMainF.PrevDelKol;
 var Res,Kol,Art_Code,AC,id_zam:Integer;
     erStr:String;
     B:Boolean;
+    KolBeforeChange : Integer;
+    KolAfterChange  : Integer;
  begin
   if FPayWork then Exit;
   if BlockingChek then Exit;
@@ -7233,9 +7260,10 @@ var Res,Kol,Art_Code,AC,id_zam:Integer;
     if High(FArtCodeList)>Art_code then
      if FArtCodeList[Art_Code].ArtAdd=1 then begin MessBox('Этот препарат в чеке редактировать нельзя!'); Exit; end;
 
-
+    KolBeforeChange := DM.qrChek.FieldByName('Kol').AsInteger;
     Kol:=GetKolFromDialog(DM.qrChek.FieldByName('Names').AsString,DM.qrChek.FieldByName('Kol').AsInteger,AC,id_zam,EN_SIMPLE);
-
+    KolAfterChange := Kol;
+    
     if (Kol=0) and (FIsNumCardSMS=False) then
      if Not CheckCardPokup then Exit;
 
@@ -7297,6 +7325,16 @@ var Res,Kol,Art_Code,AC,id_zam:Integer;
 
       if Not CheckKolUpak(Res,erStr) then raise EAbort.Create(erStr);
       DM.ADOCo.CommitTrans;
+
+       if Assigned(fOptimaDiscount) and
+          (Trim(Prm.OptimaAddressID) <> '') AND
+          TOptimaDiscount.ArtCodeInOptima(Art_Code) and
+         (KolBeforeChange <> KolAfterChange)
+       then
+       begin
+         fOptimaDiscount.SetDiscount;
+       end
+
 //    AddToOstat(Art_code);
      except
 //      on E:EAbort do
@@ -9536,7 +9574,7 @@ var CP:TChekPos;
       raise EAbort.Create('');
      end;
 
-    if (CP.id_strah=0) and (FIDRES=-1) then
+    if (CP.id_strah=0) and (FIDRES=-1) and (sbOptima.Down=False) then
      begin
       DM.Qr5.Close;
       DM.Qr5.SQL.Text:='exec spY_CheckIApteka '+IntToStr(Prm.UserID);
@@ -9885,7 +9923,11 @@ var CP:TChekPos;
   end; {CorrCena10}
 
  Begin
-
+   if Assigned(fOptimaDiscount) then
+   try
+     fOptimaDiscount.InitCloseChekReq;
+   except
+   end;
   if (FIsTerminal) and (TypeOplat=TO_CASH) then
    begin
     MessBox('Вы уже оплатили чек по териналу. Необходимо нажимать кнопку "ЧЕК"! ');
@@ -9956,12 +9998,25 @@ var CP:TChekPos;
            GetGeptralChek(sbFix10,byte(asGeptral),byte(aoFix));
         end;
 
+        if Assigned(fOptimaDiscount) then
+        begin
+          try
+            fOptimaDiscount.CloseChek;
+          except
+            on e : CloseOptimaVoucherException do
+            begin
+              MainF.MessBox(e.Message);
+            end;
+            on Exception do begin end;
+          end;
+          sbOptima.Down := False;
+        end;
 
-       DM.ADOCo.CommitTrans;
-       Tran:=False;
-       MemCP:=CP;
-       CheckOnly:=False;
-       BlockingChek:=True;
+        DM.ADOCo.CommitTrans;
+        Tran:=False;
+        MemCP:=CP;
+        CheckOnly:=False;
+        BlockingChek:=True;
       end else begin
                 try
                  DM.QrEx.Close;
@@ -13677,6 +13732,7 @@ var Ms:String;
    if Ms<>'' then
     ShowText('Следующие возвратные накладные неотгружены (не напечатаны акты прима-передачи). Как только приедет водитель за этими возвратами распечатайте акты приема передачи: '#10+Ms,clRed);
  }
+
   except
   end;
 
@@ -15638,6 +15694,7 @@ var sR,sR1:TStringStream;
                         ' <request_type>2</request_type>'+#10+
                         ' <id_casual>f4c5068424dab2e514f5fe536b5e4a8a</id_casual>'+#10+
                         ' <inside_code>'+IntToStr(Prm.MediID)+'</inside_code>'+#10+
+                        ' <supplier>'+DM.Qr6.FieldByName('id_postav').AsString+'</supplier>'+#10+
                         ' <id_alter>'+DM.Qr6.FieldByName('numb_chek').AsString+'</id_alter>'+#10+
                         ' <card_code>'+NumCrd+'</card_code>'+#10+
                         ' <product_code>'+DM.Qr6.FieldByName('art_code').AsString+'</product_code>'+#10+
@@ -20659,24 +20716,29 @@ var S,Res:String;
 
  end;
 
-procedure TMainF.WebApi1Click(Sender: TObject);
+procedure TMainF.sbOptimaClick(Sender: TObject);
 var
-    http : TWinHttpRequest;
-    respCode : integer;
-    respText : string;
-
+  sCustomerCard : string;
 begin
-  http := TWinHttpRequest.Create(Self,
-                        'https://api.nph.com.ua/Token',
-                        tmPOST);
-  try
-    http.Send('{"login":"user","password":"12345"}',
-              respCode,
-              respText);
-    ShowMessage(IntToStr(respCode) +' : ' + respText);
-  finally
-    FreeAndNil(http);
+  if Assigned(fOptimaDiscount) then
+    FreeAndNil(fOptimaDiscount);
+  sCustomerCard := '';
+  if not sbOptima.Down then
+    Exit;
+  sCustomerCard := IntToStr(GetEANDiag('','карточек клиента',13));
+  sbOptima.Down := sCustomerCard <> '-1';
+  if sCustomerCard <> '-1' then
+  begin
+    fOptimaDiscount := TOptimaDiscount.Create;
+    fOptimaDiscount.OptimaCustomerCard  := sCustomerCard; // '9939000000011'; - тестова карточка.
+    fOptimaDiscount.USERID := Prm.UserID;
+    fOptimaDiscount.SetDiscount;
+    if fOptimaDiscount.NeedRefresh then
+    begin
+        ReopenChek;
+    end;
   end;
+
 end;
 
 END.
@@ -20858,18 +20920,32 @@ Frankie Goes To Hollywood - Relax (Final DJs Relax On The Beach Remix)
 
 }
 
-<<<<<<< HEAD
-=======
 //138239285 310574
->>>>>>> master
 {
 Ракута
  ТимВ     138239285 310574
- AnyDesk  456396915 rf310574
-}
+ AnyDesk  769043018 rf310574
 
+ сервер office: AnyDesc 772737361 4262168962
+ Новый сервер:  ТимВ   1290191596 4262168962
+
+ 885134187
+
+
+Бухгалтерский
+Тив 834795444 39212389
+Any
+
+Any Desk мой:
+
+
+}
 {
 МТС - 0503258519
 9795  33678225
 1305  62787486
 }
+
+
+
+

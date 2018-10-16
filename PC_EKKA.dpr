@@ -251,7 +251,8 @@ uses
   PlanMotivationStatU in 'PlanMotivationStatU.pas' {PlanMotivationStatF},
   Uadd_counter in 'Uadd_counter.pas' {Fadd_counter},
   ChangeArticleCount in 'ChangeArticleCount.pas' {fmChangeCount},
-  WinHttpRequest in 'WinHttpRequest.pas';
+  WinHttpRequest in 'WinHttpRequest.pas',
+  OptimaDiscount in 'OptimaDiscount.pas';
 
 {$R *.res}
 

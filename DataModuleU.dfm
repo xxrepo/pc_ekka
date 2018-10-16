@@ -38,6 +38,11 @@ object DM: TDM
     CommandTimeout = 300
     Parameters = <
       item
+        Name = 'pord'
+        Size = -1
+        Value = Null
+      end
+      item
         Name = 'pid'
         Attributes = [paSigned, paNullable]
         DataType = ftSmallint
@@ -46,6 +51,9 @@ object DM: TDM
         Value = 3
       end>
     SQL.Strings = (
+      'declare @ord smallint'
+      ''
+      'set @ord=:pord'
       ''
       'select case when a.art_code=4 then 2 else 1 end as nsort,'
       '       a.art_code,'
@@ -98,7 +106,8 @@ object DM: TDM
         'group by a.art_code,a.names,a.CenaP,a.cena,a.f_nds,a.type_tov,a.' +
         'printing,a.skd'
       'order by 1,'
-      '         a.names'
+      '         case when @ord=1 then a.names   else null end,'
+      '         case when @ord=2 then Max(a.id) else null end'
       ''
       '')
     Left = 70
@@ -1679,17 +1688,6 @@ object DM: TDM
     Parameters = <>
     Left = 125
     Top = 148
-    object qrNaklInfoNames: TStringField
-      FieldName = 'Names'
-      Size = 75
-    end
-    object qrNaklInfoKol: TIntegerField
-      FieldName = 'Kol'
-    end
-    object qrNaklInfoCena: TFloatField
-      FieldName = 'Cena'
-      DisplayFormat = '#0.00'
-    end
   end
   object srNaklInfo: TDataSource
     DataSet = qrNaklInfo
@@ -7499,8 +7497,8 @@ object DM: TDM
   object qrSoputstvCount: TADOQuery
     Connection = ADOCo
     Parameters = <>
-    Left = 724
-    Top = 12
+    Left = 725
+    Top = 10
   end
   object dsSoputstvCount: TDataSource
     DataSet = qrSoputstvCount

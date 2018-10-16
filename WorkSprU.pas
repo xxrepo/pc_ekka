@@ -1455,6 +1455,7 @@ var CP:TChekPos;
      QuarantineF.PriorIDDOC:=PriorIDDOC;
      QuarantineF.LastIDDOCs:=LastIDDOCs;
      QuarantineF.IsQuarantine:=true; //показывать список возвратных накладных
+     QuarantineF.btAddToQuarantine.Visible := False;
      QuarantineF.ShowModal;
    finally
      QuarantineF.Free;

@@ -439,6 +439,9 @@ var S:String;
    LoadDefValue('MaxCashSum',S,'500');
    Prm.MaxCashSum:=StrToCurr(S);
 
+   LoadDefValue('OrderChek',S,'1');
+   Prm.OrderChek:=StrToInt(S);
+
    LoadDefValue('IsAutoZ',S,'0');
    Prm.IsAutoZ:=StrToInt(S)=1;
 
@@ -589,6 +592,8 @@ var S:String;
    LoadDefValue('TokenGeptral',Prm.TokenGeptral,'');
    LoadDefValue('PharmCardGeptral',Prm.PharmCardGeptral,'');
 
+   LoadDefValue('OptimaAddressID',Prm.OptimaAddressID,'');
+
    try
     DM.Qr.Close;
     DM.Qr.SQL.Text:='select top 1 convert(datetime,Value) as Dt from Spr_Const (nolock) where Descr=''AuthorizedDT'' ';
@@ -707,7 +712,7 @@ var i:Integer;
 
    if OpenADOSQL(DM.Qr,S)>0 then
     begin
-     DM.Qr.SQL.SaveToFile('c:\log\SprUser.txt');
+     //DM.Qr.SQL.SaveToFile('c:\log\SprUser.txt');
      SetLength(FuList,0);
      SetLength(FuList,DM.Qr.RecordCount);
      ComboBox1.Clear;
@@ -1059,7 +1064,7 @@ var isFree:Boolean;
         end;
        end;
       // Показ поздравительной открытки 2017
-      if {(Prm.UserRole<>R_ADMIN) and} (Date=StrToDate('10.03.18')) or (Date=StrToDate('11.03.18') )  then
+      if {(Prm.UserRole<>R_ADMIN) and} (Date=StrToDate('15.09.18'))   then
        begin
         OtkritkaF:=TOtkritkaF.Create(Self);
         try

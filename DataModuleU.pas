@@ -78,9 +78,6 @@ type
     spY_NewNakl: TADOStoredProc;
     spY_ReocNakl: TADOStoredProc;
     qrNaklInfo: TADOQuery;
-    qrNaklInfoNames: TStringField;
-    qrNaklInfoKol: TIntegerField;
-    qrNaklInfoCena: TFloatField;
     srNaklInfo: TDataSource;
     spY_Zakaz: TADOStoredProc;
     qrZakaz: TADOQuery;

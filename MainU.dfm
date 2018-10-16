@@ -1,6 +1,6 @@
 object MainF: TMainF
-  Left = 576
-  Top = 218
+  Left = 819
+  Top = 222
   Width = 1024
   Height = 738
   Caption = 'MainF'
@@ -25,7 +25,7 @@ object MainF: TMainF
   OnShow = FormShow
   DesignSize = (
     1016
-    687)
+    692)
   PixelsPerInch = 96
   TextHeight = 13
   object pnWrkEKKA: TPanel
@@ -4185,18 +4185,6 @@ object MainF: TMainF
           Visible = False
           OnClick = sbProfClick
         end
-        object sbMag: TSpeedButton
-          Left = 5
-          Top = 85
-          Width = 170
-          Height = 21
-          AllowAllUp = True
-          GroupIndex = 4
-          Caption = #1060#1083#1072#1077#1088#1099' '#1089#1086' '#1096#1090#1088#1080#1093#1082#1086#1076#1072#1084#1080
-          ParentShowHint = False
-          ShowHint = True
-          OnClick = sbMagClick
-        end
         object imAvto: TImage
           Left = 10
           Top = 315
@@ -4551,6 +4539,30 @@ object MainF: TMainF
           GroupIndex = 1
           Caption = #1050#1089#1072#1088#1077#1083#1090#1086' 42.8%'
           OnClick = sbBaerClick
+        end
+        object sbOptima: TSpeedButton
+          Left = 102
+          Top = 85
+          Width = 73
+          Height = 21
+          AllowAllUp = True
+          GroupIndex = 5
+          Caption = #1054#1087#1090#1080#1084#1072
+          ParentShowHint = False
+          ShowHint = True
+          OnClick = sbOptimaClick
+        end
+        object sbMag: TSpeedButton
+          Left = 5
+          Top = 85
+          Width = 97
+          Height = 21
+          AllowAllUp = True
+          GroupIndex = 4
+          Caption = #1060#1083#1072#1077#1088#1099' '#1089#1086' '#1096#1082'.'
+          ParentShowHint = False
+          ShowHint = True
+          OnClick = sbMagClick
         end
         object stPercSkd: TStaticText
           Left = 110
@@ -5265,7 +5277,7 @@ object MainF: TMainF
   end
   object stMain: TStatusBar
     Left = 0
-    Top = 666
+    Top = 671
     Width = 1016
     Height = 21
     Panels = <
@@ -8685,6 +8697,7 @@ object MainF: TMainF
       Caption = #1055#1086#1084#1086#1097#1100
       object N11: TMenuItem
         Caption = #1048#1085#1089#1090#1088#1091#1082#1094#1080#1103' '#1076#1083#1103' '#1082#1072#1089#1089#1080#1088#1072' '#1080#1083#1080' '#1087#1088#1086#1074#1080#1079#1086#1088#1072'...'
+        Visible = False
         OnClick = N11Click
       end
       object N12: TMenuItem
@@ -8731,10 +8744,6 @@ object MainF: TMainF
         C0C0C0C0C0C0C0C0C3C4C47C969E506E80AEBCC4C0C0C0C0C0C0}
       Caption = 'Extempore'
       OnClick = Extempore1Click
-    end
-    object WebApi1: TMenuItem
-      Caption = 'WebApi'
-      OnClick = WebApi1Click
     end
   end
   object alMain: TActionList
