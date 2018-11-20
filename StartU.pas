@@ -587,12 +587,18 @@ var S:String;
 
    LoadDefValue('AuthorizedFIO',Prm.AuthorizedFIO,'');
 
+
    //параметры подключения к АПИ Гептрал
    LoadDefValue('SiteGeptralAPI',Prm.SiteGeptralAPI,'');
    LoadDefValue('TokenGeptral',Prm.TokenGeptral,'');
    LoadDefValue('PharmCardGeptral',Prm.PharmCardGeptral,'');
 
+   // Адрес аптеки для сервиса Оптима Виста
    LoadDefValue('OptimaAddressID',Prm.OptimaAddressID,'');
+
+   // Минимальная сумма сдачи Для пополнения мобильной связи через наличный расчет со сдачи клиента
+   LoadDefValue('PhoneChargeMinSumm',S,'99999');
+   Prm.PhoneChargeMinSumm := StrToIntDef(S,99999);
 
    try
     DM.Qr.Close;
@@ -651,6 +657,23 @@ var S:String;
    DM.Qr.Open;
    Prm.IsNightCena:=DM.Qr.FieldByName('IsNight').AsInteger=1;
 
+   DM.Qr.Close;
+   DM.Qr.SQL.Clear;
+   DM.Qr.SQL.Add(' select 1 AS Res ');
+   DM.Qr.SQL.Add(' from SprPhoneReplenishments ');
+   DM.Qr.SQL.Add('  where id_apteka = '+IntToStr(Prm.AptekaID)+' and id_kassa='+IntToStr(Opt.KassaID));
+   DM.Qr.SQL.Add('  and terminal_id is not null ');
+   DM.Qr.SQL.Add('  and ISNULL(terminal_user_name,'''') <> '''' ');
+   DM.Qr.SQL.Add('  and ISNULL(terminal_pass,'''') <> '''' ');
+   DM.Qr.SQL.Add('  and ISNULL(terminal_pass,'''') <> '''' ');
+   DM.Qr.SQL.Add('  and isnull(IsActive,0)=1');
+   DM.Qr.Open;
+   Prm.ExistsPhoneChargeSettings := DM.Qr.FieldByName('Res').AsInteger = 1;
+
+   // есть возможность пополнять счет мобильного телефона
+   Prm.ReadyToChargePhone := Prm.IsReplPhone
+                             AND (Prm.FirmID in [1,3,4,6,9,13,14,18])
+                             AND Prm.ExistsPhoneChargeSettings;
    Ex:=False;
   except
    Ex:=True;

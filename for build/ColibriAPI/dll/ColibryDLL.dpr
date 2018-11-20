@@ -543,19 +543,16 @@ var
 begin
   ErrorResponse.error:='';
   ErrorResponse.code:='';
-  s:=TStringList.Create;
-  s.Text:=js;
-  try
+
     FJSON_AUTHObject:=TJSONObject.ParseJSONValue(s.Text) as TJSONObject;
     if not Assigned(FJSON_AUTHObject) then
     begin
-      raise Exception.Create('Ответ не содержит JSON-данные');
       IsErrorResponse:=true;
       exit;
     end;
-  finally
-    s.Free;
-  end;
+
+  s:=TStringList.Create;
+  s.Text:=js;
 
   if Assigned(FJSON_AUTHObject) then
   begin
@@ -1671,7 +1668,7 @@ begin
     mResponse:=TMemo.Create(nil);
     mResponse.Text:=ColibryAPI.POSTRequest(pBaseURL,params,request);
   except
-    raise Exception.Create('Ошибка получения доступных услуг!'+#13+'Запрос: URL - '+pBaseURL+' '+request+#13+'Ответ: '+mResponse.Text);
+//    raise Exception.Create('Ошибка получения доступных услуг!'+#13+'Запрос: URL - '+pBaseURL+' '+request+#13+'Ответ: '+mResponse.Text);
     IsError:=true;
     exit;
   end;

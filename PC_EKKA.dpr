@@ -252,7 +252,11 @@ uses
   Uadd_counter in 'Uadd_counter.pas' {Fadd_counter},
   ChangeArticleCount in 'ChangeArticleCount.pas' {fmChangeCount},
   WinHttpRequest in 'WinHttpRequest.pas',
-  OptimaDiscount in 'OptimaDiscount.pas';
+  OptimaDiscount in 'OptimaDiscount.pas',
+  WMLSS_TLB in 'C:\Program Files (x86)\Borland\Delphi7\Imports\WMLSS_TLB.pas',
+  MediaPlayer_TLB in 'C:\Program Files (x86)\Borland\Delphi7\Imports\MediaPlayer_TLB.pas',
+  WMPRichPreviewLauncher_TLB in 'C:\Program Files (x86)\Borland\Delphi7\Imports\WMPRichPreviewLauncher_TLB.pas',
+  WMPLib_TLB in 'C:\Program Files (x86)\Borland\Delphi7\Imports\WMPLib_TLB.pas';
 
 {$R *.res}
 

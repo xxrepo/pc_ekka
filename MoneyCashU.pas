@@ -3,7 +3,8 @@ unit MoneyCashU;
 interface
 
 uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-     Dialogs, ExtCtrls, StdCtrls, Buttons, Math, MainU, ShareU, Util, ActnList;
+     Dialogs, ExtCtrls, StdCtrls, Buttons, Math, MainU, ShareU, Util, ActnList,
+     ReplPhoneAccountU;
 
 type
 
@@ -44,6 +45,13 @@ type
     ActionList1: TActionList;
     NotAltF4: TAction;
     Label14: TLabel;
+    pnBottom: TPanel;
+    pnChgarge: TPanel;
+    Splitter1: TSplitter;
+    pnlCenter: TPanel;
+    pnRight: TPanel;
+    Panel2: TPanel;
+    pnDiscountCard: TPanel;
 
     procedure FormCreate(Sender: TObject);
     procedure Memo1KeyPress(Sender: TObject; var Key: Char);
@@ -55,9 +63,10 @@ type
     procedure Memo3Change(Sender: TObject);
     procedure Memo1Change(Sender: TObject);
     procedure NotAltF4Execute(Sender: TObject);
+    procedure pnRightClick(Sender: TObject);
 
   private
-
+    FInChargedProcess : Boolean;
     FSumChek:Currency;
     FSumCash:Currency;
     FFLag:Integer;
@@ -70,13 +79,18 @@ type
     FCloseOnly:Boolean;
     FIsSdacha:Boolean;
     FSafeSumSpis:Currency;
-
+    FReplPhoneAccountF : TReplPhoneAccountF;
+    FSaveFormHeight : integer;
+    FChargeProcess : boolean;
     procedure SetSumChek(const Value:Currency);
     procedure SetSumCash(Value:Currency);
     procedure SetSumCashToCard(Value: Currency);
     function  GetSumCashFull: Currency;
     procedure SetMaxAccumSum(const Value: Currency);
-
+    procedure DoPhoneCharge(aChange : Currency);
+    procedure DoActivePhoneCharge;
+    procedure DoIfChangedChargeSum(Value : currency);
+    procedure IsPhoneChargePay(Value : Currency; Error : integer; var aClose : boolean);
   public
 
     Cp:TChekPos;
@@ -86,13 +100,14 @@ type
     property SumChekSafe:Currency read FSumChekSafe write FSumChekSafe;
     property SumChek:Currency read FSumChek write SetSumChek;
     property SumSkd:Currency read FSumSkd write FSumSkd;
-    property SumCash:Currency read FSumCash write SetSumCash;
+    property SumCash : Currency read FSumCash write SetSumCash;
     property SumCashToCard:Currency read FSumCashToCard write SetSumCashToCard;
     property Flag:Integer read FFlag write FFlag;
     property SumSpis:Currency read FSumSpis;
     property SumCashFull:Currency read GetSumCashFull;
     property SafeSumSpis:Currency read FSafeSumSpis write FSafeSumSpis;
 
+    destructor Destroy; override;
   end;
 
 var MoneyCashF:TMoneyCashF;
@@ -123,6 +138,8 @@ procedure TMoneyCashF.FormCreate(Sender:TObject);
 
   pPointer(Memo3)^:=TCntrEdit;
   TCntrEdit(Memo3).RecreateWnd;
+  pnRight.Visible := False;
+  Self.Width := Panel1.Width+3;
  end;
 
 procedure TMoneyCashF.Memo1KeyPress(Sender:TObject; var Key:Char);
@@ -180,6 +197,12 @@ procedure TMoneyCashF.SetSumCash(Value:Currency);
   if Value<0 then Value:=0;
   FSumCash:=Value;
   StaticText2.Caption:=CurrToStrF(Value,ffFixed,2);
+  if (Value >= Prm.PhoneChargeMinSumm) and
+      TReplPhoneAccountF.CheckAccess     // проверка возможности работать с пополнением счета
+  then
+  begin
+    DoPhoneCharge(Value); //пополнение счета
+  end;
  end;
 
 procedure TMoneyCashF.BitBtn2Click(Sender:TObject);
@@ -453,5 +476,131 @@ procedure TMoneyCashF.SetMaxAccumSum(const Value: Currency);
   FMaxAccumSum:=Value;
   Label14.Caption:='Максимальная сумма списания '#10' на данный чек: '+CurrToStrF(Value,ffFixed,2)+' грн.'
  end;
+
+procedure TMoneyCashF.DoActivePhoneCharge;
+begin
+  if not Assigned(FReplPhoneAccountF) then
+  begin
+    FSaveFormHeight := Self.Height;
+    FReplPhoneAccountF := TReplPhoneAccountF.Create(Self);
+    FReplPhoneAccountF.BorderStyle := bsNone;
+    FReplPhoneAccountF.Align := alClient;
+    FReplPhoneAccountF.WindowState := wsMaximized;
+    FReplPhoneAccountF.edAccount.OnExit := nil;
+    FReplPhoneAccountF.edAmount.OnEnter := FReplPhoneAccountF.edAccountExit;
+    FReplPhoneAccountF.Parent := pnChgarge;
+    FReplPhoneAccountF.OnChangePaySum := DoIfChangedChargeSum;
+    FReplPhoneAccountF.OnPayed := IsPhoneChargePay;
+    FReplPhoneAccountF.edSum.ReadOnly := True;
+    FReplPhoneAccountF.Color := clActiveCaption;
+
+    FReplPhoneAccountF.Show;
+    Self.Width := 1040;
+    FReplPhoneAccountF.btCancel.Visible := False;
+    FReplPhoneAccountF.AmountSum := StrToCurr(Memo1.Text)-SumChek-RoundTo(SumCashToCard,-2) - FReplPhoneAccountF.FeeSum;
+    Self.Height := 665;
+    Self.Left:= (Screen.WorkAreaWidth - Self.Width) div 2;
+    Self.Top:= (Screen.WorkAreaHeight - Self.Height) div 2;
+  end;
+end;
+
+
+procedure TMoneyCashF.DoPhoneCharge(aChange : Currency);
+begin
+  if (aChange >= Prm.PhoneChargeMinSumm) then
+  begin
+    try
+      DoActivePhoneCharge;
+      pnRight.Visible := True;
+      FChargeProcess := False;
+    except
+      Self.Width := 565;
+      Self.Height := FSaveFormHeight;
+      pnRight.Visible := False;
+    end;
+  end
+  else
+  begin
+    if Assigned(FReplPhoneAccountF) then
+    begin
+      if FChargeProcess then Exit;
+
+      pnRight.Visible := False;
+      FreeAndNil(FReplPhoneAccountF);
+      Self.Width := 565;
+      Self.Height := FSaveFormHeight;
+      Self.Left:= (Screen.WorkAreaWidth - Self.Width) div 2;
+      Self.Top:= (Screen.WorkAreaHeight - Self.Height) div 2;
+    end;
+  end;
+end;
+
+destructor TMoneyCashF.Destroy;
+begin
+  if Assigned(FReplPhoneAccountF) then
+    FreeAndNil(FReplPhoneAccountF);
+  inherited;
+end;
+
+procedure TMoneyCashF.pnRightClick(Sender: TObject);
+begin
+   if Assigned(FReplPhoneAccountF) then
+  begin
+    if pnRight.Caption = '<<' then
+    begin
+      FReplPhoneAccountF.Clear;
+      Self.Width := 565;
+      Self.Height := FSaveFormHeight;
+      pnRight.Caption := '>>'
+    end
+    else
+    if pnRight.Caption = '>>' then
+    begin
+      Self.Width := 1040;
+      Self.Height := 665;
+      pnRight.Caption := '<<'
+    end;
+  end;
+end;
+
+procedure TMoneyCashF.DoIfChangedChargeSum(Value : Currency);
+var
+  AmountSum :currency;
+begin
+  if Value = 0 then
+    Exit;
+  if (StrToCurr(Memo1.Text)-SumChek-RoundTo(SumCashToCard,-2) - Value) < 0 then
+  begin
+    //MainF.MessBox('Сумма пополнения мобильной связи превышает сумму сдачи!');
+    AmountSum := StrToCurr(Memo1.Text)-SumChek-RoundTo(SumCashToCard,-2) - FReplPhoneAccountF.FeeSum;
+    FReplPhoneAccountF.AmountSum := 0;
+    FReplPhoneAccountF.AmountSum := AmountSum;
+    FReplPhoneAccountF.lockCanChargeMessage := True; //блокируем всплывающие сообщение об успешной проверки пополнения
+    try
+      FReplPhoneAccountF.btAccount.OnClick(FReplPhoneAccountF);
+    finally
+      FReplPhoneAccountF.lockCanChargeMessage := False;
+    end;
+    FReplPhoneAccountF.lbChangeEdAmountByFee.Visible := True;
+    FReplPhoneAccountF.edSum.Text := FReplPhoneAccountF.edPaySum.Text;
+  end;
+end;
+
+procedure TMoneyCashF.IsPhoneChargePay(Value: Currency; Error: integer; var aClose : boolean);
+var
+  Sum : Currency;
+begin
+  if (Error >= 0) then
+  begin
+      MainF.MessBox(Format('Счет телефона успешно пополнен.',[CurrToStr(Value)]));
+     if Assigned(FReplPhoneAccountF) then
+        FReplPhoneAccountF.ShowHidePaymentInformation(false);
+     FChargeProcess := True;
+     Sum := StrToCurrDef(Memo1.Text,0);
+     Sum := Sum - Value;
+     Memo1.Text := CurrToStr(Sum);
+     aClose := True;
+  end;
+end;
 
 end.

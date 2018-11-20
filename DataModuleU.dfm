@@ -7517,4 +7517,84 @@ object DM: TDM
     Left = 1105
     Top = 820
   end
+  object qrAhchT: TADOQuery
+    Connection = ADOCo
+    Parameters = <>
+    SQL.Strings = (
+      'select convert(uniqueidentifier,id) as id,'
+      '       Descr'
+      'from SprAHCHt'
+      'order by Descr')
+    Left = 726
+    Top = 103
+  end
+  object srAhchT: TDataSource
+    DataSet = qrAhchT
+    Left = 1155
+    Top = 820
+  end
+  object qrAhchV: TADOQuery
+    Connection = ADOCo
+    Parameters = <>
+    SQL.Strings = (
+      'select convert(uniqueidentifier,id) as id,'
+      '       Descr'
+      'from SprAHCHt'
+      'order by Descr')
+    Left = 726
+    Top = 148
+  end
+  object srAhchV: TDataSource
+    DataSet = qrAhchV
+    Left = 1205
+    Top = 820
+  end
+  object qrAhchR: TADOQuery
+    Connection = ADOCo
+    Parameters = <>
+    SQL.Strings = (
+      'select convert(uniqueidentifier,id) as id,'
+      '       Descr'
+      'from SprAHCHt'
+      'order by Descr')
+    Left = 726
+    Top = 198
+  end
+  object srAhchR: TDataSource
+    DataSet = qrAhchR
+    Left = 1255
+    Top = 820
+  end
+  object qrJAhch: TADOQuery
+    Connection = ADOCo
+    Parameters = <>
+    SQL.Strings = (
+      'select convert(uniqueidentifier,id) as id,'
+      '       Descr'
+      'from SprAHCHt'
+      'order by Descr')
+    Left = 726
+    Top = 246
+  end
+  object srJAhch: TDataSource
+    DataSet = qrJAhch
+    Left = 1305
+    Top = 820
+  end
+  object qrAhchR1: TADOQuery
+    Connection = ADOCo
+    Parameters = <>
+    SQL.Strings = (
+      'select convert(uniqueidentifier,id) as id,'
+      '       Descr'
+      'from SprAHCHt'
+      'order by Descr')
+    Left = 726
+    Top = 293
+  end
+  object srAhchR1: TDataSource
+    DataSet = qrAhchR1
+    Left = 1355
+    Top = 820
+  end
 end

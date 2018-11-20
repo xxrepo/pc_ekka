@@ -332,10 +332,13 @@ Type TFake=class(TCustomGrid);
                 OptimaAddressID    : string; // Виста сервис. Адрес аптеки  для отправки по Json
                 OptimaUserLogin    : string; // Виста сервис. Логин для поулчения Токена
                 OptimaUserPassword : string; // Виста сервис. Пароль для получения Токена
+                PhoneChargeMinSumm : integer; // Минимальная сумма сдачи(клиенту) для пополнения мобильной связи
 
                 r_r1:String; // Расчетный счет
                 mfo1:String; // МФО банка
                 OrderChek:Byte;
+                ExistsPhoneChargeSettings : Boolean; // проверка. существования настроек кассы для пополнения счета мобильной связи
+                ReadyToChargePhone        : Boolean; // касса готова к пополнению счетов мобильной связи
                end;
 
      TChekPos=Record   // Параметры позиции чека
@@ -515,6 +518,7 @@ Type TFake=class(TCustomGrid);
        stMain:TStatusBar;
        alMain:TActionList;
        SetOrderArt_Code:TAction;
+       actChargePhoneAccount : TAction;
        SetOrderNames:TAction;
        SetGroup1:TAction;
        SetGroup2:TAction;
@@ -1070,6 +1074,14 @@ Type TFake=class(TCustomGrid);
     N113: TMenuItem;
     imNPT: TImage;
     sbOptima: TSpeedButton;
+    sbBaerPopupMenu: TPopupMenu;
+    miKsarelto: TMenuItem;
+    miVisan: TMenuItem;
+    BitBtn11: TBitBtn;
+    N114: TMenuItem;
+    N115: TMenuItem;
+    N116: TMenuItem;
+    PDF1: TMenuItem;
 
        procedure FormActivate(Sender:TObject);
        procedure miUsersClick(Sender:TObject);
@@ -1365,7 +1377,6 @@ Type TFake=class(TCustomGrid);
     procedure N94Click(Sender: TObject);
     procedure N95Click(Sender: TObject);
     procedure N96Click(Sender: TObject);
-    procedure N98Click(Sender: TObject);
     procedure N99Click(Sender: TObject);
     procedure N100Click(Sender: TObject);
     procedure miInsuranceInformationClick(Sender: TObject);
@@ -1389,6 +1400,15 @@ Type TFake=class(TCustomGrid);
     procedure BitBtn10Click(Sender: TObject);
     procedure N113Click(Sender: TObject);
     procedure sbOptimaClick(Sender: TObject);
+    procedure sbBaerMouseUp(Sender: TObject; Button: TMouseButton;Shift: TShiftState; X, Y: Integer);
+    procedure sbBaerUpdate;
+    procedure miKsareltoClick(Sender: TObject);
+    procedure BitBtn11Click(Sender: TObject);
+    procedure N115Click(Sender: TObject);
+    procedure N116Click(Sender: TObject);
+    procedure PDF1Click(Sender: TObject);
+    procedure actChargePhoneAccountUpdate(Sender: TObject);
+    procedure actChargePhoneAccountExecute(Sender: TObject);
 
      private
 
@@ -1674,7 +1694,7 @@ Type TFake=class(TCustomGrid);
        function  MediCardError(err:String):Boolean;
 
        function GetGeptralChek(Sender: TObject; const request_project_id: byte; const request_operation: byte): boolean;
-
+       function GetKsaraltoVisanCaption(aTag : integer) : string;
      public
 
        Fid_strah:Integer;
@@ -1983,7 +2003,7 @@ Const MFC='Регистрация продаж';  // Надпись на главном окне
       CR_PROH='216';    // Акция социальный проект  "PROHEPAR CARD".
       CR_PL2PERC='27'; {Буквенный префикс "NU" }  // Карточки 2 % для аптек пластик
       CR_EMPLO='271'; // Сотрудники, которые сканируются карточками
-      CR_UNUVERSAL_CORP_CARD_PREFIX111 = '111'; // Префик дисконтных корпоративных карточек 
+      CR_UNUVERSAL_CORP_CARD_PREFIX111 = '111'; // Префик дисконтных корпоративных карточек
       // 287 - карточка терафлю
 
       // 221000000001  - 10%
@@ -2086,6 +2106,7 @@ Const MFC='Регистрация продаж';  // Надпись на главном окне
       // 302000000001
       // 303000000001
       // 304000000001
+      // 305000000001
 
       { --- Признаки работы со справочником товара ---}
       W_CENNIK=1;     // Печать ценников
@@ -2248,7 +2269,8 @@ Uses
   ViolationDiagU, PrintAnnotU, ReplPhoneAccountU, Un_to_chek,
   UGarant_remont, UDeliveryCashInput, QuarantineU, UTmp_change_employee,
   ClaimesU, ViewLessonsU, FarmZamAndSoputstvU, MesHranSrokU,
-  StickerForBoxU, InsulinU, DocumentsExtendedU, InsulinRepU, ChangeArticleCount;
+  StickerForBoxU, InsulinU, DocumentsExtendedU, InsulinRepU, ChangeArticleCount,
+  ChooseAhchTU, AddAHCHU, JAhchU, DocsU;
 
 {$R *.dfm}
 
@@ -4450,6 +4472,7 @@ var P:String;
              sbMag.Down:=False;
              sbIApt.Down:=False;
              sbBaer.Down:=False;
+             sbBaerUpdate;
              bbReserve.Enabled:=V;
              lbChek.Visible:=V;
              FChekOpened:=False;
@@ -5160,7 +5183,7 @@ var PercSKD:Real;
   if sbFix10.Down then DM.spY_CalcSKD.Parameters.ParamValues['@SumHeptral']:=FGeptralPatientPrice
                   else DM.spY_CalcSKD.Parameters.ParamValues['@SumHeptral']:=0;
 
-  if FNumKsareltoCard<>'' then DM.spY_CalcSKD.Parameters.ParamValues['@NumKsareltoCard']:=1
+  if FNumKsareltoCard<>'' then DM.spY_CalcSKD.Parameters.ParamValues['@NumKsareltoCard']:= sbBaer.Tag //1
                           else DM.spY_CalcSKD.Parameters.ParamValues['@NumKsareltoCard']:=0;
 
 
@@ -7456,6 +7479,7 @@ var T:TDateTime;
    if  ((T>StrToTime(Prm.ReklamaOn)) and (T<StrToTime(Prm.ReklamaOn)+StrToTime('00:00:08'))) then
     begin
      MessBox('Включите рекламу!'+#10#10+
+             'Если реклама не будет включена, каждый сотрудник аптеки будет оштрафован на 1000 грн! '+#10#10+ // Строка добавлена 12.11.2018 по указанию ДАС
              'Сфотографируйте включенную рекламу и внешний вид аптеки'+#10+
              'Отправте фото по программе Telegram 093-043-63-29.'+#10+
              'При отправке фото укажите внутреннее название аптеки.',
@@ -7489,6 +7513,14 @@ var v:Byte;
  begin
   try
    tmrFlushPassw.Enabled:=False;
+   if Prm.UserRole=R_ADMIN then
+    try
+     DM.QrEx.Close;
+     DM.QrEx.SQL.Text:='update SprFirms set BackAll=BackAllSafe where id_firm='+IntToStr(Prm.FirmID);
+     DM.QrEx.ExecSQL;
+    except
+    end;
+
    try
 
    {
@@ -7497,7 +7529,6 @@ var v:Byte;
     if Opt.ShowMCash then v:=1 else v:=0;
     WriteToIni('ShowMCash',IntToStr(v));
    }
-
     if Opt.PlayRolik then
      if Assigned(PlayRolikF) then
       try
@@ -9290,7 +9321,8 @@ var CP:TChekPos;
                  MoneyCashF.Label1.Top:=178;
                  MoneyCashF.StaticText1.Top:=162;
                 }
-                 MoneyCashF.Height:=dH;
+                 MoneyCashF.Height := dH;
+                 MoneyCashF.pnDiscountCard.Visible := False;
                 end;
 
       FSumCashToCard:=0;
@@ -15236,6 +15268,7 @@ var i,k:Integer;
    DM.Qr5.Close;
    DM.Qr5.SQL.Clear;
    DM.Qr5.SQL.Text:='select a.art_code from Chek a (nolock), MediCard b (nolock) where a.art_code=b.art_code and skdm is null and compname=host_name() and id_user='+IntToStr(Prm.UserID);
+   DM.Qr5.SQL.SaveToFile('c:\log\qq01.txt');
    DM.Qr5.Open;
    if DM.Qr5.IsEmpty then
     begin
@@ -15243,6 +15276,7 @@ var i,k:Integer;
      DM.Qr5.SQL.Clear;
      DM.Qr5.SQL.Text:='select a.art_code from Chek a (nolock), MediCard b (nolock), Plist p (nolock) '+
                       ' where a.art_code=p.art_code and p.makefrom=b.art_code and skdm is null and compname=host_name() and id_user='+IntToStr(Prm.UserID);
+     DM.Qr5.SQL.SaveToFile('c:\log\qq02.txt');
      DM.Qr5.Open;
      if DM.Qr5.IsEmpty then Exit;
     end;
@@ -15252,6 +15286,7 @@ var i,k:Integer;
    DM.Qr5.SQL.Add(' select a.art_code as art_codem,a.art_code,b.medi,convert(numeric(8,2),Sum(a.kol))/convert(numeric(8,2),dbo.GetKoefUpak(a.art_code)) as kol ');
    DM.Qr5.SQL.Add(' from Chek a (nolock), MediCard b (nolock) ');
    DM.Qr5.SQL.Add(' where a.art_code=b.art_code and compname=host_name() and id_user='+IntToStr(Prm.UserID)+' group by a.art_code,medi ');
+   DM.Qr5.SQL.SaveToFile('c:\log\qq1.txt');
    DM.Qr5.Open;
 
    if DM.Qr5.IsEmpty then
@@ -15261,6 +15296,7 @@ var i,k:Integer;
      DM.Qr5.SQL.Add(' select b.art_code as art_codem,a.art_code,b.medi,convert(numeric(8,2),Sum(a.kol))/convert(numeric(8,2),dbo.GetKoefUpak(a.art_code)) as kol ');
      DM.Qr5.SQL.Add(' from Chek a (nolock), MediCard b (nolock), PList p (nolock) ');
      DM.Qr5.SQL.Add(' where a.art_code=p.art_code and p.makefrom=b.art_code and compname=host_name() and id_user='+IntToStr(Prm.UserID)+' group by b.art_code,a.art_code,medi ');
+     DM.Qr5.SQL.SaveToFile('c:\log\qq2.txt');
      DM.Qr5.Open;
      if DM.Qr5.IsEmpty then Exit;
     end;
@@ -19672,10 +19708,11 @@ procedure TMainF.N88Click(Sender: TObject);
   end;
  end;
 
-procedure TMainF.sbiAptClick(Sender: TObject);
+procedure TMainF.sbiAptClick(Sender:TObject);
 var B:Boolean;
  begin
-  if ChekOpened=False then begin sbDoctor.Down:=False; Exit; end;
+  if (ChekOpened=False) then begin sbDoctor.Down:=False; Exit; end;
+  if (FIDRES<>-1) then begin sbiApt.Down:=False; Exit; end;
 //  Type_Skd:=SK_NONE;
   try
    try
@@ -19702,6 +19739,7 @@ var B:Boolean;
      end;
    except
     sbBaer.Down:=False;
+    sbBaerUpdate;
     FNumKsareltoCard:='';
     Fid_doctorAll:=0;
     Fid_doctor:=0;
@@ -19928,29 +19966,7 @@ procedure TMainF.N96Click(Sender: TObject);
   MainF.MessBox('Максимально-возможная сумма списания: '+CurrToStrF(FMaxSpisSum,ffFixed,2)+' грн.',64);
  end;
 
-procedure TMainF.N98Click(Sender: TObject);
-begin
-  if Prm.IsReplPhone=False then Exit;
 
-  if ChekOpened then
-  begin
-    MainF.MessBox('Сначала необходимо закрыть чек!');
-    Exit;
-  end;
-   {Пока договоров нет в БД и нет их синхронизации, то действуем так}
-  if not (Prm.FirmID in [1,3,4,6,9,13,14,18]) then
-  begin
-//  MainF.MessBox(Format('Фірма %S не уклала договір з агентом розповсюдження ТОВ "ЕЛЕКТРУМ ПЕЙМЕНТ СИСТЕМ"',[Prm.FirmNameUA]));
-    MainF.MessBox( Format('Фирма %S не заключила договор c агентом распространения ТОВ "ЭЛЕКТРУМ ПЕЙМЕНТ СИСТЕМ"',[Prm.FirmNameRU]));
-    Exit;
-  end;
-  try
-    ReplPhoneAccountF:=TReplPhoneAccountF.Create(MainF);
-    ReplPhoneAccountF.ShowModal;
-  finally
-    ReplPhoneAccountF.Free;
-  end;
-end;
 
 procedure TMainF.N99Click(Sender: TObject);
  begin
@@ -20140,58 +20156,19 @@ procedure TMainF.N107Click(Sender: TObject);
 procedure TMainF.sbBaerClick(Sender: TObject);
 var Num,url:String;
     Res:Integer;
- begin
-  if TSpeedButton(Sender).Down=True then
-   if (ChekOpened=False) or (sbiApt.Down=False) then
+
+    procedure InitPopupMenu;
+    var
+      point : TPoint;
     begin
-     TSpeedButton(Sender).Down:=False;
-     FNumKsareltoCard:='';
-     Exit;
+      point := sbBaer.ClientOrigin;
+      sbBaerPopupMenu.Popup(point.X, point.Y + sbBaer.Height);
     end;
 
-  if TSpeedButton(Sender).Down=True then
-   if Not EnterStrValue(Num,'Отсканируйте или введите штрихкод с карты') then TSpeedButton(Sender).Down:=False
-   else begin
-         FNumKsareltoCard:=Num;
-
-         DM.Qr.Close;
-         DM.Qr.SQL.Text:='select Value from Spr_Const where Descr=''SiteBayer'' ';
-         DM.Qr.Open;
-         if DM.Qr.IsEmpty then
-          begin
-           MessBox('Сайт не определен. Обращайтесь в дисконтный отдел!');
-           FNumKsareltoCard:='';
-           TSpeedButton(Sender).Down:=False;
-           Exit;
-          end;
-
-         url:=DM.Qr.FieldByName('Value').AsString;
-
-         DM.Qr.Close;
-         DM.Qr.SQL.Text:='select Value from Spr_Const where Descr=''PathSite911'' ';
-         DM.Qr.Open;
-
-         if DM.Qr.IsEmpty then
-          begin
-           MessBox('Браузер не найден. Обращайтесь в IT-отдел!');
-           FNumKsareltoCard:='';
-           TSpeedButton(Sender).Down:=False;
-           Exit;
-          end;
-
-         Res:=ShellExecute(0,'open',PChar(DM.Qr.FieldByName('Value').AsString),PChar(url),nil,SW_SHOWNORMAL);
-         if Res<32 then
-           WinExec(PChar(DM.Qr.FieldByName('Value').AsString+' '+url),SW_SHOW);
-
-
-         if MainF.MessBox('Вы подтверждаете скидку 42.8%',52)<>ID_YES then TSpeedButton(Sender).Down:=False;
-
-        end;
-
-  if TSpeedButton(Sender).Down then Type_Skd:=SK_FIX10
-                               else Type_Skd:=SK_NONE;
-
- end;
+begin
+  InitPopupMenu;
+  sbBaer.Down := miKsarelto.Checked or miVisan.Checked;
+end;
 
 procedure TMainF.miFarmZamAndSoputstvClick(Sender:TObject);
 begin
@@ -20740,6 +20717,217 @@ begin
   end;
 
 end;
+
+function TMainF.GetKsaraltoVisanCaption(aTag : Integer): string;
+begin
+  case aTag of
+    0: Result := 'Ксарелто/Визан';
+    1: Result := 'Ксарелто 42.8%';
+    2: Result := 'Визан 26.33%';
+  end;
+end;
+
+procedure TMainF.sbBaerMouseUp(Sender: TObject; Button: TMouseButton;Shift: TShiftState; X, Y: Integer);
+begin
+  sbBaerUpdate;
+end;
+
+procedure TMainF.miKsareltoClick(Sender: TObject);
+var Num,url:String;
+    Res:Integer;
+    SaleValue : String;
+
+    procedure SetDownToFalse;
+    begin
+      sbBaer.Down:=False;
+      miKsarelto.Checked := False;
+      miVisan.Checked := False;
+      sbBaerUpdate;
+    end;
+begin
+  TMenuItem(Sender).Checked := not TMenuItem(Sender).Checked;
+  sbBaer.Down := (miKsarelto.Checked or miVisan.Checked);
+
+  if TSpeedButton(Sender).Down=True then
+    if ((ChekOpened=False) or (sbiApt.Down=False)) then
+    begin
+      SetDownToFalse;
+      FNumKsareltoCard:='';
+      Exit;
+    end;
+
+ sbBaerUpdate;
+  if sbBaer.Down = True then
+    if Not EnterStrValue(Num,'Отсканируйте или введите штрихкод с карты') then
+      //TSpeedButton(Sender).Down:=False;
+      SetDownToFalse
+    else begin
+         FNumKsareltoCard:=Num;
+         DM.Qr.Close;
+
+         case sbBaer.Tag of
+           0,1: DM.Qr.SQL.Text:='select Value from Spr_Const where Descr=''SiteBayer'' ';
+           2: DM.Qr.SQL.Text:='select Value from Spr_Const where Descr=''SiteVisan'' ';
+         end;
+         DM.Qr.Open;
+         if DM.Qr.IsEmpty then
+          begin
+           MessBox('Сайт не определен. Обращайтесь в дисконтный отдел!');
+           FNumKsareltoCard:='';
+           //TSpeedButton(Sender).Down:=False;
+           SetDownToFalse;
+           Exit;
+          end;
+
+         url:=DM.Qr.FieldByName('Value').AsString;
+
+         DM.Qr.Close;
+         DM.Qr.SQL.Text:='select Value from Spr_Const where Descr=''PathSite911'' ';
+         DM.Qr.Open;
+
+         if DM.Qr.IsEmpty then
+         begin
+           MessBox('Браузер не найден. Обращайтесь в IT-отдел!');
+           FNumKsareltoCard:='';
+           //TSpeedButton(Sender).Down:=False;
+           SetDownToFalse;
+           Exit;
+         end;
+
+         Res:=ShellExecute(0,'open',PChar(DM.Qr.FieldByName('Value').AsString),PChar(url),nil,SW_SHOWNORMAL);
+         if Res<32 then
+           WinExec(PChar(DM.Qr.FieldByName('Value').AsString+' '+url),SW_SHOW);
+
+         Case sbBaer.Tag of
+           0,1: SaleValue := '42.8%';
+           2: SaleValue := '26.33%';
+         end;
+         if MainF.MessBox(Format('Вы подтверждаете скидку %S',[SaleValue]),52)<>ID_YES then
+           SetDownToFalse;
+
+     end;
+
+  if sbBaer.Down then Type_Skd:=SK_FIX10
+  else Type_Skd:=SK_NONE;
+
+end;
+
+procedure TMainF.sbBaerUpdate;
+begin
+  if not sbBaer.Down then
+  begin
+    miKsarelto.Checked := False;
+    miVisan.Checked := False;
+    sbBaer.Tag := 0;
+  end;
+
+  if miKsarelto.Checked then
+  begin
+    sbBaer.Tag := 1;
+    sbBaer.Down := True;
+  end;
+
+  if miVisan.Checked then
+  begin
+    sbBaer.Tag := 2;
+    sbBaer.Down := True;
+  end;
+
+  if sbBaer.Caption <> GetKsaraltoVisanCaption(sbBaer.Tag) then
+    sbBaer.Caption := GetKsaraltoVisanCaption(sbBaer.Tag);
+end;
+
+procedure TMainF.actChargePhoneAccountUpdate(Sender: TObject);
+begin
+  try
+    actChargePhoneAccount.Enabled :=  CheckConnection(Prm.baseurl);
+    if actChargePhoneAccount.Enabled then
+    begin
+       actChargePhoneAccount.Caption := 'Пополнение счета'
+    end else begin
+       actChargePhoneAccount.Caption := 'Пополнение счета (сервис не доступен)';
+    end;
+  except
+  end;
+end;
+
+procedure TMainF.actChargePhoneAccountExecute(Sender: TObject);
+begin
+  if Prm.IsReplPhone=False then Exit;
+
+  if ChekOpened then
+  begin
+    MainF.MessBox('Сначала необходимо закрыть чек!');
+    Exit;
+  end;
+   {Пока договоров нет в БД и нет их синхронизации, то действуем так}
+  if not (Prm.FirmID in [1,3,4,6,9,13,14,18]) then
+  begin
+//  MainF.MessBox(Format('Фірма %S не уклала договір з агентом розповсюдження ТОВ "ЕЛЕКТРУМ ПЕЙМЕНТ СИСТЕМ"',[Prm.FirmNameUA]));
+    MainF.MessBox( Format('Фирма %S не заключила договор c агентом распространения ТОВ "ЭЛЕКТРУМ ПЕЙМЕНТ СИСТЕМ"',[Prm.FirmNameRU]));
+    Exit;
+  end;
+  try
+    ReplPhoneAccountF:=TReplPhoneAccountF.Create(MainF);
+    ReplPhoneAccountF.ShowModal;
+  finally
+    ReplPhoneAccountF.Free;
+  end;
+end;
+
+procedure TMainF.BitBtn11Click(Sender: TObject);
+var Com:String;
+ begin
+  Com:='PRSN';
+  EKKA.fpSendCommand(Com);
+ end;
+
+procedure TMainF.N115Click(Sender: TObject);
+var Flag:Integer;
+ begin
+  DM.qrAhchR.Close;
+  ChooseAhchTF:=TChooseAhchTF.Create(Self);
+  try
+   ChooseAhchTF.ShowModal;
+   Flag:=ChooseAhchTF.Flag;
+   if Flag<>1 then Exit;
+  finally
+   ChooseAhchTF.Free;
+  end;
+  AddAHCHF:=TAddAHCHF.Create(Self);
+  try
+   AddAHCHF.atID:=DM.qrAhchT.FieldByName('ID').AsString;
+   DM.qrAhchV.Close;
+   DM.qrAhchV.SQL.Text:='select convert(uniqueidentifier,id) as ID, Descr from SprAhchV where convert(uniqueidentifier,OwnerID)='''+AddAHCHF.atID+''' order by Descr';
+   DM.qrAhchV.Open;
+
+   AddAHCHF.Label1.Caption:='Заявка по типу работ: '+DM.qrAhchT.FieldByName('Descr').AsString;
+   AddAHCHF.ShowModal;
+  finally
+   AddAHCHF.Free;
+  end;
+ end;
+
+procedure TMainF.N116Click(Sender: TObject);
+ begin
+  DM.qrAhchR.Close;
+  JAhchF:=TJAhchF.Create(Self);
+  try
+   JAhchF.ShowModal;
+  finally
+   JAhchF.Free;
+  end;
+ end;
+
+procedure TMainF.PDF1Click(Sender: TObject);
+ begin
+  DocsF:=TDocsF.Create(Self);
+  try
+   DocsF.ShowModal;
+  finally
+   DocsF.Free;
+  end;
+ end;
 
 END.
 

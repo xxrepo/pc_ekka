@@ -1,6 +1,6 @@
 object ReplPhoneAccountF: TReplPhoneAccountF
-  Left = 1448
-  Top = 109
+  Left = 308
+  Top = 118
   Width = 471
   Height = 547
   Caption = 'ReplPhoneAccountF'
@@ -13,6 +13,7 @@ object ReplPhoneAccountF: TReplPhoneAccountF
   OldCreateOrder = False
   OnActivate = FormActivate
   OnCreate = FormCreate
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Label3: TLabel
@@ -30,7 +31,7 @@ object ReplPhoneAccountF: TReplPhoneAccountF
   end
   object Label4: TLabel
     Left = 20
-    Top = 112
+    Top = 109
     Width = 161
     Height = 20
     Caption = #1057#1091#1084#1084#1072' '#1087#1086#1087#1086#1083#1085#1077#1085#1080#1103
@@ -122,6 +123,22 @@ object ReplPhoneAccountF: TReplPhoneAccountF
     ParentFont = False
     Layout = tlCenter
   end
+  object lbChangeEdAmountByFee: TLabel
+    Left = 24
+    Top = 136
+    Width = 417
+    Height = 13
+    Alignment = taCenter
+    AutoSize = False
+    Caption = #1057#1091#1084#1084#1072' '#1087#1086#1087#1086#1083#1085#1077#1085#1080#1103' '#1080#1079#1084#1077#1085#1077#1085#1072' '#1072#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1089' '#1091#1095#1077#1090#1086#1084' '#1082#1086#1084#1080#1089#1089#1080#1080
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clRed
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    Visible = False
+  end
   object edAccount: TEdit
     Left = 240
     Top = 20
@@ -143,7 +160,7 @@ object ReplPhoneAccountF: TReplPhoneAccountF
   end
   object edAmount: TEdit
     Left = 240
-    Top = 112
+    Top = 109
     Width = 201
     Height = 28
     Font.Charset = DEFAULT_CHARSET
@@ -256,6 +273,7 @@ object ReplPhoneAccountF: TReplPhoneAccountF
     ReadOnly = True
     TabOrder = 4
     Text = 'edPaySum'
+    OnChange = edPaySumChange
   end
   object edSum: TEdit
     Left = 240

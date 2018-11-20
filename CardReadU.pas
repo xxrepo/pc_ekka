@@ -431,7 +431,7 @@ var sNC:String;
           Case KodEAN of
            1:begin
 
-              if Prm.AptekaSklad=True  or TCardReadF.IsUniversalCorpCard(Edit1.Text) then 
+              if (Prm.AptekaSklad=True) or (TCardReadF.IsUniversalCorpCard(Edit1.Text)=True) then
                 sNC:=IntToStr(GetNumCard(Edit1.Text))
               else 
                 sNC:=Copy(IntToStr(GetNumCard(Edit1.Text)),3,10);

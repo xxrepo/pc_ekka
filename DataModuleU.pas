@@ -765,6 +765,16 @@ type
     qrBackSumB3: TBCDField;
     qrPMStat: TADOQuery;
     dsPMStat: TDataSource;
+    qrAhchT: TADOQuery;
+    srAhchT: TDataSource;
+    qrAhchV: TADOQuery;
+    srAhchV: TDataSource;
+    qrAhchR: TADOQuery;
+    srAhchR: TDataSource;
+    qrJAhch: TADOQuery;
+    srJAhch: TDataSource;
+    qrAhchR1: TADOQuery;
+    srAhchR1: TDataSource;
     procedure qrOtkazAfterInsert(DataSet: TDataSet);
     procedure qrOtkazAfterPost(DataSet: TDataSet);
     procedure qrBackAfterInsert(DataSet: TDataSet);

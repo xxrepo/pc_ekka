@@ -153,7 +153,13 @@ type
     acctype: string;
     service: TGr_prov_type;
   end;
-
+type
+   TNotifyChangePaySumEvent = procedure(Value : Currency) of object;
+   TNotifyPayEvent = procedure(Value : Currency; Error : integer; var aClose : boolean) of object;
+   NotChargedException = class(Exception);
+   TransactRollbackException = class(Exception);
+   PaymentWasCanceledException = class(Exception);
+   PaymentInWaitException = class(Exception);
 type
   TReplPhoneAccountF=class(TForm)
     Label3:TLabel;
@@ -175,13 +181,9 @@ type
     lbService:TLabel;
     btAccount:TBitBtn;
     QrEx:TADOQuery;
+    lbChangeEdAmountByFee: TLabel;
     procedure FormCreate(Sender:TObject);
     procedure FormActivate(Sender:TObject);
-
-
-
-
-
 
     procedure edAccountEnter(Sender:TObject);
     procedure edAccountExit(Sender:TObject);
@@ -198,20 +200,18 @@ type
     procedure btOKClick(Sender:TObject);
     procedure btCancelClick(Sender:TObject);
     procedure btAccountKeyDown(Sender:TObject;var Key:Word;Shift:TShiftState);
+    procedure FormShow(Sender: TObject);
+    procedure edPaySumChange(Sender: TObject);
 
   private
+    fOnChangePaySum: TNotifyChangePaySumEvent;
+    FOnCancel : TNotifyEvent;
+    fOnPayed  : TNotifyPayEvent;
     procedure AccountChange(Sender:TObject);
-    procedure ShowHidePaymentInformation(CanVisible:Boolean);
     function CreateColibry:boolean;
     function GetService(Account:string;out pType:string):string;
     function auth: boolean;
     function service: boolean;
-
-
-
-
-
-
     function ChkAccount(account:string):boolean;
     function FillAuthResponse(auth_res:ansistring): boolean;
 //    procedure FillServiceResponse(service_resp:ansistring);
@@ -229,6 +229,27 @@ type
     procedure status(var err:boolean);
     procedure FillStatusResponse(stat_responce:ansistring);
     procedure SaveTransferToDB(CP:TChekPos);
+    function GetAmountSum: Currency;
+    function GetFeeSum: Currency;
+    procedure SetAmountSum(const Value: Currency);
+    function GetCustomerSum: Currency;
+    procedure SetCustomerSum(const Value: Currency);
+    function GetPaySum: Currency;
+    { Открытые члены класса }
+    public
+      lockCanChargeMessage : Boolean; // не выводить сообщение после успешной проверки пополнения мобильной связи
+      procedure Clear;
+      procedure ShowHidePaymentInformation(CanVisible:Boolean);
+      property AmountSum : Currency read GetAmountSum write SetAmountSum;
+      property CustomerSum : Currency read GetCustomerSum write SetCustomerSum;
+      property FeeSum : Currency read GetFeeSum;
+      property PaySum : Currency read GetPaySum;
+      property OnChangePaySum : TNotifyChangePaySumEvent read fOnChangePaySum write fOnChangePaySum;
+      property OnCancel : TNotifyEvent read FOnCancel write FOnCancel;
+      property OnPayed : TNotifyPayEvent read fOnPayed write fOnPayed;
+
+    public
+      class function CheckAccess : boolean;
   end;
 
 type
@@ -339,6 +360,7 @@ var
   cr:TCursor;
   prmF: TextFile;
 begin
+  lockCanChargeMessage := False;
   try
     try
       cr:=Screen.Cursor;
@@ -510,11 +532,6 @@ begin
   try
     cr:=Screen.Cursor;
     Screen.Cursor:=crHourGlass;
-
-    //1. Проверить заполнение полей UserKey, UserName, Password, BaseURL
-    //2. Если одно из полей UserName, Password, BaseURL пустое - предложить заполнить значения. Для UserKey - сгенерировать новый ключ
-    if not CreateColibry then
-      ReplPhoneAccountF.Close;
   finally
     Screen.Cursor:=cr;
     edAccount.SetFocus;
@@ -528,7 +545,7 @@ begin
   lbService.Font.Color:=clWindowText;
   lbService.Color:=clWhite;
   edFee.Text:='0';
-  edAmount.Text:='0';
+//  edAmount.Text:='0';
   edPaySum.Text:='0';
   Application.ProcessMessages;
 
@@ -623,7 +640,7 @@ begin
 //                        'заполните параметры подключения к сервису пополнения.'+#13+
 //                        'За дополнительными параметрами обратитесь в IT-отдел'+#13+
 //                        'по телефону горячей линии.',16);
-//          ReplPhoneAccountF.Close;
+//          Self.Close;
 //          DeleteFile(PAnsiChar(TmpFile));
 //          Result:=false;
 //          Exit;
@@ -745,6 +762,7 @@ var
   i: integer;
   BalanceCurrency, BalanceValue: string;
 begin
+  lbChangeEdAmountByFee.Visible := False;
   try
     cr:=Screen.Cursor;
     Screen.Cursor:=crHourGlass;
@@ -903,13 +921,15 @@ begin
               BalanceValue:=FloatToStr(BalanceResponse.portfolios[i].amount/100);
             end;
           end;
-          MainF.MessBox('Пополнение возможно!'+#13+
+          if not lockCanChargeMessage then
+            MainF.MessBox('Пополнение возможно!'+#13+
                         'Номер для пополнения: '+edAccount.Text+#13+
                         'Сумма пополнения: '+edAmount.Text+' '+BalanceCurrency+#13+
                         'Введите сумму полученную от покупателя и выполните пополнение!',16);
         end
         else
-          MainF.MessBox('Пополнение возможно!'+#13+
+          if not lockCanChargeMessage then
+            MainF.MessBox('Пополнение возможно!'+#13+
                         'Номер для пополнения: '+edAccount.Text+#13+
                         'Сумма пополнения: '+edAmount.Text+#13+
                         'Введите сумму полученную от покупателя и выполните пополнение!',64);
@@ -1023,12 +1043,19 @@ var
   cr: TCursor;
   CP: TChekPos;
   F_Error: boolean;
+  ErrorCode : integer;
+  IsExit : boolean;
 {
   amount: double;
   i: integer;
   BalanceCurrency, BalanceValue: string;
 }
 begin
+{$IFDEF PAYMENTEMULATE}
+  OrderResponse.status := 'c';
+{$ENDIF}
+  ErrorCode := 0;
+  IsExit := False;
   try
     cr:=Screen.Cursor;
     Screen.Cursor:=crHourGlass;
@@ -1071,7 +1098,9 @@ begin
 
 
       //7.2. пополнить счет без дополнительных вопросов пользователю
+{$IFNDEF  PAYMENTEMULATE}
       order(F_Error);
+{$ENDIF}
       if F_Error then
       begin
         edAccount.SetFocus;
@@ -1122,27 +1151,39 @@ begin
           //скрыть комиссию / сумму к оплате / получено от покупателя / сдачу / возможность пополнения
           ShowHidePaymentInformation(false);
           Application.ProcessMessages;
+          ErrorCode := -2;
           raise Exception.Create('Транзакция отменена!'+#13+'Счет пополнен не был!');
         end;
       end;
 
       //7.10. Распечатать чек
+{$IFNDEF  PAYMENTEMULATE}
       if PrintChek(CP)=False then
       begin
         ChekOnly:=True;
         Exit;
       end;
-
+{$ENDIF}
       //7.5. При положительном ответе (удачном пополнении, status = "C") - уведомить, что пополнение прошло успешно
       if (LowerCase(OrderResponse.status)='c')or(LowerCase(StatusResponse.status)='c') then
       begin
         //7.9. Записать данные о трансфере в БД
         SaveTransferToDB(CP);
+        if Assigned(fOnPayed) then
+        begin
+          FOnPayed(PaySum, 0, IsExit);
+          if IsExit then
+          begin
+            ShowHidePaymentInformation(false);
+            AmountSum := 0;
+            Exit;
+          end;
+        end;
         if MessageDlg('Счет успешно пополнен!'
                  +#13+'Вы хотите пополнить еще один номер телефона?'
                  +#13+'(нажатие на кнопку "[NO]" или "[НЕТ]" закроет окно для пополнения).',mtConfirmation,[mbYes,mbNo],0)=mrYes then
         begin
-          with ReplPhoneAccountF do
+          with Self do
           begin
             ChekOnly:=False;
             edAccount.Text:=ACCOUNT_PLACE_HOLDER;
@@ -1162,7 +1203,7 @@ begin
           edAccount.SetFocus;
         end
         else
-          ReplPhoneAccountF.Close;
+          Self.Close;
       end;
 
       //7.6. При отсутствии ответа от сервера или по таймауту - запросить статус пополнения (F_Error)
@@ -1173,29 +1214,44 @@ begin
 
         if LowerCase(StatusResponse.status)='e' then
         begin
+          ErrorCode := -1;
           raise Exception.Create('Счет не был пополнен!'+#13+
                                  'Ошибка: '+IntToStr(StatusResponse.code)+' '+StatusResponse.description);
         end
         else
         begin
+          ErrorCode := -2;
           if LowerCase(StatusResponse.status)='r' then
             raise Exception.Create('Транзакция аннулирована!'+#13+
                                    'Ответ: '+IntToStr(StatusResponse.code)+' '+StatusResponse.description)
           else
           begin
+            ErrorCode := -3;
             if trim(StatusResponse.status)='' then
               raise Exception.Create('Платеж отменен или не найден!'+#13+
                                      'Ответ: '+IntToStr(StatusResponse.code)+' '+StatusResponse.description)
             else
             begin
+              ErrorCode := 2;
               if LowerCase(StatusResponse.status)='w' then
                 raise Exception.Create('Платеж в процессе проведения!'+#13+
                                        'Ответ: '+IntToStr(StatusResponse.code)+' '+StatusResponse.description)
               else
               begin
+                ErrorCode := 1;
                 if LowerCase(StatusResponse.status)='c' then
                   MainF.MessBox('Платеж успешно проведен!'+#13+
                                 'Ответ: '+IntToStr(StatusResponse.code)+' '+StatusResponse.description);
+                  if Assigned(fOnPayed) then
+                  begin
+                    FOnPayed(PaySum, ErrorCode, IsExit);
+                    if IsExit then
+                    begin
+                      ShowHidePaymentInformation(false);
+                      AmountSum := 0;
+                      Exit;
+                    end;
+                  end;
               end;
             end;
           end;
@@ -1445,7 +1501,9 @@ end;
 
 procedure TReplPhoneAccountF.btCancelClick(Sender:TObject);
 begin
-  ReplPhoneAccountF.Close;
+  if Assigned(fOnCancel) then
+    fOnCancel(Self);
+  Self.Close;
 end;
 
 (*----------------------------------------------------------------------------*)
@@ -1513,8 +1571,8 @@ begin
     if PHONE_CODES_TO_SERVICE_ID[i].PhoneCode = serv then
     begin
       Colibry.pService:=PHONE_CODES_TO_SERVICE_ID[i].ServiceID;
-      ReplPhoneAccountF.lbService.Caption:=PHONE_CODES_TO_SERVICE_ID[i].ProviderName;
-      ReplPhoneAccountF.lbService.Font.Color:=PHONE_CODES_TO_SERVICE_ID[i].Color;
+      lbService.Caption:=PHONE_CODES_TO_SERVICE_ID[i].ProviderName;
+      lbService.Font.Color:=PHONE_CODES_TO_SERVICE_ID[i].Color;
       Break;
     end;
 
@@ -1829,7 +1887,7 @@ begin
     MainF.MessBox('Пополнение не возможно!'+#13+
                'Проверьте параметры подключения к сервису пополнения!'+#13+
                'За дополнительной информацией обратитесь в IT-отдел!',16);
-    ReplPhoneAccountF.Close;
+    Self.Close;
     exit;
   end;
 
@@ -2237,7 +2295,7 @@ begin
     MainF.MessBox('Пополнение не возможно!'+#13+
                'Проверьте параметры подключения к сервису пополнения!'+#13+
                'За дополнительной информацией обратитесь в IT-отдел!',16);
-    ReplPhoneAccountF.Close;
+    Self.Close;
     exit;
   end;
 
@@ -2406,7 +2464,7 @@ begin
     MainF.MessBox('Пополнение не возможно!'+#13+
                'Проверьте параметры подключения к сервису пополнения!'+#13+
                'За дополнительной информацией обратитесь в IT-отдел!',16);
-    ReplPhoneAccountF.Close;
+    Self.Close;
     exit;
   end;
 
@@ -2547,15 +2605,15 @@ begin
 
   if MainF.MessBox(Mess,52)<>ID_YES then Exit;
 
-  if Not CheckReal(ReplPhoneAccountF.edPaySum.Text) then
+  if Not CheckReal(Self.edPaySum.Text) then
   begin
     MainF.MessBox('Проверьте правильность ввода номера абонента и суммы пополнения!');
-    ReplPhoneAccountF.edAmount.SetFocus;
+    Self.edAmount.SetFocus;
     Exit;
   end
   else
-    SumA:=StrToCurr(CurrToStrF(StrToCurr(ReplPhoneAccountF.edAmount.Text),ffFixed,2));
-  SumF:=StrToCurr(CurrToStrF(StrToCurr(ReplPhoneAccountF.edFee.Text),ffFixed,2));
+    SumA:=StrToCurr(CurrToStrF(StrToCurr(SElf.edAmount.Text),ffFixed,2));
+  SumF:=StrToCurr(CurrToStrF(StrToCurr(Self.edFee.Text),ffFixed,2));
 
   try
     if Not EKKA.fpGetStatus then AbortM(EKKA.LastErrorDescr);
@@ -2566,7 +2624,7 @@ begin
     CP.NumbChek:=EKKA.ReceiptNumber+1;
 
     if Not EKKA.fpOpenFiscalReceipt then AbortM('Ошибка открытия чека: '+EKKA.LastErrorDescr);
-    if Not EKKA.fpAddFinStr(StatusResponse.service.name) then AbortM('Ошибка добавления строк: '+EKKA.LastErrorDescr);
+    //if Not EKKA.fpAddFinStr(StatusResponse.service.name) then AbortM('Ошибка добавления строк: '+EKKA.LastErrorDescr);
 
     Nm1:='Електроннi грошi';
     {
@@ -2581,7 +2639,7 @@ begin
     if Not EKKA.fpAddSale('Комисія, шт', 1, SumF, 1, 0, 1, 0, '') then AbortM('Ошибка пробития позиции чека: '+EKKA.LastErrorDescr);
 
     EKKA.fpServiceText(1,1,0,'№ терминала: '+Copy(TerminalIdTemplate,1,Length(TerminalIdTemplate)-Length(Prm.c_code)) + Prm.c_code);
-    EKKA.fpServiceText(1,1,0,'№ тел.:'+ReplPhoneAccountF.edAccount.Text);
+    EKKA.fpServiceText(1,1,0,'№ тел.:'+Self.edAccount.Text);
     EKKA.fpServiceText(1,1,0,'Агент розповсюдження ');
     EKKA.fpServiceText(1,1,0,StringReplace(EKKA.FirmNameUA, '"','''',[rfReplaceAll]));
     EKKA.fpServiceText(1,1,0,'ЄДРПОУ  '+EKKA.sID);
@@ -2616,17 +2674,16 @@ begin
       14: Licens := '1702/38 від 12.04.2018';
       // ТОВ "Регiонфарм 2016"
       18:Licens := '1702/41 від 16.04.2018';
-
     end;
 
     EKKA.fpServiceText(1,1,0,'Договір '+Licens);
 
-    SumChek:=StrToCurr(ReplPhoneAccountF.edPaySum.Text);
+    SumChek:=StrToCurr(Self.edPaySum.Text);
     Ty:=4;
 
     if Ty=4 then
      begin
-      if StrToCurr(ReplPhoneAccountF.edSum.Text)>SumChek then TakedSum:=StrToCurr(ReplPhoneAccountF.edSum.Text)
+      if StrToCurr(Self.edSum.Text)>SumChek then TakedSum:=StrToCurr(Self.edSum.Text)
                                                          else TakedSum:=SumChek;
      end else TakedSum:=SumChek;
     //if Not EKKA.fpCloseFiscalReceipt(TakedSum,Ty,SumChek) then AbortM('Ошибка закрытия чека: '+EKKA.LastErrorDescr);
@@ -2652,7 +2709,7 @@ begin
     DM.QrEx.SQL.Add('insert into arh_replenishments(unique_num_check,dt,id_kassa,kassa_num,id_gamma,vzh,f_nds,amount,fee,numb_chek) ');
     DM.QrEx.SQL.Add('OUTPUT INSERTED.row_id INTO @temp_ID(ID) ');
     DM.QrEx.SQL.Add('values(');
-    DM.QrEx.SQL.Add('NewId(),getdate(),'+IntToStr(CP.ID_Kassa)+',1,'+IntToStr(CP.ID_User)+','+IntToStr(CP.Vzh)+',1,'+ReplPhoneAccountF.edAmount.Text+','+ReplPhoneAccountF.edFee.Text+','+IntToStr(CP.NumbChek)+')');
+    DM.QrEx.SQL.Add('NewId(),getdate(),'+IntToStr(CP.ID_Kassa)+',1,'+IntToStr(CP.ID_User)+','+IntToStr(CP.Vzh)+',1,'+Self.edAmount.Text+','+Self.edFee.Text+','+IntToStr(CP.NumbChek)+')');
     DM.QrEx.SQL.Add('select top 1 ID from  @temp_ID');
     DM.QrEx.Open;
     CP.Row_id:=DM.QrEx.FieldByName('id').AsInteger;
@@ -2698,7 +2755,7 @@ begin
     MainF.MessBox('Пополнение не возможно!'+#13+
                'Проверьте параметры подключения к сервису пополнения!'+#13+
                'За дополнительной информацией обратитесь в IT-отдел!',16);
-    ReplPhoneAccountF.Close;
+    Self.Close;
     exit;
   end;
 
@@ -2849,7 +2906,7 @@ begin
     MainF.MessBox('Пополнение не возможно!'+#13+
                'Проверьте параметры подключения к сервису пополнения!'+#13+
                'За дополнительной информацией обратитесь в IT-отдел!',16);
-    ReplPhoneAccountF.Close;
+    Self.Close;
     exit;
   end;
 
@@ -3043,7 +3100,7 @@ begin
  currency_id varchar(5) null,          -- идентификатор валюты (=980 - гривна)
  currency_name varchar(15) null        -- название валюты (гривна)
 }
-  with ReplPhoneAccountF.qSaveReplenishment do
+  with Self.qSaveReplenishment do
   begin
     if (LowerCase(OrderResponse.status) = 'c') then
     begin
@@ -3139,7 +3196,7 @@ begin
       begin
         ErrorFileName:='pc_col_'+FormatDateTime('YYYY-MM-DD_HH-MM-SS',Date())+'.pce';
         MainF.MessBox('Информация о платеже не была сохранена в БД!'+#13+
-                      'Запрос на запись в БД: '+ReplPhoneAccountF.qSaveReplenishment.SQL.Text+#13+
+                      'Запрос на запись в БД: '+Self.qSaveReplenishment.SQL.Text+#13+
                       'Обратитесь в IT-отдел!',16);
       end;
     end;
@@ -3156,6 +3213,68 @@ begin
   end
   else if Key=VK_ESCAPE then
     btCancelClick(sender);
+end;
+
+procedure TReplPhoneAccountF.FormShow(Sender: TObject);
+begin
+  try
+    //1. Проверить заполнение полей UserKey, UserName, Password, BaseURL
+    //2. Если одно из полей UserName, Password, BaseURL пустое - предложить заполнить значения. Для UserKey - сгенерировать новый ключ
+    if not CreateColibry then
+      Self.Close;
+  finally
+    edAccount.SetFocus;
+  end;
+end;
+
+function TReplPhoneAccountF.GetAmountSum: Currency;
+begin
+  Result := StrToCurrDef(edAmount.Text,0);
+end;
+
+function TReplPhoneAccountF.GetFeeSum: Currency;
+begin
+  Result := StrToCurrDef(edFee.Text,0);
+end;
+
+procedure TReplPhoneAccountF.SetAmountSum(const Value: Currency);
+begin
+  edAmount.Text := CurrToStr(Value);
+end;
+
+procedure TReplPhoneAccountF.Clear;
+begin
+  AmountSum := 0;
+end;
+
+function TReplPhoneAccountF.GetCustomerSum: Currency;
+begin
+  Result := StrToCurrDef(edSum.Text,0);
+end;
+
+procedure TReplPhoneAccountF.SetCustomerSum(const Value: Currency);
+begin
+  edSum.Text := CurrToStr(Value);
+end;
+
+procedure TReplPhoneAccountF.edPaySumChange(Sender: TObject);
+begin
+  if Assigned(fOnChangePaySum) then
+    fOnChangePaySum(PaySum);
+end;
+
+function TReplPhoneAccountF.GetPaySum: Currency;
+begin
+  result := StrToCurrDef(edPaySum.Text,0);
+end;
+
+class function TReplPhoneAccountF.CheckAccess: boolean;
+var
+  SettingsExists : Boolean;
+begin
+  // все условия соблюдены, можно пополнять мобильный
+  Result := Prm.ReadyToChargePhone
+            AND CheckConnection(Prm.baseurl);
 end;
 
 end.
