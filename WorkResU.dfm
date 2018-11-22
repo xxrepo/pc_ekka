@@ -984,6 +984,12 @@ object WorkResF: TWorkResF
       Height = 31
       AutoSize = False
       Caption = 'sdgfd'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlue
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentFont = False
       Transparent = True
       WordWrap = True
     end

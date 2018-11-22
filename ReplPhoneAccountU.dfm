@@ -115,11 +115,13 @@ object ReplPhoneAccountF: TReplPhoneAccountF
     Alignment = taCenter
     AutoSize = False
     Caption = #1054#1087#1077#1088#1072#1090#1086#1088
+    Color = clBtnFace
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clPurple
     Font.Height = -17
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
+    ParentColor = False
     ParentFont = False
     Layout = tlCenter
   end

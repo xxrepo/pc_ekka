@@ -207,6 +207,8 @@ type
     fOnChangePaySum: TNotifyChangePaySumEvent;
     FOnCancel : TNotifyEvent;
     fOnPayed  : TNotifyPayEvent;
+    FColibryCreated: Boolean;
+    FMode: Integer;
     procedure AccountChange(Sender:TObject);
     function CreateColibry:boolean;
     function GetService(Account:string;out pType:string):string;
@@ -235,6 +237,8 @@ type
     function GetCustomerSum: Currency;
     procedure SetCustomerSum(const Value: Currency);
     function GetPaySum: Currency;
+   protected
+      function CheckServiceAuthorization : boolean;
     { Открытые члены класса }
     public
       lockCanChargeMessage : Boolean; // не выводить сообщение после успешной проверки пополнения мобильной связи
@@ -247,7 +251,8 @@ type
       property OnChangePaySum : TNotifyChangePaySumEvent read fOnChangePaySum write fOnChangePaySum;
       property OnCancel : TNotifyEvent read FOnCancel write FOnCancel;
       property OnPayed : TNotifyPayEvent read fOnPayed write fOnPayed;
-
+      property ColibryCreated : Boolean read FColibryCreated write FColibryCreated;
+      property Mode : Integer read FMode write FMode;
     public
       class function CheckAccess : boolean;
   end;
@@ -361,6 +366,7 @@ var
   prmF: TextFile;
 begin
   lockCanChargeMessage := False;
+  FMode := 0;
   try
     try
       cr:=Screen.Cursor;
@@ -439,71 +445,69 @@ begin
 
       ChekOnly:=False;
 
-    //1. Проверить наличие файликов с параметрами подключения, при необходимости создать
-    DeleteFile(PChar(ExtractFileDir(Application.ExeName)+'\baseurl'));
-    if Not FileExists('baseurl') then
-    begin
-      AssignFile(prmF,ExtractFilePath(Application.ExeName)+'baseurl');
-      Rewrite(prmF);
-      CloseFile(prmF);
-      Append(prmF);
-      writeln(prmF,Prm.baseurl);
-      CloseFile(prmF);
-    end;
+      //1. Проверить наличие файликов с параметрами подключения, при необходимости создать
+      DeleteFile(PChar(ExtractFileDir(Application.ExeName)+'\baseurl'));
+      if Not FileExists('baseurl') then
+      begin
+        AssignFile(prmF,ExtractFilePath(Application.ExeName)+'baseurl');
+        Rewrite(prmF);
+        CloseFile(prmF);
+        Append(prmF);
+        writeln(prmF,Prm.baseurl);
+        CloseFile(prmF);
+      end;
 
-    DeleteFile(PChar(ExtractFileDir(Application.ExeName)+'\userkey'));
-    if not FileExists('userkey') then
-    begin
-      AssignFile(prmF,ExtractFilePath(Application.ExeName)+'userkey');
-      Rewrite(prmF);
-      CloseFile(prmF);
-      Append(prmF);
+      DeleteFile(PChar(ExtractFileDir(Application.ExeName)+'\userkey'));
+      if not FileExists('userkey') then
+      begin
+        AssignFile(prmF,ExtractFilePath(Application.ExeName)+'userkey');
+        Rewrite(prmF);
+        CloseFile(prmF);
+        Append(prmF);
 
-      Prm.userkey:=Prm.userkey; //'{BB3903E3-E395-42C7-87F0-06BFC8E5D3EC}';
-      writeln(prmF,prm.userkey);
-      CloseFile(prmF);
-    end;
+        Prm.userkey:=Prm.userkey; //'{BB3903E3-E395-42C7-87F0-06BFC8E5D3EC}';
+        writeln(prmF,prm.userkey);
+        CloseFile(prmF);
+      end;
 
-    DeleteFile(PChar(ExtractFileDir(Application.ExeName)+'\username'));
-    if not FileExists('username') then
-    begin
-      AssignFile(prmF,ExtractFilePath(Application.ExeName)+'username');
-      Rewrite(prmF);
-      CloseFile(prmF);
-      Append(prmF);
+      DeleteFile(PChar(ExtractFileDir(Application.ExeName)+'\username'));
+      if not FileExists('username') then
+      begin
+        AssignFile(prmF,ExtractFilePath(Application.ExeName)+'username');
+        Rewrite(prmF);
+        CloseFile(prmF);
+        Append(prmF);
+        writeln(prmF,prm.c_username);
+        CloseFile(prmF);
+      end;
 
-      writeln(prmF,prm.c_username);
-      CloseFile(prmF);
-    end;
+      DeleteFile(PChar(ExtractFileDir(Application.ExeName)+'\userpass'));
+      if not FileExists('userpass') then
+      begin
+        AssignFile(prmF,ExtractFilePath(Application.ExeName)+'userpass');
+        Rewrite(prmF);
+        CloseFile(prmF);
+        Append(prmF);
 
-    DeleteFile(PChar(ExtractFileDir(Application.ExeName)+'\userpass'));
-    if not FileExists('userpass') then
-    begin
-      AssignFile(prmF,ExtractFilePath(Application.ExeName)+'userpass');
-      Rewrite(prmF);
-      CloseFile(prmF);
-      Append(prmF);
+        writeln(prmF,prm.c_userpass);
+        CloseFile(prmF);
+      end;
 
-      writeln(prmF,prm.c_userpass);
-      CloseFile(prmF);
-    end;
-
-    DeleteFile(PChar(ExtractFileDir(Application.ExeName)+'\objcode'));
-    if not FileExists('objcode') then
-    begin
-      AssignFile(prmF,ExtractFilePath(Application.ExeName)+'objcode');
-      Rewrite(prmF);
-      CloseFile(prmF);
-      Append(prmF);
-
-      writeln(prmF,prm.c_code);
-      CloseFile(prmF);
-    end;
+      DeleteFile(PChar(ExtractFileDir(Application.ExeName)+'\objcode'));
+      if not FileExists('objcode') then
+      begin
+        AssignFile(prmF,ExtractFilePath(Application.ExeName)+'objcode');
+        Rewrite(prmF);
+        CloseFile(prmF);
+        Append(prmF);
+        writeln(prmF,prm.c_code);
+        CloseFile(prmF);
+      end;
 
       edAccount.OnChange:=AccountChange;
     //3. Проверить возможность авторизации на сервисе Colibry
-      if not auth then
-        raise Exception.Create('Не могу подключиться к сервису пополнения!');
+//      if not auth then
+  //      raise Exception.Create('Не могу подключиться к сервису пополнения!');
     //4. При удачной авторизации заполнить справочник доступных объектов (терминалов)
     //5. Получить список доступных услуг (сервисов)
     //6. Проверить наличие справочников в БД. При необходимости создать необходимые таблицы
@@ -543,7 +547,8 @@ procedure TReplPhoneAccountF.AccountChange(Sender:TObject);
 begin
   lbService.Caption:='';
   lbService.Font.Color:=clWindowText;
-  lbService.Color:=clWhite;
+  if Mode <> 2 then
+    lbService.Color:=clWhite;
   edFee.Text:='0';
 //  edAmount.Text:='0';
   edPaySum.Text:='0';
@@ -605,29 +610,29 @@ begin
           APIRslt:=APIRslt+'}';
           Write(tmpF,APIRslt);
           CloseFile(tmpF);
-       end;
+        end;
 
-      try
-        if not CreateColibryAPI(TmpPath,TmpFile,TmpPathLen,TmpFileLen) then
-          raise Exception.Create('Произошла ошибка при подключаении к библиотеке');
-      except
-        on E:Exception do
-          raise Exception.Create('Произошла ошибка при подключаении к библиотеке: '+E.Message);
-      end;
+        try
+          if not CreateColibryAPI(TmpPath,TmpFile,TmpPathLen,TmpFileLen) then
+            raise Exception.Create('Произошла ошибка при подключаении к библиотеке');
+        except
+          on E:Exception do
+            raise Exception.Create('Произошла ошибка при подключаении к библиотеке: '+E.Message);
+        end;
 
-       Colibry.UserKey:=Prm.userkey;
-       Colibry.UserName:=Prm.c_username;
-       Colibry.Password:=Prm.c_userpass;
-       Colibry.BaseURL:=Prm.baseurl;
-       Colibry.ObjectCode:=Prm.c_code;
+        Colibry.UserKey:=Prm.userkey;
+        Colibry.UserName:=Prm.c_username;
+        Colibry.Password:=Prm.c_userpass;
+        Colibry.BaseURL:=Prm.baseurl;
+        Colibry.ObjectCode:=Prm.c_code;
 
-       if (trim(Colibry.UserKey)='')or
+        if (trim(Colibry.UserKey)='')or
           (trim(Colibry.UserName)='')or
           (trim(Colibry.Password)='')or
           (trim(Colibry.BaseURL)='')or
           (trim(Colibry.ObjectCode)='')
-       then
-         raise Exception.Create('Один из параметров подключения к сервису пополнения отсутствует.');
+        then
+          raise Exception.Create('Один из параметров подключения к сервису пополнения отсутствует.');
 //
 //      if (trim(Colibry.UserKey)='')or(trim(Colibry.UserName)='')or(trim(Colibry.Password)='')or(trim(Colibry.BaseURL)='') then
 //      begin
@@ -762,6 +767,17 @@ var
   i: integer;
   BalanceCurrency, BalanceValue: string;
 begin
+  if not FColibryCreated then
+  begin
+    if not CheckServiceAuthorization then
+      exit;
+    FColibryCreated := CreateColibry;
+    if not FColibryCreated then
+    begin
+      Self.Close;
+      Exit;
+    end;
+  end;
   lbChangeEdAmountByFee.Visible := False;
   try
     cr:=Screen.Cursor;
@@ -3220,9 +3236,11 @@ begin
   try
     //1. Проверить заполнение полей UserKey, UserName, Password, BaseURL
     //2. Если одно из полей UserName, Password, BaseURL пустое - предложить заполнить значения. Для UserKey - сгенерировать новый ключ
-    if not CreateColibry then
-      Self.Close;
+    {  Функционал переехал на кнопку проверки возможности пополенения}
+//    if not CreateColibry then
+//      Self.Close;
   finally
+    if FMode <> 2 then
     edAccount.SetFocus;
   end;
 end;
@@ -3268,13 +3286,35 @@ begin
   result := StrToCurrDef(edPaySum.Text,0);
 end;
 
+function TReplPhoneAccountF.CheckServiceAuthorization : boolean;
+begin
+  Result := false;
+  try
+    Result := auth;
+    if not Result then
+        raise Exception.Create('Не могу подключиться к сервису пополнения!');
+    //4. При удачной авторизации заполнить справочник доступных объектов (терминалов)
+    //5. Получить список доступных услуг (сервисов)
+    //6. Проверить наличие справочников в БД. При необходимости создать необходимые таблицы
+    //7. Проверить заполнение справочников услуг (сервисов), при необходимости дополнить или обновить
+  except
+    on E:Exception do
+    begin
+      MainF.MessBox('При инициализации параметров подключения к сервису пополнения возникла ошибка:'+#13+
+        E.Message+#13+
+        'Обратитесь в IT-отдел',16);
+      Close;
+    end;
+  end;
+end;
+
 class function TReplPhoneAccountF.CheckAccess: boolean;
 var
   SettingsExists : Boolean;
 begin
   // все условия соблюдены, можно пополнять мобильный
-  Result := Prm.ReadyToChargePhone
-            AND CheckConnection(Prm.baseurl);
+  Result := Prm.ReadyToChargePhone;
+//            AND CheckConnection(Prm.baseurl);
 end;
 
 end.

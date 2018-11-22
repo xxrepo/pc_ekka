@@ -405,8 +405,8 @@ var tFN,tZN,tPN,FirmName:String;
 
    EKKA.FirmNameUA:=Prm.FirmNameUA;
 
-   EKKA.sFN:='3000220961';
-   EKKA.sZN:='ва1001011354';
+   EKKA.sFN:='3000268717';
+   EKKA.sZN:='ва1001013921';
 
    BNCh:=0; //94537;
 //   EKKA.sPN:='000030772700';
@@ -457,6 +457,9 @@ var tFN,tZN,tPN,FirmName:String;
     EKKA.DateChek:=DM.spY_ChekList.FieldByName('Date_Chek').AsDateTime;
     //EKKA.fpCloseFiscalReceipt(DM.spY_ChekList.FieldByName('Summa').AsCurrency,Ty,DM.spY_ChekList.FieldByName('Summa').AsCurrency,0,False,Tg);
     EKKA.fpCloseFiscalReceipt(DM.spY_ChekList.FieldByName('Summa').AsCurrency,Ty,DM.spY_ChekList.FieldByName('Summa').AsCurrency,0,False,Tg,StrToIntDef(MainF.RRN,1),MainF.BankCard);
+//    EKKA.fpCloseFiscalReceipt(85.36,Ty,DM.spY_ChekList.FieldByName('Summa').AsCurrency,DM.spY_ChekList.FieldByName('Summa').AsCurrency-85.36,False,Tg,StrToIntDef(MainF.RRN,1),MainF.BankCard);
+
+//    EKKA.fpCloseFiscalReceipt(CP.Fransh,Ty,SumChek,SumChek-CP.Fransh,False,0,StrToIntDef(MainF.RRN,1),MainF.BankCard);
 
   finally
    EKKA.sFN:=tFN;
@@ -479,7 +482,6 @@ var i,N1,N2:Integer;
  end;
 
 end.
-
 
 
 

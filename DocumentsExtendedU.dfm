@@ -1,6 +1,6 @@
 object DocumentsExtendedF: TDocumentsExtendedF
-  Left = 1083
-  Top = 477
+  Left = 671
+  Top = 462
   Width = 541
   Height = 211
   Caption = 'DocumentsExtendedF'

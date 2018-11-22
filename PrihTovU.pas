@@ -300,6 +300,7 @@ procedure TPrihTovF.FormCreate(Sender:TObject);
   Caption:=MFC;
   ID_Postav:='';
   FArt_Code:=0;
+  DBGrid1.DataSource.OnDataChange:=nil;
  end;
 
 procedure TPrihTovF.ShowNakl;

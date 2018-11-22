@@ -20840,7 +20840,8 @@ end;
 procedure TMainF.actChargePhoneAccountUpdate(Sender: TObject);
 begin
   try
-    actChargePhoneAccount.Enabled :=  CheckConnection(Prm.baseurl);
+    actChargePhoneAccount.Enabled := True;//CheckConnection(Prm.baseurl);
+
     if actChargePhoneAccount.Enabled then
     begin
        actChargePhoneAccount.Caption := 'Пополнение счета'

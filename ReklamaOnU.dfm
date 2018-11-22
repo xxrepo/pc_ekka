@@ -1,6 +1,6 @@
 object ReklamaOnF: TReklamaOnF
-  Left = 581
-  Top = 334
+  Left = 593
+  Top = 326
   BorderIcons = []
   BorderStyle = bsDialog
   Caption = 'ReklamaOnF'

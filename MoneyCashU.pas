@@ -197,8 +197,7 @@ procedure TMoneyCashF.SetSumCash(Value:Currency);
   if Value<0 then Value:=0;
   FSumCash:=Value;
   StaticText2.Caption:=CurrToStrF(Value,ffFixed,2);
-  if (Value >= Prm.PhoneChargeMinSumm) and
-      TReplPhoneAccountF.CheckAccess     // проверка возможности работать с пополнением счета
+  if TReplPhoneAccountF.CheckAccess     // проверка возможности работать с пополнением счета
   then
   begin
     DoPhoneCharge(Value); //пополнение счета
@@ -460,7 +459,6 @@ function TMoneyCashF.GetSumCashFull:Currency;
   try
    if RoundTo(StrToCurr(Memo1.Text),-2)<RoundTo(SumChek,-2) then Abort;
    Result:=StrToCurr(Memo1.Text)-SumChek;
-
   except
    Result:=0;
   end
@@ -484,6 +482,7 @@ begin
     FSaveFormHeight := Self.Height;
     FReplPhoneAccountF := TReplPhoneAccountF.Create(Self);
     FReplPhoneAccountF.BorderStyle := bsNone;
+    FReplPhoneAccountF.Mode := 2;
     FReplPhoneAccountF.Align := alClient;
     FReplPhoneAccountF.WindowState := wsMaximized;
     FReplPhoneAccountF.edAccount.OnExit := nil;
@@ -493,11 +492,10 @@ begin
     FReplPhoneAccountF.OnPayed := IsPhoneChargePay;
     FReplPhoneAccountF.edSum.ReadOnly := True;
     FReplPhoneAccountF.Color := clActiveCaption;
-
     FReplPhoneAccountF.Show;
+    FReplPhoneAccountF.lbService.Color := clActiveCaption;
     Self.Width := 1040;
     FReplPhoneAccountF.btCancel.Visible := False;
-    FReplPhoneAccountF.AmountSum := StrToCurr(Memo1.Text)-SumChek-RoundTo(SumCashToCard,-2) - FReplPhoneAccountF.FeeSum;
     Self.Height := 665;
     Self.Left:= (Screen.WorkAreaWidth - Self.Width) div 2;
     Self.Top:= (Screen.WorkAreaHeight - Self.Height) div 2;
@@ -511,6 +509,13 @@ begin
   begin
     try
       DoActivePhoneCharge;
+      if Assigned(FReplPhoneAccountF) then
+      begin
+        FReplPhoneAccountF.AmountSum := StrToCurr(Memo1.Text) -
+                                        SumChek -
+                                        RoundTo(SumCashToCard,-2) -
+                                        FReplPhoneAccountF.FeeSum;
+      end;
       pnRight.Visible := True;
       FChargeProcess := False;
     except
@@ -524,7 +529,7 @@ begin
     if Assigned(FReplPhoneAccountF) then
     begin
       if FChargeProcess then Exit;
-
+      FReplPhoneAccountF.AmountSum := 0;
       pnRight.Visible := False;
       FreeAndNil(FReplPhoneAccountF);
       Self.Width := 565;
@@ -573,7 +578,6 @@ begin
   begin
     //MainF.MessBox('Сумма пополнения мобильной связи превышает сумму сдачи!');
     AmountSum := StrToCurr(Memo1.Text)-SumChek-RoundTo(SumCashToCard,-2) - FReplPhoneAccountF.FeeSum;
-    FReplPhoneAccountF.AmountSum := 0;
     FReplPhoneAccountF.AmountSum := AmountSum;
     FReplPhoneAccountF.lockCanChargeMessage := True; //блокируем всплывающие сообщение об успешной проверки пополнения
     try

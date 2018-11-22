@@ -2,10 +2,9 @@ unit DocumentsExtendedU;
 
 interface
 
-uses
-  Forms, ComCtrls, StdCtrls, Buttons, Classes, Controls, Grids, DBGrids, ADODB,
-  DB, SysUtils, OpenOffice, Util;
-//  , Windows, Messages, Variants, Graphics, Dialogs, 
+uses Windows, Messages, Variants, Graphics, Dialogs, Forms, ComCtrls, StdCtrls, Buttons, Classes, Controls, Grids, DBGrids, ADODB,
+     DB, SysUtils, OpenOffice, Util, ShellAPI;
+//  , Windows, Messages, Variants, Graphics, Dialogs,
 type
   TDocumentsExtendedF=class(TForm)
     dgFiles:TDBGrid;
@@ -298,12 +297,11 @@ begin
 end;
 
 procedure TDocumentsExtendedF.bbSaveFileClick(Sender: TObject);
-var
-  Blob: TMemoryStream;
-  FPath, FName: String;
-  node: TTreeNode;
-  cr: TCursor;
-begin
+var Blob: TMemoryStream;
+    FPath, FName: String;
+    node: TTreeNode;
+    cr: TCursor;
+ begin
   cr:=Screen.Cursor;
   try
     Screen.Cursor:=crHourGlass;
@@ -314,7 +312,13 @@ begin
     DM.QrEx.SQL.Text:='select FData from Inform.dbo.JFiles where id='+DM.qrFiles.FieldByName('id').AsString;
     DM.QrEx.Open;
     if DM.QrEx.IsEmpty then Exit;
-    FPath:='D:\ava\TmpFiles\';
+
+    if MainF.Design then
+     begin
+      FPath:=PrPath+'\TmpFiles\';
+      ForceDirectories(FPath);
+     end else FPath:='D:\ava\TmpFiles\';
+
     FName:=FPath+node.Text+' - '+DM.qrFiles.FieldByName('fname').AsString;
     ForceDirectories(FPath);
 
@@ -325,10 +329,17 @@ begin
     finally
       Blob.Free;
     end;
+    if FileExists(FName)=True then
+     begin
+
+      if MainF.Design then
+       ShellExecute(Application.Handle,'open',PChar(FName),nil,nil,SW_SHOWNORMAL);
+
+     end else MainF.MessBox('Файл не '+FName+' не сохранен!');
   finally
     Screen.Cursor:=cr;
   end;
-end;
+ end;
 
 procedure TDocumentsExtendedF.bbCloseClick(Sender: TObject);
 begin

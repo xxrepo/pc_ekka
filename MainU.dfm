@@ -8836,7 +8836,6 @@ object MainF: TMainF
       Hint = #1055#1086#1087#1086#1083#1085#1077#1085#1080#1077' '#1089#1095#1077#1090#1072' '#1084#1086#1073#1080#1083#1100#1085#1086#1075#1086' '#1090#1077#1083#1077#1092#1086#1085#1072
       ShortCut = 16461
       OnExecute = actChargePhoneAccountExecute
-      OnUpdate = actChargePhoneAccountUpdate
     end
   end
   object tmrFlushPassw: TTimer

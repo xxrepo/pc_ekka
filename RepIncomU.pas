@@ -830,7 +830,7 @@ procedure TRepIncomF.edBankChange(Sender:TObject);
    end else
   if edBank.ItemIndex in [2] then
    begin
-    edMFO.Text:='Ã‘Œ: 321767';
+   { edMFO.Text:='Ã‘Œ: 321767';
     Case Prm.FirmID of
      1: edKr.Text:='26008020092284';
      3: edKr.Text:='26001010118238';
@@ -842,6 +842,7 @@ procedure TRepIncomF.edBankChange(Sender:TObject);
      11:edKr.Text:='26004010534808';
      18:edKr.Text:='26008010604585';
     end;
+   }
    end else
   if edBank.ItemIndex in [3] then
    begin
@@ -961,6 +962,7 @@ procedure TRepIncomF.edBankChange(Sender:TObject);
       4:edKr.Text:='26007010338182';
       6:edKr.Text:='26008010338222';
       7:edKr.Text:='26001010338199';
+      8:edKr.Text:='26007010338223';
       9:edKr.Text:='26003010450978';
      10:edKr.Text:='26005010338236';
      11:edKr.Text:='26008010338103';
@@ -990,6 +992,7 @@ procedure TRepIncomF.edBankChange(Sender:TObject);
     Case Prm.FirmID of
       9:edKr.Text:='2600026218';
      18:edKr.Text:='2600222331';
+     24:edKr.Text:='10053905800000';
     end;
     edMFO.Text:='Ã‘Œ: 334851';
     FBank:=edBank.Text;
@@ -1000,6 +1003,15 @@ procedure TRepIncomF.edBankChange(Sender:TObject);
      begin
       edKr.Text:='26002000022447';
       edMFO.Text:='Ã‘Œ: 300023';
+      FBank:=edBank.Text;
+     end;
+   end else
+  if edBank.ItemIndex in [11] then
+   begin
+    if Prm.FirmID=23 then
+     begin
+      edKr.Text:='26005485918';
+      edMFO.Text:='Ã‘Œ: 380805';
       FBank:=edBank.Text;
      end;
    end;

@@ -1,6 +1,6 @@
 object ViewNaklF: TViewNaklF
-  Left = 525
-  Top = 187
+  Left = 432
+  Top = 225
   Width = 1026
   Height = 563
   Caption = 'ViewNaklF'
@@ -1215,5 +1215,19 @@ object ViewNaklF: TViewNaklF
     Parameters = <>
     Left = 614
     Top = 261
+  end
+  object pmPrintAkt: TPopupMenu
+    Left = 27
+    Top = 234
+    object MenuItem1: TMenuItem
+      Tag = 1
+      Caption = #1042#1086#1076#1080#1090#1077#1083#1100' '#8470'1...'
+      OnClick = MenuItem1Click
+    end
+    object MenuItem2: TMenuItem
+      Tag = 2
+      Caption = #1042#1086#1076#1080#1090#1077#1083#1100' '#8470'2...'
+      OnClick = MenuItem1Click
+    end
   end
 end

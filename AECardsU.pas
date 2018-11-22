@@ -174,7 +174,8 @@ procedure TAECardsF.FormCreate(Sender:TObject);
 
   LoadCbb(cbb2,2);
 
-  if Prm.FirmID=22 then //"Здоровенькi були"
+  //  if Prm.FirmID=22 then "Здоровенькi були"
+  if (Prm.FirmID=23) or (Prm.AptekaID in [140,154]) then //"Фармалайн"
    begin
     GroupBox1.Width:=281;
     CheckBox1.Visible:=True;
@@ -184,6 +185,12 @@ procedure TAECardsF.FormCreate(Sender:TObject);
              CheckBox1.Visible:=False;
              GroupBox2.Visible:=False;
             end;
+
+  if Prm.AptekaID in [140,154] then
+   begin
+    CheckBox1.Caption:='Обмен карты "911" на карту "АОЦ"';
+    Label17.Caption:='Просканируйте карту "911"';
+   end;
  end;
 
 procedure TAECardsF.BitBtn2Click(Sender: TObject);
@@ -267,6 +274,7 @@ var Kod,Res:String;
      CheckSMSKodF:=TCheckSMSKodF.Create(Self);
      try
       CheckSMSKodF.Kod:=DM.QrCa.FieldByName('Kod').AsString;
+      Application.ProcessMessages;
       CheckSMSKodF.ShowModal;
       if CheckSMSKodF.Flag<>1 then Exit;
      finally
@@ -319,6 +327,8 @@ var FIO,AvgAge,Phone,db1,db2,db3,nC1,nC2,nC3,P1,P2,P3,Art:String;
     vIsLink:Boolean;
     vIsBirth:Byte;
     NumCardZB:Int64;
+    s1,s2,pref:String;
+
  function IsNull(S:String):String;
   begin
    Result:='';
@@ -326,6 +336,17 @@ var FIO,AvgAge,Phone,db1,db2,db3,nC1,nC2,nC3,P1,P2,P3,Art:String;
   end;
 
  Begin
+
+  pref:='100';
+  s1:='Просканированный штрихкод не является картой "Фармалайн"!';
+  s2:='Штрихкод карты "Фармалайн" просканирован неполностью';
+  if Prm.AptekaID in [140,154] then
+   begin
+    pref:='550';
+    s1:='Просканированный штрихкод не является картой "911"!';
+    s2:='Штрихкод карты "911" просканирован неполностью';
+   end;
+
   if NumCard=0 then
    begin
     MainF.MessBox('Карточка не считана!',48);
@@ -385,13 +406,14 @@ var FIO,AvgAge,Phone,db1,db2,db3,nC1,nC2,nC3,P1,P2,P3,Art:String;
    end else
   if (CheckBox1.Checked) and (Length(edNumCardOld.Text)<>13) then
    begin
-    MainF.MessBox('Штрихкод карты "Здоровенькi були" просканирован неполностью',48);
+    MainF.MessBox(s2,48);
     edNumCardOld.Text:='';
     edNumCardOld.SetFocus;
    end else
-  if (CheckBox1.Checked) and (Copy(edNumCardOld.Text,1,3)<>'262') then
+  if (CheckBox1.Checked) and (Copy(edNumCardOld.Text,1,3)<>pref) then
    begin
-    MainF.MessBox('Просканированный штрихкод не является картой "Здоровенькi були"!',48);
+//    MainF.MessBox('Просканированный штрихкод не является картой "Здоровенькi були"!',48);
+    MainF.MessBox(s1,48);
     edNumCardOld.Text:='';
     edNumCardOld.SetFocus;
    end else try
@@ -429,7 +451,7 @@ var FIO,AvgAge,Phone,db1,db2,db3,nC1,nC2,nC3,P1,P2,P3,Art:String;
                end else if TCardReadF.IsUniversalCorpCard(NumCard) then
                  Art := '273229'
                else if Prm.AptekaSklad=False then Art:='1'  //Карты 911
-               else Art:='7'; //Карты АОЦ
+                                       else Art:='7'; //Карты АОЦ
 
               if RadioButton1.Checked then AvgAge:=RadioButton1.Caption else
               if RadioButton2.Checked then AvgAge:=RadioButton2.Caption else

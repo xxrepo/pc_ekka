@@ -1,6 +1,6 @@
 object DocumentsF: TDocumentsF
-  Left = 503
-  Top = 316
+  Left = 434
+  Top = 253
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'DocumentsF'

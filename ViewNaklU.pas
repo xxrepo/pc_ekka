@@ -89,6 +89,9 @@ type
     N7: TMenuItem;
     N8: TMenuItem;
     N9: TMenuItem;
+    pmPrintAkt: TPopupMenu;
+    MenuItem1: TMenuItem;
+    MenuItem2: TMenuItem;
 
     procedure FormCreate(Sender: TObject);
     procedure BitBtn4Click(Sender: TObject);
@@ -131,6 +134,7 @@ type
     procedure N5Click(Sender: TObject);
     procedure N7Click(Sender: TObject);
     procedure N9Click(Sender: TObject);
+    procedure MenuItem1Click(Sender: TObject);
 
   private
 
@@ -151,6 +155,7 @@ type
     procedure NaklAfterScroll(DataSet: TDataSet);
 
     procedure PrintActOfNonConformity;
+    procedure PrintAkt(NumDriver:Byte);
 
   public
 
@@ -1580,8 +1585,25 @@ begin
 end;
 
 procedure TViewNaklF.BitBtn3Click(Sender:TObject);
+var dx,dy:Integer;
+    Com:TControl;
+ begin
+  if Sender=nil then Exit;
+  dx:=Left+3; dy:=Top+TControl(Sender).Height+23;
+  Com:=TControl(Sender);
+  P:=Com.Tag;
+  While Com<>Self do
+   begin
+    Inc(dx,Com.Left);
+    Inc(dy,Com.Top);
+    Com:=Com.Parent;
+   end;
+  pmPrintAkt.Popup(dx,dy);
+ end;
+
+procedure TViewNaklF.PrintAkt(NumDriver:Byte);
 var i,iii:Integer;
-    EAN13,S:String;
+    EAN13,S,s1:String;
 begin
   try
    DM.Qr.Close;
@@ -1608,7 +1630,7 @@ begin
      ShowText('ƒл€ следующих накладных невозможно напечатать акт приема-передачи, так как не все €щики закрыты: '#10+S);
     end;
 
-   if (Prm.UserRole<>R_ADMIN) then
+//   if (Prm.UserRole<>R_ADMIN) then
     begin
      RegPredstF:=TRegPredstF.Create(Self);
      try
@@ -1625,10 +1647,12 @@ begin
       try
        if Length(EAN13)<>13 then Abort;
 
+       s1:='';
+       if NumDriver=2 then s1:='2';
        DM.QrEx.Close;
        DM.QrEx.SQL.Clear;
-       DM.QrEx.SQL.Add('update JMoves set Date_Close=getdate(), EANDriver='''+EAN13+''' where iddoc in (select iddoc from ##nakllist where id_user='+IntToStr(Prm.UserID)+' and compname=host_name() and f=1 and iddoc not in (select iddoc from #tmpnspis) group by iddoc)');
-       DM.QrEx.SQL.Add('select top 1 EANDriver from JMoves where IsNull(EANDriver,'''')='''' and iddoc in (select iddoc from ##nakllist where id_user='+IntToStr(Prm.UserID)+' and compname=host_name() and f=1 and iddoc not in (select iddoc from #tmpnspis) group by iddoc) ');
+       DM.QrEx.SQL.Add('update JMoves set Date_Close'+s1+'=getdate(), EANDriver'+s1+'='''+EAN13+''' where iddoc in (select iddoc from ##nakllist where id_user='+IntToStr(Prm.UserID)+' and compname=host_name() and f=1 and iddoc not in (select iddoc from #tmpnspis) group by iddoc)');
+       DM.QrEx.SQL.Add('select top 1 EANDriver'+s1+' from JMoves where IsNull(EANDriver'+s1+','''')='''' and iddoc in (select iddoc from ##nakllist where id_user='+IntToStr(Prm.UserID)+' and compname=host_name() and f=1 and iddoc not in (select iddoc from #tmpnspis) group by iddoc) ');
        DM.QrEx.Open;
 
        if DM.QrEx.IsEmpty=False then Abort;
@@ -1641,6 +1665,7 @@ begin
      end;
     end;
 
+   if NumDriver=2 then Exit;
    PrintRep.Clear;
    PrintRep.SetDefault;
    PrintRep.Font.Name:='Arial';
@@ -3110,6 +3135,12 @@ procedure TViewNaklF.N9Click(Sender: TObject);
   DM.QrEx.Open;
   MainF.MessBox('ƒата загрузки накладной: '+DM.QrEx.FieldByName('time_nakl').AsString+#10+
                 '«агружена сотрудником: '+DM.QrEx.FieldByName('users').AsString);
+ end;
+
+procedure TViewNaklF.MenuItem1Click(Sender: TObject);
+ begin
+  if Sender=nil then Exit;
+  PrintAkt(TControl(Sender).Tag);
  end;
 
 end.

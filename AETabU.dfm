@@ -1,6 +1,6 @@
 object AETabF: TAETabF
-  Left = 743
-  Top = 337
+  Left = 747
+  Top = 344
   BorderStyle = bsToolWindow
   Caption = 'AETabF'
   ClientHeight = 224

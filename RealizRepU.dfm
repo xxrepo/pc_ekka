@@ -1,6 +1,6 @@
 object RealizRepF: TRealizRepF
-  Left = 463
-  Top = 298
+  Left = 612
+  Top = 307
   Width = 892
   Height = 491
   Caption = 'RealizRepF'

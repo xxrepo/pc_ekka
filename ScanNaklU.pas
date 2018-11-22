@@ -24,6 +24,8 @@ type
     BitBtn3: TBitBtn;
     Panel4: TPanel;
     DBGrid2: TDBGrid;
+    Label2: TLabel;
+    Label3: TLabel;
 
     procedure FormCreate(Sender:TObject);
     procedure BitBtn2Click(Sender: TObject);
@@ -35,6 +37,7 @@ type
     procedure N1Click(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
     procedure BitBtn3Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
 
   private
 
@@ -97,7 +100,6 @@ procedure ShowScanNakl(NN_Nakl:String; DateNakl:TDateTime);
 procedure TScanNaklF.FormCreate(Sender:TObject);
  begin
   Caption:=MFC;
-  DBGrid1.DataSource.OnDataChange:=srScanNDataChange;
  end;
 
 procedure TScanNaklF.ShowNakl;
@@ -110,8 +112,8 @@ var ID:Integer;
    if DM.qrScanN.Active then ID:=DM.qrScanN.FieldByName('art_code').AsInteger;
    DM.qrScanN.Close;
    DM.qrScanN.SQL.Clear;
-   DM.qrScanN.SQL.Add('select a.art_code,case IsNull(a.names,'''') when '''' then (select top 1 names from Plist p (nolock) where p.art_code=a.art_code) else a.names end as names,a.kol,IsNull(b.kolscan,0) '+' as kolscan,b.typescan,b.dtscan,b.id_user,c.users,IsNull((select Max(Art_Code) from NoScan where art_code=a.Art_Code),0) as IsScan,a.kol-s.kol as ned,s.akt');
-   DM.qrScanN.SQL.Add('from  (select nn_nakl,date_nakl,art_code,names,Sum(kol) as kol from TmpNakl (nolock) where nn_nakl='''+nn_nakl+''' and date_nakl='''+FormatDateTime('yyyy-mm-dd',DateNakl)+' 00:00:00'' group by nn_nakl,date_nakl,art_code,names) a ');
+   DM.qrScanN.SQL.Add('select a.art_code,case IsNull(a.names,'''') when '''' then (select top 1 names from Plist p (nolock) where p.art_code=a.art_code) else a.names end as names,a.kol,IsNull(b.kolscan,0) '+' as kolscan,b.typescan,b.dtscan,b.id_user,c.users,IsNull((select Max(Art_Code) from NoScan where art_code=a.Art_Code),0) as IsScan,a.kol-s.kol as ned,s.akt,a.KodUTP,a.MainEAN ');
+   DM.qrScanN.SQL.Add('from  (select nn_nakl,date_nakl,art_code,names,Sum(kol) as kol,case when Obl=2 then nn_postav else '''' end as KodUTP, MainEAN from TmpNakl (nolock) where nn_nakl='''+nn_nakl+''' and date_nakl='''+FormatDateTime('yyyy-mm-dd',DateNakl)+' 00:00:00'' group by nn_nakl,date_nakl,art_code,names,case when Obl=2 then nn_postav else '''' end, MainEAN) a ');
    DM.qrScanN.SQL.Add('      left join ScanNakl b (nolock) on a.art_code=b.art_code and a.nn_nakl=b.nn_nakl and a.date_nakl=b.date_nakl left join SprUser c (nolock) on b.id_user=c.id');
    DM.qrScanN.SQL.Add('      left join Scan s (nolock) on a.art_code=s.art_code and a.nn_nakl=s.nn_nakl and a.date_nakl=s.date_nakl');
    DM.qrScanN.SQL.Add('order by 2');
@@ -285,6 +287,7 @@ var Kol,TP:Integer;
 
 procedure TScanNaklF.FormActivate(Sender:TObject);
  begin
+  DBGrid1.DataSource.OnDataChange:=srScanNDataChange;
   DBGrid1.SetFocus;
  end;
 
@@ -350,6 +353,25 @@ procedure TScanNaklF.srScanNDataChange(Sender:TObject; Field:TField);
   if DM.qrScanN.IsEmpty then Exit;
   DM.qrSeriaArt.SQL.Text:='exec spY_ShowSeriaForArt '''+nn_nakl+''','''+FormatDateTime('yyyy-mm-dd',DateNakl)+''','+DM.qrScanN.FieldByName('art_code').AsString;
   DM.qrSeriaArt.Open;
+
+  Label2.Visible:=False;
+  if DM.qrScanN.FieldByName('KodUTP').AsString<>'' then
+   begin
+    Label2.Caption:=' Ó‰ “Ã÷: '+DM.qrScanN.FieldByName('KodUTP').AsString;
+    Label2.Visible:=True;
+   end;
+
+  Label3.Visible:=False;
+  if DM.qrScanN.FieldByName('MainEAN').AsString<>'' then
+   begin
+    Label3.Caption:='ÿÚËıÍÓ‰ “Ã÷: '+DM.qrScanN.FieldByName('MainEAN').AsString;
+    Label3.Visible:=True;
+   end;
+ end;
+
+procedure TScanNaklF.FormClose(Sender: TObject; var Action: TCloseAction);
+ begin
+  DBGrid1.DataSource.OnDataChange:=nil;
  end;
 
 end.

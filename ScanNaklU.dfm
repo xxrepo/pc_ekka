@@ -1,6 +1,6 @@
 object ScanNaklF: TScanNaklF
-  Left = 465
-  Top = 222
+  Left = 623
+  Top = 180
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'ScanNaklF'
@@ -15,6 +15,7 @@ object ScanNaklF: TScanNaklF
   OldCreateOrder = False
   Position = poScreenCenter
   OnActivate = FormActivate
+  OnClose = FormClose
   OnCreate = FormCreate
   DesignSize = (
     1011
@@ -125,6 +126,34 @@ object ScanNaklF: TScanNaklF
       Caption = #1044#1072#1090#1072' '#1076#1086#1089#1090#1072#1074#1082#1080' '#1087#1086#1089#1099#1083#1082#1080': '
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clMaroon
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentFont = False
+      Visible = False
+    end
+    object Label2: TLabel
+      Left = 475
+      Top = 25
+      Width = 68
+      Height = 16
+      Caption = #1050#1086#1076' '#1058#1052#1062':'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clPurple
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentFont = False
+      Visible = False
+    end
+    object Label3: TLabel
+      Left = 705
+      Top = 25
+      Width = 68
+      Height = 16
+      Caption = #1050#1086#1076' '#1058#1052#1062':'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clPurple
       Font.Height = -13
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
